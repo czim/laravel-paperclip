@@ -33,17 +33,71 @@ php artisan vendor:publish
 
 ## Usage
 
+### Model Preparation
+
+Modify the database to add some columns for the model that will get an attachment. Use the attachment key name as a prefix.
+
+An example migration: 
+
+```php
+<?php
+    Schema::create('your_models_table', function (Blueprint $table) {
+        $table->string('attachmentname_file_name')->nullable();
+        $table->integer('attachmentname_file_size')->nullable();
+        $table->string('attachmentname_content_type')->nullable();
+        $table->timestamp('attachmentname_updated_at')->nullable();
+    });
+```
+
+Replace `attachmentname` here with the name of the attachment.  
+These attributes should be familiar if you've used Stapler before.
+
+A `<key>_variants` text or varchar column is optional:
+
+If it is added and configured to be used (more on that [in the config section](CONFIG.md)), JSON information about variants will be stored in it.  
+
+
 ### Attachment Configuration
 
-To Do:
-- How to set up attachments on Eloquent models
-- Brief comparison with Stapler
+To add an attachment to a model:
+
+- Make it implement `Czim\Paperclip\Contracts\AttachableInterface`.
+- Make it use the `Czim\Paperclip\Model\PaperclipTrait`.
+- Configure attachments in the constructor (very similar to Stapler)
+
+```php
+<?php
+class Comment extends Model implements Czim\Paperclip\Contracts\AttachableInterface
+{
+    use \Czim\Paperclip\Model\PaperclipTrait;
+    
+    public function __construct(array $attributes = [])
+    {
+        $this->hasAttachedFile('image', [
+            'variants' => [
+                'medium' => [
+                    'auto-orient' => [],
+                    'resize'      => ['dimensions' => '300x300'],
+                ],
+                'thumb' => '100x100',
+            ],
+            'attributes' => [
+                'variants' => true,
+            ],
+        ]);
+
+        parent::__construct($attributes);   
+    }
+}
+```
+
 
 ### Variant Configuration
 
 For the most part, the configuration of variants ('styles') is nearly identical to Stapler, so it should be easy to make the transition either way. 
 
 [Get more information on configuration here](CONFIG.md).
+
 
 #### Custom Variants
 
@@ -53,13 +107,25 @@ It is easy, however, to add your own custom strategies to manipulate files in an
 Variant processing is handled by [the file-handler package](https://github.com/czim/file-handling).
 Check out its source to get started writing custom variant strategies.
 
+
 ### Storage configuration
 
-To do: 
-- Laravel storage configuration,
-- Public path recommendation?
+You can configure a storage location for uploaded files by setting up a Laravel storage (in `config/filesystems.php`), and registering it in the `config/paperclip.php` config file.
 
- 
+Make sure that `paperclip.storage.base-urls.<your storage disk>` is set, so valid URLs to stored content are returned.
+
+
+## Differences with Stapler
+
+One major difference is that the `convert_options` configuration settings are no longer available. Conversion options are now handled at the level of the variant strategies.
+
+You can set them per attachment configuration, or modify the variant strategy to use a custom global configuration.
+
+Another difference is that this package does not handle (s3) storage.
+All storage is performed through Laravel's storage solution.
+
+A final change is that the trait uses its own boot method, not the global Model's `boot()`, making this package less likely to conflict with other traits and model implementations.
+
 
 ## Contributing
 
