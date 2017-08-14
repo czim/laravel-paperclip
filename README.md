@@ -33,15 +33,25 @@ php artisan vendor:publish
 
 ## Usage
 
-To do:
-- Comparison with Stapler
-- Reference to FileHandling package
-- Variant configuration options
+### Attachment Configuration
+
+To Do:
+- How to set up attachments on Eloquent models
+- Brief comparison with Stapler
 
 ### Variant Configuration
 
 For the most part, the configuration of variants ('styles') is nearly identical to Stapler, so it should be easy to make the transition either way. 
 
+[Get more information on configuration here](CONFIG.md).
+
+#### Custom Variants
+
+The file handler comes with a few common variant strategies, including resizing images and taking screenshots from videos.
+It is easy, however, to add your own custom strategies to manipulate files in any way required.
+
+Variant processing is handled by [the file-handler package](https://github.com/czim/file-handling).
+Check out its source to get started writing custom variant strategies.
 
 ### Storage configuration
 
