@@ -42,9 +42,7 @@ return [
 
         // Per disk, the base URL where attachments are stored at
         'base-urls' => [
-            'paperclip' => config('app.url'),
-            // todo: remove
-            's3-minio'  => 'http://192.168.1.202:9000',
+            'paperclip' => config('app.url') . '/paperclip',
         ],
     ],
 
@@ -111,5 +109,16 @@ return [
 
     // Set this to true in order to prevent file uploads from being deleted as attachments are destroyed.
     'preserve-files' => false,
+
+    /*
+    |--------------------------------------------------------------------------
+    | Imagine
+    |--------------------------------------------------------------------------
+    |
+    | The default binding to use for the ImagineInterface. May be Gd or Imagick.
+    |
+    */
+
+    'imagine' => Imagine\Gd\Imagine::class,
 
 ];
