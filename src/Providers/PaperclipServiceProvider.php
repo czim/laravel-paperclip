@@ -24,7 +24,6 @@ use Czim\Paperclip\Handler\FileHandlerFactory;
 use Czim\Paperclip\Path\Interpolator;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\ServiceProvider;
-use Imagine\Gd\Imagine;
 use Imagine\Image\ImagineInterface;
 
 class PaperclipServiceProvider extends ServiceProvider
@@ -59,17 +58,10 @@ class PaperclipServiceProvider extends ServiceProvider
      */
     protected function registerInterfaceBindings()
     {
+        $this->registerFileHandlerInterfaceBindings();
+
         $this->app->singleton(FileHandlerFactoryInterface::class, FileHandlerFactory::class);
         $this->app->singleton(AttachmentFactoryInterface::class, AttachmentFactory::class);
-
-        // Bindings for czim/file-handling
-        $this->app->singleton(VariantProcessorInterface::class, VariantProcessor::class);
-        $this->app->singleton(StorableFileFactoryInterface::class, StorableFileFactory::class);
-        $this->app->singleton(MimeTypeHelperInterface::class, MimeTypeHelper::class);
-        $this->app->singleton(ContentInterpreterInterface::class, UploadedContentInterpreter::class);
-        $this->app->singleton(UrlDownloaderInterface::class, UrlDownloader::class);
-        $this->app->singleton(PathHelperInterface::class, PathHelper::class);
-        $this->app->singleton(InterpolatorInterface::class, Interpolator::class);
 
         $this->app->singleton(VariantStrategyFactoryInterface::class, function ($app) {
             /** @var Application $app */
@@ -81,8 +73,23 @@ class PaperclipServiceProvider extends ServiceProvider
         });
 
         // Image library
-        // todo: allow rebinding through config?
-        $this->app->singleton(ImagineInterface::class, Imagine::class);
+        $this->app->singleton(ImagineInterface::class, config('paperclip.imagine', \Imagine\Gd\Imagine::class));
+
+        return $this;
+    }
+
+    /**
+     * @return $this
+     */
+    protected function registerFileHandlerInterfaceBindings()
+    {
+        $this->app->singleton(VariantProcessorInterface::class, VariantProcessor::class);
+        $this->app->singleton(StorableFileFactoryInterface::class, StorableFileFactory::class);
+        $this->app->singleton(MimeTypeHelperInterface::class, MimeTypeHelper::class);
+        $this->app->singleton(ContentInterpreterInterface::class, UploadedContentInterpreter::class);
+        $this->app->singleton(UrlDownloaderInterface::class, UrlDownloader::class);
+        $this->app->singleton(PathHelperInterface::class, PathHelper::class);
+        $this->app->singleton(InterpolatorInterface::class, Interpolator::class);
 
         return $this;
     }
