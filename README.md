@@ -1,3 +1,6 @@
+[![Latest Version on Packagist][ico-version]][link-packagist]
+[![Software License][ico-license]](LICENSE.md)
+[![Build Status](https://travis-ci.org/czim/laravel-paperclip.svg?branch=master)](https://travis-ci.org/czim/laravel-paperclip)
 
 # Laravel Paperclip: File Attachment Solution
 
@@ -53,6 +56,13 @@ Replace `attachmentname` here with the name of the attachment.
 These attributes should be familiar if you've used Stapler before.
 
 A `<key>_variants` text or varchar column is optional:
+
+```php
+<?php
+    $table->string('attachmentname_variants', 255)->nullable();
+```
+
+A `text()` column is recommended in cases where a seriously *huge* amount of variants.
 
 If it is added and configured to be used (more on that [in the config section](CONFIG.md)), JSON information about variants will be stored in it.  
 
