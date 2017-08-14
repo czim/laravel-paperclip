@@ -24,8 +24,8 @@ class FileHandlerFactory implements FileHandlerFactoryInterface
 
         return new FileHandler(
             $this->makeStorage($storage),
-            app(VariantProcessorInterface::class),
-            app(PathHelperInterface::class)
+            $this->makeProcessor(),
+            $this->makePathHelper()
         );
     }
 
@@ -39,6 +39,22 @@ class FileHandlerFactory implements FileHandlerFactoryInterface
         $baseUrl = config("paperclip.storage.base-urls.{$disk}", url());
 
         return new LaravelStorage(Storage::disk($disk), $isLocal, $baseUrl);
+    }
+
+    /**
+     * @return VariantProcessorInterface
+     */
+    protected function makeProcessor()
+    {
+        return app(VariantProcessorInterface::class);
+    }
+
+    /**
+     * @return PathHelperInterface
+     */
+    protected function makePathHelper()
+    {
+        return app(PathHelperInterface::class);
     }
 
 }
