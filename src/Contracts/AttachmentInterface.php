@@ -139,6 +139,22 @@ interface AttachmentInterface
     public function originalFilename();
 
     /**
+     * Returns the filename for a given variant.
+     *
+     * @param string|null $variant
+     * @return string
+     */
+    public function variantFilename($variant);
+
+    /**
+     * Returns the extension for a given variant.
+     *
+     * @param string $variant
+     * @return string|false
+     */
+    public function variantExtension($variant);
+
+    /**
      * Returns the class type of the attachment's underlying object instance.
      *
      * @return string

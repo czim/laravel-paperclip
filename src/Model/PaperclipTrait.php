@@ -51,6 +51,13 @@ trait PaperclipTrait
      */
     public static function bootPaperclipTrait()
     {
+        static::saving(function ($model) {
+            /** @var Model|AttachableInterface $model */
+            foreach ($model->getAttachedFiles() as $attachedFile) {
+                $attachedFile->beforeSave($model);
+            }
+        });
+
         static::saved(function ($model) {
             /** @var Model|AttachableInterface $model */
             foreach ($model->getAttachedFiles() as $attachedFile) {

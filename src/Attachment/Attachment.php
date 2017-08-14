@@ -253,7 +253,7 @@ class Attachment implements AttachmentInterface
         $variant = $variant ?: FileHandler::ORIGINAL;
 
         return array_get(
-            $this->handler->variantUrlsForBasePath($this->path(), $this->originalFilename(), [ $variant ]),
+            $this->handler->variantUrlsForBasePath($this->path(), $this->variantFilename($variant), [ $variant ]),
             $variant
         );
     }
@@ -279,7 +279,56 @@ class Attachment implements AttachmentInterface
         $variant = $variant ?: FileHandler::ORIGINAL;
 
         return $this->pathHelper->addVariantToBasePath($this->path(), $variant)
-             . '/' . $this->originalFilename();
+             . '/' . $this->variantFilename($variant);
+    }
+
+    /**
+     * Returns the filename for a given variant.
+     *
+     * @param string|null $variant
+     * @return string
+     */
+    public function variantFilename($variant)
+    {
+        if (null === $variant || ! ($extension = $this->variantExtension($variant))) {
+            return $this->originalFilename();
+        }
+
+        return pathinfo($this->originalFilename(), PATHINFO_FILENAME) . ".{$extension}";
+    }
+
+    /**
+     * Returns the extension for a given variant.
+     *
+     * @param string $variant
+     * @return string|false
+     */
+    public function variantExtension($variant)
+    {
+        $variants = $this->variantsAttribute();
+
+        if ( ! empty($variants)) {
+            return array_get($variants, "{$variant}.ext") ?: false;
+        }
+
+        return $this->getConfigValue("extensions.{$variant}", false);
+    }
+
+    /**
+     * Returns the mimeType for a given variant.
+     *
+     * @param string $variant
+     * @return string|false
+     */
+    public function variantContentType($variant)
+    {
+        $variants = $this->variantsAttribute();
+
+        if ( ! empty($variants)) {
+            return array_get($variants, "{$variant}.type") ?: false;
+        }
+
+        return $this->getConfigValue("types.{$variant}", false);
     }
 
 
@@ -292,10 +341,19 @@ class Attachment implements AttachmentInterface
      *
      * @param AttachableInterface $instance
      */
-    public function afterSave(AttachableInterface $instance)
+    public function beforeSave(AttachableInterface $instance)
     {
         $this->instance = $instance;
         $this->save();
+    }
+
+    /**
+     * Processes the write queue.
+     *
+     * @param AttachableInterface $instance
+     */
+    public function afterSave(AttachableInterface $instance)
+    {
     }
 
     /**
@@ -371,7 +429,31 @@ class Attachment implements AttachmentInterface
     protected function flushWrites()
     {
         if ($this->queuedForWrite) {
-            $this->handler->process($this->uploadedFile, $this->path(), $this->normalizedConfig);
+            $storedFiles = $this->handler->process($this->uploadedFile, $this->path(), $this->normalizedConfig);
+
+            // If we're writing variants, log information about the variants,
+            // if the model is set up and configured to use the variants attribute.
+            if ($this->getConfigValue('attributes.variants')) {
+
+                $originalExtension = pathinfo($this->originalFilename(), PATHINFO_EXTENSION);
+                $originalMimeType  = $this->contentType();
+                $variantInformation = [];
+
+                foreach ($storedFiles as $variant => $storedfile) {
+                    if (    $storedfile->extension() == $originalExtension
+                        &&  $storedfile->mimeType() == $originalMimeType
+                    ) {
+                        continue;
+                    }
+
+                    $variantInformation[ $variant ] = [
+                        'ext'  => $storedfile->extension(),
+                        'type' => $storedfile->mimeType(),
+                    ];
+                }
+
+                $this->instanceWrite('variants', json_encode($variantInformation));
+            }
         }
 
         $this->queuedForWrite = false;
@@ -500,6 +582,20 @@ class Attachment implements AttachmentInterface
     public function originalFilename()
     {
         return $this->instance->getAttribute("{$this->name}_file_name");
+    }
+
+    /**
+     * Returns the JSON information stored on the model about variants as an associative array.
+     *
+     * @return array
+     */
+    public function variantsAttribute()
+    {
+        if ( ! $this->getConfigValue('attributes.variants')) {
+            return [];
+        }
+
+        return json_decode($this->instance->getAttribute("{$this->name}_variants"), true) ?: [];
     }
 
 
