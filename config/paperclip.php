@@ -99,24 +99,10 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Convert Options
-    |--------------------------------------------------------------------------
-    |
-    | An array of options for setting the quality and DPI of resized images.
-    | Default values are 75 for Jpeg quality and 72 dpi for x/y-resolution.
-    | Please see the Imagine\Image documentation for more details.
-    |
-    */
-
-    'convert-options' => [],
-
-
-    /*
-    |--------------------------------------------------------------------------
     | File Preservation
     |--------------------------------------------------------------------------
     |
-    | Settings to affect when attachment files are destroyed
+    | Settings to affect when attachment files are destroyed.
     |
     */
 
