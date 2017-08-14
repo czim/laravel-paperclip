@@ -570,10 +570,17 @@ class Attachment implements AttachmentInterface
             }
 
             // If auto-orient is set, extract it to its own step
-            if (array_get($options, 'resize.auto-orient') && ! array_has($options, 'auto-orient')) {
+            if (    (   array_get($options, 'resize.auto-orient')
+                    ||  array_get($options, 'resize.auto_orient')
+                    )
+                && ! array_has($options, 'auto-orient')
+            ) {
                 $options = array_merge(['auto-orient' => []], $options);
                 array_set($config, "variants.{$variant}", $options);
-                array_forget($config, "variants.{$variant}.resize.auto-orient");
+                array_forget($config, [
+                    "variants.{$variant}.resize.auto-orient",
+                    "variants.{$variant}.resize.auto_orient",
+                ]);
             }
         }
 
