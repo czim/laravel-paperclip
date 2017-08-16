@@ -1,6 +1,8 @@
 <?php
 namespace Czim\Paperclip\Test;
 
+use Illuminate\Support\Facades\Schema;
+
 abstract class TestCase extends \Orchestra\Testbench\TestCase
 {
 
@@ -46,6 +48,16 @@ abstract class TestCase extends \Orchestra\Testbench\TestCase
      */
     protected function setUpDatabase()
     {
+        Schema::create('test_models', function($table) {
+            $table->increments('id');
+            $table->string('name', 255)->nullable();
+            $table->string('attachment_file_name', 255)->nullable();
+            $table->integer('attachment_file_size')->nullable();
+            $table->string('attachment_content_type')->nullable();
+            $table->timestamp('attachment_updated_at')->nullable();
+            $table->string('attachment_variants', 255)->nullable();
+            $table->nullableTimestamps();
+        });
     }
 
 }
