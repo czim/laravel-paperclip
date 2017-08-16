@@ -328,7 +328,11 @@ class Attachment implements AttachmentInterface
             return array_get($variants, "{$variant}.type") ?: false;
         }
 
-        return $this->getConfigValue("types.{$variant}", false);
+        if (false !== ($type = $this->getConfigValue("types.{$variant}", false))) {
+            return $type;
+        }
+
+        return $this->contentType();
     }
 
 
