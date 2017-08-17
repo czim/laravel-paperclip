@@ -215,6 +215,8 @@ class Attachment implements AttachmentInterface
         $this->instanceWrite('content_type', $this->uploadedFile->mimeType());
         $this->instanceWrite('updated_at', Carbon::now());
 
+        $this->performCallableHookBeforeProcessing();
+
         $this->queueAllForWrite();
     }
 
@@ -358,6 +360,7 @@ class Attachment implements AttachmentInterface
      */
     public function afterSave(AttachableInterface $instance)
     {
+        $this->performCallableHookAfterProcessing();
     }
 
     /**
@@ -629,6 +632,72 @@ class Attachment implements AttachmentInterface
         }
 
         $this->instance->setAttribute("{$this->name}_{$property}", $value);
+    }
+
+    // ------------------------------------------------------------------------------
+    //      Hooks
+    // ------------------------------------------------------------------------------
+
+    /**
+     * Performs the hook callable before processing if configured.
+     *
+     * @return bool
+     */
+    protected function performCallableHookBeforeProcessing()
+    {
+        return $this->performCallableHook('before');
+    }
+
+    /**
+     * Performs the hook callable after processing if configured.
+     *
+     * @return bool
+     */
+    protected function performCallableHookAfterProcessing()
+    {
+        return $this->performCallableHook('after');
+    }
+
+    /**
+     * @param string $type
+     * @return bool
+     */
+    protected function performCallableHook($type)
+    {
+        $hook = $this->getConfigValue($type);
+
+        if ( ! $hook) {
+            return true;
+        }
+
+        $result = true;
+
+        if (is_callable($hook)) {
+            $result = $hook($this);
+        } elseif (is_string($hook)) {
+            $result = $this->performStringCallable($hook);
+        }
+
+        return $result === null ? true : (bool) $result;
+    }
+
+    /**
+     * Performs callable defined as Class::method
+     *
+     * @param string $callable
+     * @return bool
+     */
+    protected function performStringCallable($callable)
+    {
+        if ( ! preg_match('#^(?<class>[\\a-z0-9_]+)::(?<method>[a-z0-9_]+)$#i', $callable, $matches)) {
+            throw new \UnexpectedValueException("Unable to process callable string '{$callable}'");
+        }
+
+        $instance = app($matches['class']);
+
+        $result = $instance->{$matches['method']}($this);
+
+        return $result === null ? true : (bool) $result;
     }
 
 
