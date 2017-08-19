@@ -488,7 +488,7 @@ class Attachment implements AttachmentInterface
                 }
 
                 $this->instanceWrite('variants', json_encode($variantInformation));
-                // todo: still needs to persist the model after this update...
+                $this->instance->save();
             }
         }
 
