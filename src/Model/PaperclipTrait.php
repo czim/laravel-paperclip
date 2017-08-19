@@ -160,7 +160,7 @@ trait PaperclipTrait
         if (isset($this->attachedFiles[ $attachmentName ])) {
             $attachment = $this->attachedFiles[ $attachmentName ];
 
-            foreach ($attachment->variants() as $variant) {
+            foreach ($attachment->variants(true) as $variant) {
                 $paths[ $variant ] = $attachment->variantPath($variant);
             }
         }
@@ -181,7 +181,7 @@ trait PaperclipTrait
         if (isset($this->attachedFiles[ $attachmentName ])) {
             $attachment = $this->attachedFiles[ $attachmentName ];
 
-            foreach ($attachment->variants() as $variant) {
+            foreach ($attachment->variants(true) as $variant) {
                 $urls[ $variant ] = $attachment->url($variant);
             }
         }
