@@ -3,6 +3,7 @@ namespace Czim\Paperclip\Test\Integration;
 
 use Czim\FileHandling\Handler\FileHandler;
 use Czim\Paperclip\Attachment\Attachment;
+use Czim\Paperclip\Test\Helpers\Hooks\SpyCallableHook;
 use Czim\Paperclip\Test\Helpers\VariantStrategies\TestTextToHtmlStrategy;
 use Czim\Paperclip\Test\ProvisionedTestCase;
 use Illuminate\Database\Eloquent\Model;
@@ -337,7 +338,6 @@ class PaperclipBasicAttachmentTest extends ProvisionedTestCase
     }
 
 
-
     // ------------------------------------------------------------------------------
     //      Variants special column
     // ------------------------------------------------------------------------------
@@ -371,6 +371,47 @@ class PaperclipBasicAttachmentTest extends ProvisionedTestCase
         ], $model->attachment->variantsAttribute());
 
         static::assertEquals('htm', $model->attachment->variantExtension('test'));
+    }
+
+
+    // ------------------------------------------------------------------------------
+    //      Callable hooks
+    // ------------------------------------------------------------------------------
+
+    /**
+     * @test
+     */
+    function it_calls_a_hook_before_and_after_processing_variants()
+    {
+        $beforeHookCalled = false;
+        $callable = function () use (&$beforeHookCalled) { $beforeHookCalled = true; };
+
+        $afterHookClass = new SpyCallableHook;
+        $this->app->instance(SpyCallableHook::class, $afterHookClass);
+
+        $model = $this->getTestModelWithAttachmentConfig([
+            'before' => $callable,
+            'after'  => SpyCallableHook::class . '@hookMethod',
+        ]);
+
+        $model->attachment = new SplFileInfo($this->getTestFilePath('empty.gif'));
+        $model->save();
+
+        static::assertTrue($beforeHookCalled, 'Before hook callable was not called');
+        static::assertTrue($afterHookClass->hookMethodCalled, 'After hook callable was not called');
+    }
+
+    /**
+     * @test
+     * @expectedException \UnexpectedValueException
+     */
+    function it_throws_an_exception_if_a_string_callable_hook_is_not_formatted_correctly()
+    {
+        $model = $this->getTestModelWithAttachmentConfig([
+            'before' => 'incorrectly-formatted::string',
+        ]);
+
+        $model->attachment = new SplFileInfo($this->getTestFilePath('empty.gif'));
     }
 
 }
