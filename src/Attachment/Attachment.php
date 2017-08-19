@@ -337,6 +337,31 @@ class Attachment implements AttachmentInterface
         return $this->contentType();
     }
 
+    /**
+     * Return a JSON representation of this class.
+     *
+     * @return array
+     */
+    public function jsonSerialize()
+    {
+        // @codeCoverageIgnoreStart
+        if ( ! $this->originalFilename()) {
+            return [];
+        }
+        // @codeCoverageIgnoreEnd
+
+        $data = [];
+
+        foreach ($this->variants(true) as $variant) {
+            $data[ $variant ] = [
+                'path' => $this->variantPath($variant),
+                'url'  => $this->url($variant)
+            ];
+        }
+
+        return $data;
+    }
+
 
     // ------------------------------------------------------------------------------
     //      Model Hooks

@@ -3,8 +3,9 @@ namespace Czim\Paperclip\Contracts;
 
 use Czim\FileHandling\Contracts\Storage\StorableFileInterface;
 use Czim\Paperclip\Contracts\Path\InterpolatorInterface;
+use JsonSerializable;
 
-interface AttachmentInterface
+interface AttachmentInterface extends JsonSerializable
 {
 
     /**
