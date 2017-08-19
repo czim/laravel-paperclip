@@ -718,7 +718,7 @@ class Attachment implements AttachmentInterface
      */
     protected function performStringCallable($callable)
     {
-        if ( ! preg_match('#^(?<class>[\\a-z0-9_]+)::(?<method>[a-z0-9_]+)$#i', $callable, $matches)) {
+        if ( ! preg_match('#^(?<class>[\\a-z0-9_]+)@(?<method>[a-z0-9_]+)$#i', $callable, $matches)) {
             throw new \UnexpectedValueException("Unable to process callable string '{$callable}'");
         }
 
