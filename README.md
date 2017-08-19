@@ -124,6 +124,12 @@ You can configure a storage location for uploaded files by setting up a Laravel 
 
 Make sure that `paperclip.storage.base-urls.<your storage disk>` is set, so valid URLs to stored content are returned.
 
+### Hooks Before and After Processing
+
+It is possible to 'hook' into the paperclip goings on when files are processed. This may be done by using the `before` and/or `after` configuration keys. Before hooks are called after the file is uploaded and stored locally, but before variants are processed; after hooks are called when all variants have been processed.
+
+More information and examples are in [the config section](CONFIG.md).
+
 
 ## Differences with Stapler
 
