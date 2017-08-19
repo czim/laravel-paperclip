@@ -78,9 +78,10 @@ interface AttachmentInterface extends JsonSerializable
     /**
      * Returns list of keys for defined variants.
      *
+     * @param bool $withOriginal    whether to include the original 'variant' key
      * @return string[]
      */
-    public function variants();
+    public function variants($withOriginal = false);
 
     /**
      * Generates the url to an uploaded file (or a variant).
@@ -156,11 +157,27 @@ interface AttachmentInterface extends JsonSerializable
     public function variantExtension($variant);
 
     /**
+     * Returns the JSON information stored on the model about variants as an associative array.
+     *
+     * @return array
+     */
+    public function variantsAttribute();
+
+    /**
      * Returns the class type of the attachment's underlying object instance.
      *
      * @return string
      */
     public function getInstanceClass();
+
+    /**
+     * Removes all uploaded files (from storage) for this attachment.
+     *
+     * This method does not clear out attachment attributes on the model instance.
+     *
+     * @param array $variants
+     */
+    public function destroy(array $variants = []);
 
     /**
      * Processes the write queue.
