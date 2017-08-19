@@ -230,7 +230,9 @@ class Interpolator implements InterpolatorInterface
             return implode('/', array_slice(str_split($id, 3), 0, 3));
         }
 
+        // @codeCoverageIgnoreStart
         return '';
+        // @codeCoverageIgnoreEnd
     }
 
     /**
