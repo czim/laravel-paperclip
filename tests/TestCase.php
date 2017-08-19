@@ -1,6 +1,8 @@
 <?php
 namespace Czim\Paperclip\Test;
 
+use Czim\Paperclip\Providers\PaperclipServiceProvider;
+use Czim\Paperclip\Test\Helpers\Model\TestModel;
 use Illuminate\Support\Facades\Schema;
 
 abstract class TestCase extends \Orchestra\Testbench\TestCase
@@ -15,6 +17,22 @@ abstract class TestCase extends \Orchestra\Testbench\TestCase
 
         $app['config']->set('database.default', 'testbench');
         $app['config']->set('database.connections.testbench', $this->getDatabaseConfigForSqlite());
+
+        $app['config']->set('filesystems.disks.paperclip', [
+            'driver'     => 'local',
+            'root'       => $this->getBasePath() . '/public/paperclip',
+            'visibility' => 'public',
+        ]);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function getPackageProviders($app)
+    {
+        return [
+            PaperclipServiceProvider::class,
+        ];
     }
 
     /**
@@ -56,8 +74,32 @@ abstract class TestCase extends \Orchestra\Testbench\TestCase
             $table->string('attachment_content_type')->nullable();
             $table->timestamp('attachment_updated_at')->nullable();
             $table->string('attachment_variants', 255)->nullable();
+            $table->string('image_file_name', 255)->nullable();
+            $table->integer('image_file_size')->nullable();
+            $table->string('image_content_type')->nullable();
+            $table->timestamp('image_updated_at')->nullable();
             $table->nullableTimestamps();
         });
+    }
+
+    /**
+     * @return TestModel
+     */
+    protected function getTestModel()
+    {
+        return TestModel::create(['name' => 'Testing']);
+    }
+
+    /**
+     * @param array $config     attachment configuration
+     * @return TestModel
+     */
+    protected function getTestModelWithAttachmentConfig(array $config)
+    {
+        $model = new TestModel([], $config);
+        $model->save();
+
+        return $model;
     }
 
 }

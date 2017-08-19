@@ -5,7 +5,6 @@ use Czim\FileHandling\Contracts\Handler\FileHandlerInterface;
 use Czim\FileHandling\Contracts\Storage\PathHelperInterface;
 use Czim\Paperclip\Attachment\Attachment;
 use Czim\Paperclip\Contracts\Path\InterpolatorInterface;
-use Czim\Paperclip\Test\Helpers\Model\TestModel;
 use Czim\Paperclip\Test\TestCase;
 use Mockery;
 
@@ -304,19 +303,129 @@ class AttachmentTest extends TestCase
 
 
     // ------------------------------------------------------------------------------
-    //      Uploaded file
+    //      Properties
     // ------------------------------------------------------------------------------
 
+    /**
+     * @test
+     */
+    function it_returns_the_created_at_attribute()
+    {
+        $model = $this->getTestModel();
+        $model->image_created_at = '2017-01-01 00:00:00';
+
+        $attachment = new Attachment;
+        $attachment->setInstance($model);
+        $attachment->setName('image');
+        $attachment->setConfig([
+            'attributes' => [
+                'created_at' => true,
+            ],
+        ]);
+
+        static::assertEquals('2017-01-01 00:00:00', $attachment->createdAt());
+    }
 
     /**
-     * @return TestModel
+     * @test
      */
-    protected function getTestModel()
+    function it_returns_the_updated_at_attribute()
     {
-        TestModel::create(['name' => 'Testing']);
+        $model = $this->getTestModel();
+        $model->image_updated_at = '2017-01-01 00:00:00';
 
-        return TestModel::first();
+        $attachment = new Attachment;
+        $attachment->setInstance($model);
+        $attachment->setName('image');
+
+        static::assertEquals('2017-01-01 00:00:00', $attachment->updatedAt());
     }
+
+    /**
+     * @test
+     */
+    function it_returns_the_content_type_attribute()
+    {
+        $model = $this->getTestModel();
+        $model->image_content_type = 'video/mpeg';
+
+        $attachment = new Attachment;
+        $attachment->setInstance($model);
+        $attachment->setName('image');
+
+        static::assertEquals('video/mpeg', $attachment->contentType());
+    }
+
+    /**
+     * @test
+     */
+    function it_returns_the_size_attribute()
+    {
+        $model = $this->getTestModel();
+        $model->image_file_size = 333;
+
+        $attachment = new Attachment;
+        $attachment->setInstance($model);
+        $attachment->setName('image');
+
+        static::assertEquals(333, $attachment->size());
+    }
+
+    /**
+     * @test
+     */
+    function it_returns_the_original_file_name_attribute()
+    {
+        $model = $this->getTestModel();
+        $model->image_file_name = 'test.png';
+
+        $attachment = new Attachment;
+        $attachment->setInstance($model);
+        $attachment->setName('image');
+
+        static::assertEquals('test.png', $attachment->originalFilename());
+    }
+
+    
+    // ------------------------------------------------------------------------------
+    //      Stapler Compatibility
+    // ------------------------------------------------------------------------------
+    
+    /**
+     * @test
+     */
+    function it_uses_stapler_styles_key_for_variants()
+    {
+        $attachment = new Attachment;
+        $attachment->setConfig([
+            'styles' => [
+                'some'    => '100x100',
+                'variant' => '50x30',
+                'keys'    => '40x',
+            ],
+        ]);
+
+        static::assertEquals(['some', 'variant', 'keys'], $attachment->variants());
+    }
+    
+    /**
+     * @test
+     */
+    function it_converts_stapler_dimensions_to_resize_steps()
+    {
+        // todo
+        // should test in integration
+    }
+    
+    /**
+     * @test
+     */
+    function it_extracts_a_stapler_auto_orient_flag_to_its_own_variant_step()
+    {
+        // todo
+        // should test in integration
+    }
+
 
     /**
      * @return Mockery\MockInterface|Mockery\Mock|FileHandlerInterface
