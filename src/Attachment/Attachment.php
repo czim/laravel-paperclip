@@ -203,6 +203,8 @@ class Attachment implements AttachmentInterface
      */
     public function setUploadedFile(StorableFileInterface $file)
     {
+        $this->instance->markAttachmentUpdated();
+
         if ( ! $this->getConfigValue('keep-old-files')) {
             $this->clear();
         }
@@ -227,6 +229,8 @@ class Attachment implements AttachmentInterface
      */
     public function setToBeDeleted()
     {
+        $this->instance->markAttachmentUpdated();
+
         if ( ! $this->getConfigValue('keep-old-files')) {
             $this->clear();
         }
@@ -237,11 +241,18 @@ class Attachment implements AttachmentInterface
     /**
      * Returns list of keys for defined variants.
      *
+     * @param bool $withOriginal
      * @return string[]
      */
-    public function variants()
+    public function variants($withOriginal = false)
     {
-        return array_keys($this->getConfigValue('variants', []));
+        $variants = array_keys($this->getConfigValue('variants', []));
+
+        if ($withOriginal && ! in_array(FileHandler::ORIGINAL, $variants)) {
+            array_unshift($variants, FileHandler::ORIGINAL);
+        }
+
+        return $variants;
     }
 
     /**
@@ -372,19 +383,11 @@ class Attachment implements AttachmentInterface
      *
      * @param AttachableInterface $instance
      */
-    public function beforeSave(AttachableInterface $instance)
+    public function afterSave(AttachableInterface $instance)
     {
         $this->instance = $instance;
         $this->save();
-    }
 
-    /**
-     * Processes the write queue.
-     *
-     * @param AttachableInterface $instance
-     */
-    public function afterSave(AttachableInterface $instance)
-    {
         $this->performCallableHookAfterProcessing();
     }
 
@@ -445,7 +448,7 @@ class Attachment implements AttachmentInterface
      *
      * @param array $variants   clear only specific variants
      */
-    public function clear(array $variants = [])
+    protected function clear(array $variants = [])
     {
         if ($variants) {
             $this->queueSomeForDeletion($variants);
@@ -485,6 +488,7 @@ class Attachment implements AttachmentInterface
                 }
 
                 $this->instanceWrite('variants', json_encode($variantInformation));
+                // todo: still needs to persist the model after this update...
             }
         }
 

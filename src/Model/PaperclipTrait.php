@@ -19,6 +19,14 @@ trait PaperclipTrait
     protected $attachedFiles = [];
 
     /**
+     * Whether an attachment has been updated and requires further processing.
+     *
+     * @var bool
+     */
+    protected $attachedUpdated = false;
+
+
+    /**
      * Returns the list of attached files.
      *
      * @return AttachmentInterface[]
@@ -51,17 +59,16 @@ trait PaperclipTrait
      */
     public static function bootPaperclipTrait()
     {
-        static::saving(function ($model) {
-            /** @var Model|AttachableInterface $model */
-            foreach ($model->getAttachedFiles() as $attachedFile) {
-                $attachedFile->beforeSave($model);
-            }
-        });
-
         static::saved(function ($model) {
             /** @var Model|AttachableInterface $model */
-            foreach ($model->getAttachedFiles() as $attachedFile) {
-                $attachedFile->afterSave($model);
+            if ($model->attachedUpdated) {
+                // Unmark attachment being updated, so the processing isn't fired twice
+                // when the attachedfile performs a model update for the variants column.
+                $model->attachedUpdated = false;
+
+                foreach ($model->getAttachedFiles() as $attachedFile) {
+                    $attachedFile->afterSave($model);
+                }
             }
         });
 
@@ -105,6 +112,7 @@ trait PaperclipTrait
     public function setAttribute($key, $value)
     {
         if (array_key_exists($key, $this->attachedFiles)) {
+
             if ($value) {
                 $attachedFile = $this->attachedFiles[ $key ];
 
@@ -120,6 +128,8 @@ trait PaperclipTrait
                     $factory->makeFromAny($value)
                 );
             }
+
+            $this->attachedUpdated = true;
 
             return;
         }
@@ -177,6 +187,14 @@ trait PaperclipTrait
         }
 
         return $urls;
+    }
+
+    /**
+     * Marks that at least one attachment on the model has been updated and should be processed.
+     */
+    public function markAttachmentUpdated()
+    {
+        $this->attachedUpdated = true;
     }
 
 }
