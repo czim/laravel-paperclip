@@ -1,6 +1,7 @@
 [![Latest Version on Packagist][ico-version]][link-packagist]
 [![Software License][ico-license]](LICENSE.md)
 [![Build Status](https://travis-ci.org/czim/laravel-paperclip.svg?branch=master)](https://travis-ci.org/czim/laravel-paperclip)
+[![Coverage Status](https://coveralls.io/repos/github/czim/laravel-paperclip/badge.svg?branch=master)](https://coveralls.io/github/czim/laravel-paperclip?branch=master)
 
 # Laravel Paperclip: File Attachment Solution
 
