@@ -176,6 +176,16 @@ class Attachment implements AttachmentInterface
     }
 
     /**
+     * Returns the configuration after normalization.
+     *
+     * @return array
+     */
+    public function getNormalizedConfig()
+    {
+        return $this->normalizedConfig;
+    }
+
+    /**
      * @param FileHandlerInterface $handler
      * @return $this
      */

@@ -39,6 +39,13 @@ interface AttachmentInterface extends JsonSerializable
     public function getConfig();
 
     /**
+     * Returns the configuration after normalization.
+     *
+     * @return array
+     */
+    public function getNormalizedConfig();
+
+    /**
      * Sets the name (the attribute on the model) for the attachment.
      *
      * @param string $name
