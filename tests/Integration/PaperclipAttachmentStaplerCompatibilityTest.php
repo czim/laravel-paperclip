@@ -50,4 +50,43 @@ class PaperclipAttachmentStaplerCompatibilityTest extends ProvisionedTestCase
         static::assertEquals('test/path/for-model/original/source.txt', $model->attachment->variantPath());
     }
 
+    /**
+     * @test
+     */
+    function its_attachments_return_normalized_config()
+    {
+        $model = $this->getTestModelWithAttachmentConfig([
+            'url'            => 'test/path/for-model',
+            'preserve_files' => true,
+            'keep_old_files' => true,
+            'styles'         => [
+                'a' => '50x50',
+                'b' => [
+                    'dimensions'  => '40x40',
+                    'auto_orient' => true,
+                ],
+            ],
+        ]);
+
+        $config = $model->attachment->getNormalizedConfig();
+
+        static::assertArrayHasKey('path', $config);
+        static::assertArrayNotHasKey('url', $config);
+
+        static::assertArrayHasKey('preserve-files', $config);
+        static::assertArrayNotHasKey('preserve_files', $config);
+
+        static::assertArrayHasKey('keep-old-files', $config);
+        static::assertArrayNotHasKey('keep_old_files', $config);
+
+        static::assertArrayHasKey('variants', $config);
+        static::assertArrayNotHasKey('styles', $config);
+
+        static::assertArrayHasKey('a', $config['variants']);
+        static::assertArrayHasKey('resize', $config['variants']['a'], 'Resize step was not extracted');
+        static::assertArrayHasKey('b', $config['variants']);
+        static::assertArrayHasKey('auto-orient', $config['variants']['b'], 'Auto orient step was not extracted');
+        static::assertArrayHasKey('resize', $config['variants']['b'], 'Resize step was not extracted');
+    }
+
 }
