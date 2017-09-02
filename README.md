@@ -14,6 +14,14 @@ Instead of tackling file storage itself, it uses Laravel's internal storage driv
 This uses [czim/file-handling](https://github.com/czim/file-handling) under the hood, and any of its (and your custom written) variant manipulations may be used with this package.
 
 
+## Version Compatibility
+
+ Laravel             | Package 
+:--------------------|:--------
+ 5.4.x and older     | 1.0.x
+ 5.5.x               | 1.5.x
+
+
 ## Installation
 
 Via Composer:
