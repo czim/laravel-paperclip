@@ -473,33 +473,35 @@ class Attachment implements AttachmentInterface
      */
     protected function flushWrites()
     {
-        if ($this->queuedForWrite) {
-            $storedFiles = $this->handler->process($this->uploadedFile, $this->path(), $this->normalizedConfig);
+        if ( ! $this->queuedForWrite) {
+            return;
+        }
 
-            // If we're writing variants, log information about the variants,
-            // if the model is set up and configured to use the variants attribute.
-            if ($this->getConfigValue('attributes.variants')) {
+        $storedFiles = $this->handler->process($this->uploadedFile, $this->path(), $this->normalizedConfig);
 
-                $originalExtension = pathinfo($this->originalFilename(), PATHINFO_EXTENSION);
-                $originalMimeType  = $this->contentType();
-                $variantInformation = [];
+        // If we're writing variants, log information about the variants,
+        // if the model is set up and configured to use the variants attribute.
+        if ($this->getConfigValue('attributes.variants')) {
 
-                foreach ($storedFiles as $variant => $storedfile) {
-                    if (    $storedfile->extension() == $originalExtension
-                        &&  $storedfile->mimeType() == $originalMimeType
-                    ) {
-                        continue;
-                    }
+            $originalExtension = pathinfo($this->originalFilename(), PATHINFO_EXTENSION);
+            $originalMimeType  = $this->contentType();
+            $variantInformation = [];
 
-                    $variantInformation[ $variant ] = [
-                        'ext'  => $storedfile->extension(),
-                        'type' => $storedfile->mimeType(),
-                    ];
+            foreach ($storedFiles as $variant => $storedfile) {
+                if (    $storedfile->extension() == $originalExtension
+                    &&  $storedfile->mimeType() == $originalMimeType
+                ) {
+                    continue;
                 }
 
-                $this->instanceWrite('variants', json_encode($variantInformation));
-                $this->instance->save();
+                $variantInformation[ $variant ] = [
+                    'ext'  => $storedfile->extension(),
+                    'type' => $storedfile->mimeType(),
+                ];
             }
+
+            $this->instanceWrite('variants', json_encode($variantInformation));
+            $this->instance->save();
         }
 
         $this->queuedForWrite = false;
