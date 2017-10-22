@@ -83,6 +83,13 @@ interface AttachmentInterface extends JsonSerializable
     public function setToBeDeleted();
 
     /**
+     * Reprocesses variants from the currently set original file.
+     *
+     * @param array $variants   ['*'] for all
+     */
+    public function reprocess($variants = ['*']);
+
+    /**
      * Returns list of keys for defined variants.
      *
      * @param bool $withOriginal    whether to include the original 'variant' key
@@ -105,6 +112,13 @@ interface AttachmentInterface extends JsonSerializable
      * @return string
      */
     public function variantPath($variant = null);
+
+    /**
+     * Returns whether this attachment actually has a file currently stored.
+     *
+     * @return bool
+     */
+    public function isFilled();
 
     /**
      * Returns the creation time of the file as originally assigned to this attachment's model.

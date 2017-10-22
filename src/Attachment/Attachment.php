@@ -4,11 +4,14 @@ namespace Czim\Paperclip\Attachment;
 use Carbon\Carbon;
 use Czim\FileHandling\Contracts\Handler\FileHandlerInterface;
 use Czim\FileHandling\Contracts\Storage\PathHelperInterface;
+use Czim\FileHandling\Contracts\Storage\StorableFileFactoryInterface;
 use Czim\FileHandling\Contracts\Storage\StorableFileInterface;
 use Czim\FileHandling\Handler\FileHandler;
 use Czim\Paperclip\Contracts\AttachableInterface;
 use Czim\Paperclip\Contracts\AttachmentInterface;
 use Czim\Paperclip\Contracts\Path\InterpolatorInterface;
+use Czim\Paperclip\Exceptions\VariantProcessFailureException;
+use Exception;
 use Illuminate\Database\Eloquent\Model;
 
 class Attachment implements AttachmentInterface
@@ -246,6 +249,42 @@ class Attachment implements AttachmentInterface
         }
 
         $this->clearAttributes();
+    }
+
+    /**
+     * Reprocesses variants from the currently set original file.
+     *
+     * @param array $variants   ['*'] for all
+     */
+    public function reprocess($variants = ['*'])
+    {
+        if ( ! $this->isFilled()) {
+            return;
+        }
+
+        // There is no need to change the original here (that would even be unnecessarily risky),
+        // so we just need to reprocess each variant separately, based on the original content.
+        if (in_array('*', $variants)) {
+            $variants = $this->variants();
+        }
+
+        $source = $this->getStorableFileFactory()->makeFromUrl(
+            $this->url(),
+            $this->originalFilename(),
+            $this->contentType()
+        );
+
+        // Collect information about variants to update the variant information with after processing.
+        $variantInformation = [];
+
+        foreach ($variants as $variant) {
+            $this->processSingleVariant($source, $variant, $variantInformation);
+        }
+
+        if ($this->shouldVariantInformationBeStored()) {
+            $this->instanceWrite('variants', json_encode($variantInformation));
+            $this->instance->save();
+        }
     }
 
     /**
@@ -518,6 +557,49 @@ class Attachment implements AttachmentInterface
     }
 
     /**
+     * @param StorableFileInterface $source
+     * @param string                $variant
+     * @param array                 $information
+     * @throws VariantProcessFailureException
+     */
+    protected function processSingleVariant(StorableFileInterface $source, $variant, array &$information = [])
+    {
+        try {
+            $storedFile = $this->handler->processVariant(
+                $source,
+                $this->path(),
+                $variant,
+                array_get($this->normalizedConfig, FileHandler::CONFIG_VARIANTS . '.' . $variant, [])
+            );
+        } catch (Exception $e) {
+
+            throw new VariantProcessFailureException(
+                "Failed to process variant '{$variant}': {$e->getMessage()}",
+                $e->getCode(),
+                $e
+            );
+        }
+
+        if ( ! $this->shouldVariantInformationBeStored()) {
+            return;
+        }
+
+        $originalExtension  = pathinfo($this->originalFilename(), PATHINFO_EXTENSION);
+        $originalMimeType   = $this->contentType();
+
+        if (    $storedFile->extension() == $originalExtension
+            &&  $storedFile->mimeType() == $originalMimeType
+        ) {
+            return;
+        }
+
+        $information[ $variant ] = [
+            'ext'  => $storedFile->extension(),
+            'type' => $storedFile->mimeType(),
+        ];
+    }
+
+    /**
      * Fill the queuedForWrite queue with all of this attachment's styles.
      */
     protected function queueAllForWrite()
@@ -568,6 +650,16 @@ class Attachment implements AttachmentInterface
     // ------------------------------------------------------------------------------
     //      Uploaded File Properties
     // ------------------------------------------------------------------------------
+
+    /**
+     * Returns whether this attachment actually has a file currently stored.
+     *
+     * @return bool
+     */
+    public function isFilled()
+    {
+        return ! empty($this->originalFilename());
+    }
 
     /**
      * Returns the creation time of the file as originally assigned to this attachment's model.
@@ -854,6 +946,14 @@ class Attachment implements AttachmentInterface
         }
 
         return config('paperclip.' . $map[ $key ], $default);
+    }
+
+    /**
+     * @return StorableFileFactoryInterface
+     */
+    protected function getStorableFileFactory()
+    {
+        return app(StorableFileFactoryInterface::class);
     }
 
 }
