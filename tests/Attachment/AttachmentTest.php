@@ -301,6 +301,24 @@ class AttachmentTest extends TestCase
         static::assertEquals('text/plain', $attachment->variantContentType('variantkey'));
     }
 
+    /**
+     * @test
+     */
+    function it_returns_whether_the_attachment_is_filled()
+    {
+        $model = $this->getTestModel();
+
+        $attachment = new Attachment;
+        $attachment->setName('attachment');
+        $attachment->setInstance($model);
+
+        static::assertFalse($attachment->isFilled());
+
+        $model->attachment = 'testing';
+
+        static::assertTrue($attachment->isFilled());
+    }
+
 
     // ------------------------------------------------------------------------------
     //      Properties
