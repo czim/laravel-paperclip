@@ -140,6 +140,10 @@ class PaperclipReprocessAttachmentTest extends ProvisionedTestCase
                 ->once()
                 ->with($model->{$attachment}->url(), 'empty.gif', 'image/gif')
                 ->andReturn($source);
+        } else {
+            $factory->shouldReceive('makeFromUrl')
+                ->with($model->{$attachment}->url(), 'empty.gif', 'image/gif')
+                ->andReturn($source);
         }
 
         app()->instance(StorableFileFactoryInterface::class, $factory);
