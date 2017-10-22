@@ -13,8 +13,6 @@ class TestTextToHtmlStrategy extends AbstractVariantStrategy
      */
     protected function perform()
     {
-        //$path = $this->file->path();
-
         $this->file->setMimeType('text/html');
         $this->file->setName('source.htm');
     }

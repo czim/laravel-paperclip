@@ -1,12 +1,10 @@
 <?php
 namespace Czim\Paperclip\Test\Integration;
 
-use Czim\FileHandling\Handler\FileHandler;
 use Czim\Paperclip\Attachment\Attachment;
 use Czim\Paperclip\Test\Helpers\Hooks\SpyCallableHook;
 use Czim\Paperclip\Test\Helpers\VariantStrategies\TestTextToHtmlStrategy;
 use Czim\Paperclip\Test\ProvisionedTestCase;
-use Illuminate\Database\Eloquent\Model;
 use SplFileInfo;
 
 class PaperclipBasicAttachmentTest extends ProvisionedTestCase
