@@ -139,6 +139,15 @@ It is possible to 'hook' into the paperclip goings on when files are processed. 
 
 More information and examples are in [the config section](CONFIG.md).
 
+### Refreshing models
+
+When changing variant configurations for models, you may reprocess variants from previously created attachments with the `paperclip:refresh` Artisan command.
+
+Example:
+
+```bash
+php artisan paperclip:refresh "App\Models\BlogPost" --attachments header,background
+```
 
 ## Differences with Stapler
 
@@ -148,6 +157,9 @@ You can set them per attachment configuration, or modify the variant strategy to
 
 Another difference is that this package does not handle (s3) storage.
 All storage is performed through Laravel's storage solution.
+
+The refresh command (`php artisan paperclip:refresh`) is very similar to stapler's refresh command, but it can optionally take a `--start #` and/or `--stop #` option, with ID numbers. This makes it possible to refresh only a subset of models.
+Under the hood, the refresh command is also much less likely to run out of memory (it uses a generator to process models in chunks).
 
 A final change is that the trait uses its own boot method, not the global Model's `boot()`, making this package less likely to conflict with other traits and model implementations.
 
