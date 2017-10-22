@@ -121,4 +121,17 @@ return [
 
     'imagine' => Imagine\Gd\Imagine::class,
 
+    /*
+    |--------------------------------------------------------------------------
+    | Processing
+    |--------------------------------------------------------------------------
+    |
+    | Settings for (re)processing attachments.
+    |
+    */
+
+    'processing' => [
+        'chunk-size' => 500,
+    ],
+
 ];
