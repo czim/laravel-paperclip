@@ -86,6 +86,7 @@ class PaperclipReprocessAttachmentTest extends ProvisionedTestCase
 
         static::assertEmpty($model->attachment->variantsAttribute(), 'Variants should be empty for test');
 
+        $this->prepareMockSetupForReprocessingSource($model, 'attachment');
 
         // Test
         $model->attachment->reprocess();
@@ -117,21 +118,29 @@ class PaperclipReprocessAttachmentTest extends ProvisionedTestCase
         unlink($processedFilePath);
         static::assertFileNotExists($processedFilePath, 'File should not exist after unlinking');
 
+        //$this->prepareMockSetupForReprocessingSource($model, 'attachment');
+
         $model->image->reprocess();
     }
-    
 
 
-    protected function prepareMockSetupForReprocessingSource(Model $model)
+    /**
+     * @param Model  $model
+     * @param string $attachment
+     * @param bool   $withExpection
+     */
+    protected function prepareMockSetupForReprocessingSource(Model $model, $attachment = 'image', $withExpection = true)
     {
         /** @var Mockery\MockInterface|Mockery\Mock|StorableFileFactoryInterface $factory */
         $factory = Mockery::mock(StorableFileFactoryInterface::class);
         $source = $this->getSourceForReprocessing($this->getTestFilePath('empty.gif'));
 
-        $factory->shouldReceive('makeFromUrl')
-            ->once()
-            ->with($model->image->url(), 'empty.gif', 'image/gif')
-            ->andReturn($source);
+        if ($withExpection) {
+            $factory->shouldReceive('makeFromUrl')
+                ->once()
+                ->with($model->{$attachment}->url(), 'empty.gif', 'image/gif')
+                ->andReturn($source);
+        }
 
         app()->instance(StorableFileFactoryInterface::class, $factory);
     }
