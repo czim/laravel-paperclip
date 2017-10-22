@@ -118,7 +118,7 @@ class PaperclipReprocessAttachmentTest extends ProvisionedTestCase
         unlink($processedFilePath);
         static::assertFileNotExists($processedFilePath, 'File should not exist after unlinking');
 
-        //$this->prepareMockSetupForReprocessingSource($model, 'attachment');
+        $this->prepareMockSetupForReprocessingException($model);
 
         $model->image->reprocess();
     }
@@ -145,6 +145,24 @@ class PaperclipReprocessAttachmentTest extends ProvisionedTestCase
                 ->with($model->{$attachment}->url(), 'empty.gif', 'image/gif')
                 ->andReturn($source);
         }
+
+        app()->instance(StorableFileFactoryInterface::class, $factory);
+    }
+
+    /**
+     * @param Model  $model
+     * @param string $attachment
+     */
+    protected function prepareMockSetupForReprocessingException(Model $model, $attachment = 'image')
+    {
+        /** @var Mockery\MockInterface|Mockery\Mock|StorableFileFactoryInterface $factory */
+        $factory = Mockery::mock(StorableFileFactoryInterface::class);
+        $source = $this->getSourceForReprocessing($this->getTestFilePath('does_not_exist.gif'));
+
+        $factory->shouldReceive('makeFromUrl')
+            ->once()
+            ->with($model->{$attachment}->url(), 'empty.gif', 'image/gif')
+            ->andReturn($source);
 
         app()->instance(StorableFileFactoryInterface::class, $factory);
     }
