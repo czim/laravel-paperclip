@@ -479,12 +479,10 @@ class Attachment implements AttachmentInterface
 
         $storedFiles = $this->handler->process($this->uploadedFile, $this->path(), $this->normalizedConfig);
 
-        // If we're writing variants, log information about the variants,
-        // if the model is set up and configured to use the variants attribute.
-        if ($this->getConfigValue('attributes.variants')) {
+        if ($this->shouldVariantInformationBeStored()) {
 
-            $originalExtension = pathinfo($this->originalFilename(), PATHINFO_EXTENSION);
-            $originalMimeType  = $this->contentType();
+            $originalExtension  = pathinfo($this->originalFilename(), PATHINFO_EXTENSION);
+            $originalMimeType   = $this->contentType();
             $variantInformation = [];
 
             foreach ($storedFiles as $variant => $storedFile) {
@@ -639,7 +637,7 @@ class Attachment implements AttachmentInterface
      */
     public function variantsAttribute()
     {
-        if ( ! $this->getConfigValue('attributes.variants')) {
+        if ( ! $this->shouldVariantInformationBeStored()) {
             return [];
         }
 
@@ -813,6 +811,17 @@ class Attachment implements AttachmentInterface
         }
 
         return $config;
+    }
+
+    /**
+     * If we're writing variants, log information about the variants,
+     * if the model is set up and configured to use the variants attribute.
+     *
+     * @return bool
+     */
+    protected function shouldVariantInformationBeStored()
+    {
+        return (bool) $this->getConfigValue('attributes.variants');
     }
 
     /**
