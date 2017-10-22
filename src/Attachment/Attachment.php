@@ -487,16 +487,16 @@ class Attachment implements AttachmentInterface
             $originalMimeType  = $this->contentType();
             $variantInformation = [];
 
-            foreach ($storedFiles as $variant => $storedfile) {
-                if (    $storedfile->extension() == $originalExtension
-                    &&  $storedfile->mimeType() == $originalMimeType
+            foreach ($storedFiles as $variant => $storedFile) {
+                if (    $storedFile->extension() == $originalExtension
+                    &&  $storedFile->mimeType() == $originalMimeType
                 ) {
                     continue;
                 }
 
                 $variantInformation[ $variant ] = [
-                    'ext'  => $storedfile->extension(),
-                    'type' => $storedfile->mimeType(),
+                    'ext'  => $storedFile->extension(),
+                    'type' => $storedFile->mimeType(),
                 ];
             }
 
