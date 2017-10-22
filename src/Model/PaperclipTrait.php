@@ -148,6 +148,22 @@ trait PaperclipTrait
     }
 
     /**
+     * Overridden to prevent attempts to persist attachment attributes directly.
+     *
+     * Reason this is required: Laravel 5.5 changed the getDirty() behavior.
+     *
+     * {@inheritdoc}
+     */
+    protected function originalIsEquivalent($key, $current)
+    {
+        if (array_key_exists($key, $this->attachedFiles)) {
+            return true;
+        }
+
+        return parent::originalIsEquivalent($key, $current);
+    }
+
+    /**
      * Return the image paths for a given attachment.
      *
      * @param string $attachmentName
