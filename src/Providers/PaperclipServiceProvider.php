@@ -17,6 +17,7 @@ use Czim\FileHandling\Support\Download\UrlDownloader;
 use Czim\FileHandling\Variant\VariantProcessor;
 use Czim\FileHandling\Variant\VariantStrategyFactory;
 use Czim\Paperclip\Attachment\AttachmentFactory;
+use Czim\Paperclip\Console\Commands\RefreshAttachmentCommand;
 use Czim\Paperclip\Contracts\AttachmentFactoryInterface;
 use Czim\Paperclip\Contracts\FileHandlerFactoryInterface;
 use Czim\Paperclip\Contracts\Path\InterpolatorInterface;
@@ -37,7 +38,8 @@ class PaperclipServiceProvider extends ServiceProvider
     public function register()
     {
         $this->registerConfig()
-            ->registerInterfaceBindings();
+             ->registerCommands()
+             ->registerInterfaceBindings();
     }
 
     /**
@@ -101,6 +103,20 @@ class PaperclipServiceProvider extends ServiceProvider
     {
         $this->publishes([
             realpath(dirname(__DIR__) . '/../config/paperclip.php') => config_path('paperclip.php'),
+        ]);
+
+        return $this;
+    }
+
+    /**
+     * @return $this
+     */
+    protected function registerCommands()
+    {
+        $this->app->singleton('paperclip.commands.refresh', RefreshAttachmentCommand::class);
+
+        $this->commands([
+            'paperclip.commands.refresh',
         ]);
 
         return $this;
