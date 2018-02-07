@@ -86,7 +86,7 @@ To add an attachment to a model:
 
 ```php
 <?php
-class Comment extends Model implements Czim\Paperclip\Contracts\AttachableInterface
+class Comment extends Model implements \Czim\Paperclip\Contracts\AttachableInterface
 {
     use \Czim\Paperclip\Model\PaperclipTrait;
     
