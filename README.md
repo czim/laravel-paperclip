@@ -39,7 +39,7 @@ Czim\Paperclip\Providers\PaperclipServiceProvider::class,
 Publish the configuration file:
 
 ``` bash
-php artisan vendor:publish
+php artisan vendor:publish --provider="Czim\Paperclip\Providers\PaperclipServiceProvider"
 ```
 
 
