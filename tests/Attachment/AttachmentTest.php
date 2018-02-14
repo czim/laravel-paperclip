@@ -312,11 +312,11 @@ class AttachmentTest extends TestCase
         $attachment->setName('attachment');
         $attachment->setInstance($model);
 
-        static::assertFalse($attachment->isFilled());
+        static::assertFalse($attachment->exists());
 
         $model->attachment = 'testing';
 
-        static::assertTrue($attachment->isFilled());
+        static::assertTrue($attachment->exists());
     }
 
 

@@ -19,7 +19,7 @@ class PaperclipReprocessAttachmentTest extends ProvisionedTestCase
     {
         $model = $this->getTestModel();
 
-        static::assertFalse($model->image->isFilled());
+        static::assertFalse($model->image->exists());
 
         $model->image->reprocess();
     }
@@ -34,7 +34,7 @@ class PaperclipReprocessAttachmentTest extends ProvisionedTestCase
         $model->image = new SplFileInfo($this->getTestFilePath('empty.gif'));
         $model->save();
 
-        static::assertTrue($model->image->isFilled());
+        static::assertTrue($model->image->exists());
         static::assertEquals('empty.gif', $model->image_file_name);
 
         $processedFilePath = $this->getUploadedAttachmentPath($model, 'empty.gif', 'image', 'medium');
