@@ -116,9 +116,18 @@ interface AttachmentInterface extends JsonSerializable
     /**
      * Returns whether this attachment actually has a file currently stored.
      *
+     * @deprecated Use exists() instead
+     * @see exists
      * @return bool
      */
     public function isFilled();
+
+    /**
+     * Returns whether this attachment actually has a file currently stored.
+     *
+     * @return bool
+     */
+    public function exists();
 
     /**
      * Returns the creation time of the file as originally assigned to this attachment's model.

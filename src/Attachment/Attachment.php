@@ -258,7 +258,7 @@ class Attachment implements AttachmentInterface
      */
     public function reprocess($variants = ['*'])
     {
-        if ( ! $this->isFilled()) {
+        if ( ! $this->exists()) {
             return;
         }
 
@@ -654,9 +654,21 @@ class Attachment implements AttachmentInterface
     /**
      * Returns whether this attachment actually has a file currently stored.
      *
+     * @deprecated Use exists() instead
+     * @see exists
      * @return bool
      */
     public function isFilled()
+    {
+        return $this->exists();
+    }
+
+    /**
+     * Returns whether this attachment actually has a file currently stored.
+     *
+     * @return bool
+     */
+    public function exists()
     {
         return ! empty($this->originalFilename());
     }
