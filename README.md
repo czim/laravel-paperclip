@@ -149,20 +149,9 @@ Example:
 php artisan paperclip:refresh "App\Models\BlogPost" --attachments header,background
 ```
 
-## Differences with Stapler
+## Migrating From Stapler
 
-One major difference is that the `convert_options` configuration settings are no longer available. Conversion options are now handled at the level of the variant strategies.
-
-You can set them per attachment configuration, or modify the variant strategy to use a custom global configuration.
-
-Another difference is that this package does not handle (s3) storage.
-All storage is performed through Laravel's storage solution.
-
-The refresh command (`php artisan paperclip:refresh`) is very similar to stapler's refresh command, but it can optionally take a `--start #` and/or `--stop #` option, with ID numbers. This makes it possible to refresh only a subset of models.
-Under the hood, the refresh command is also much less likely to run out of memory (it uses a generator to process models in chunks).
-
-A final change is that the trait uses its own boot method, not the global Model's `boot()`, making this package less likely to conflict with other traits and model implementations.
-
+Although this package implements most features from Stapler, there are a few key differences. [See the migration guide](MIGRATING.md) for more information
 
 ## Contributing
 
