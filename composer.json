@@ -26,6 +26,13 @@
     "scripts": {
         "test": "phpunit"
     },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Czim\\Paperclip\\Providers\\PaperclipServiceProvider"
+            ]
+        }
+    },
     "minimum-stability": "dev",
     "prefer-stable": true
 }

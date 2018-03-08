@@ -30,12 +30,6 @@ Via Composer:
 $ composer require czim/laravel-paperclip
 ```
 
-Add the service provider to the `app.php` config file:
-
-``` php
-Czim\Paperclip\Providers\PaperclipServiceProvider::class,
-```
-
 Publish the configuration file:
 
 ``` bash
