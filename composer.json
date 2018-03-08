@@ -30,7 +30,7 @@
         "laravel": {
             "providers": [
                 "Czim\\Paperclip\\Providers\\PaperclipServiceProvider"
-            ],
+            ]
         }
     },
     "minimum-stability": "dev",
