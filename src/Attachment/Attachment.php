@@ -77,6 +77,13 @@ class Attachment implements AttachmentInterface
      */
     protected $target;
 
+    /**
+     * The target instance to be used for queued deletions.
+     *
+     * @var null|TargetInterface
+     */
+    protected $deleteTarget;
+
 
     /**
      * Sets the underlying instance object.
@@ -213,6 +220,8 @@ class Attachment implements AttachmentInterface
         if ( ! $this->getConfigValue('keep-old-files')) {
             $this->clear();
         }
+
+        $this->clearTarget();
 
         $this->uploadedFile = $file;
 
@@ -442,6 +451,14 @@ class Attachment implements AttachmentInterface
     }
 
     /**
+     * Clears the currently cached target instance.
+     */
+    protected function clearTarget()
+    {
+        $this->target = null;
+    }
+
+    /**
      * Returns filenames keyed by variant.
      *
      * @return string[]
@@ -612,8 +629,12 @@ class Attachment implements AttachmentInterface
      */
     protected function flushDeletes()
     {
-        foreach ($this->queuedForDelete as $path) {
-            $this->handler->deleteVariant($path);
+        if ( ! $this->deleteTarget) {
+            return;
+        }
+
+        foreach ($this->queuedForDelete as $variant) {
+            $this->handler->deleteVariant($this->deleteTarget, $variant);
         }
 
         $this->queuedForDelete = [];
@@ -665,29 +686,23 @@ class Attachment implements AttachmentInterface
     }
 
     /**
-     * Fill the queuedForWrite queue with all of this attachment's styles.
-     */
-    protected function queueAllForWrite()
-    {
-        $this->queuedForWrite = true;
-    }
-
-    /**
-     * Add a subset (filtered via style) of the uploaded files for this attachment
-     * to the queuedForDeletion queue.
+     * Add a subset (filtered by variant name) of the uploaded files
+     * for this attachment to the queuedForDeletion queue.
      *
      * @param array $variants
      */
     protected function queueSomeForDeletion(array $variants)
     {
-        $paths = array_map(
-            function ($variant) {
-                return $this->variantPath($variant);
-            },
-            $variants
-        );
+        $this->deleteTarget    = $this->getOrMakeTargetInstance();
+        $this->queuedForDelete = array_unique(array_merge($this->queuedForDelete, $variants));
+    }
 
-        $this->queuedForDelete = array_unique(array_merge($this->queuedForDelete, $paths));
+    /**
+     * Fill the queuedForWrite queue with all of this attachment's styles.
+     */
+    protected function queueAllForWrite()
+    {
+        $this->queuedForWrite = true;
     }
 
     /**
@@ -700,15 +715,8 @@ class Attachment implements AttachmentInterface
             return;
         }
 
-        $paths = array_map(
-            function ($variant) {
-                return $this->pathHelper->addVariantToBasePath($this->path(), $variant)
-                     . '/' . $this->originalFilename();
-            },
-            array_merge($this->variants(), [ FileHandler::ORIGINAL ])
-        );
-
-        $this->queuedForDelete = array_unique(array_merge($this->queuedForDelete, $paths));
+        $this->deleteTarget    = $this->getOrMakeTargetInstance();
+        $this->queuedForDelete = array_unique(array_merge($this->queuedForDelete, $this->variants(true)));
     }
 
 
