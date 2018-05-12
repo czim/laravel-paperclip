@@ -60,8 +60,9 @@ return [
         // The class that generates the paths
         'interpolator' => \Czim\Paperclip\Path\Interpolator::class,
 
-        // The base path that the interpolator should use
-        'base-path' => ':class/:id_partition/:attribute',
+        // The path to the original file to be interpolated. This will also\
+        // be used for variant paths if the variant key is unset.
+        'original' => ':class/:id_partition/:attribute/:variant/:filename',
     ],
 
     /*

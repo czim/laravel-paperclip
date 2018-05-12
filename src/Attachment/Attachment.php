@@ -1017,7 +1017,7 @@ class Attachment implements AttachmentInterface
             'keep-old-files' => 'keep-old-files',
             'preserve-files' => 'preserve-files',
             'storage'        => 'storage.disk',
-            'path'           => 'path.base-path',
+            'path'           => 'path.original',
 
             'attributes.size'         => 'model.attributes.size',
             'attributes.content_type' => 'model.attributes.content_type',
