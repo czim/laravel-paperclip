@@ -2,10 +2,11 @@
 namespace Czim\Paperclip\Test\Attachment;
 
 use Czim\FileHandling\Contracts\Handler\FileHandlerInterface;
-use Czim\FileHandling\Contracts\Storage\PathHelperInterface;
+use Czim\FileHandling\Contracts\Storage\TargetInterface;
 use Czim\Paperclip\Attachment\Attachment;
 use Czim\Paperclip\Contracts\Path\InterpolatorInterface;
 use Czim\Paperclip\Test\TestCase;
+use Hamcrest\Matchers;
 use Mockery;
 
 class AttachmentTest extends TestCase
@@ -46,18 +47,6 @@ class AttachmentTest extends TestCase
 
         $attachment = new Attachment;
         static::assertSame($attachment, $attachment->setInterpolator($interpolator));
-    }
-
-    /**
-     * @test
-     */
-    function it_takes_a_path_helper()
-    {
-        /** @var PathHelperInterface $helper */
-        $helper = Mockery::mock(PathHelperInterface::class);
-
-        $attachment = new Attachment;
-        static::assertSame($attachment, $attachment->setPathHelper($helper));
     }
 
     /**
@@ -119,11 +108,11 @@ class AttachmentTest extends TestCase
         $model->setAttribute('image_file_name', 'test.png');
 
         $interpolator->shouldReceive('interpolate')->once()
-            ->with(':class/:id_partition/:attribute', $attachment)
-            ->andReturn('file/');
+            ->with(':class/:id_partition/:attribute/:variant/:filename', $attachment)
+            ->andReturn('file/variantkey');
 
-        $handler->shouldReceive('variantUrlsForBasePath')->once()
-            ->with('file/', 'test.png', ['variantkey'])
+        $handler->shouldReceive('variantUrlsForTarget')->once()
+            ->with(Matchers::any(TargetInterface::class), ['variantkey'])
             ->andReturn(['variantkey' => 'http://fake.url/file/variantkey']);
 
         static::assertEquals('http://fake.url/file/variantkey', $attachment->url('variantkey'));
@@ -137,24 +126,18 @@ class AttachmentTest extends TestCase
         $model        = $this->getTestModel();
         $handler      = $this->getMockHandler();
         $interpolator = $this->getMockInterpolator();
-        $helper       = $this->getMockPathHelper();
 
         $attachment = new Attachment;
         $attachment->setInstance($model);
         $attachment->setHandler($handler);
-        $attachment->setPathHelper($helper);
         $attachment->setInterpolator($interpolator);
         $attachment->setName('image');
 
         $model->setAttribute('image_file_name', 'test.png');
 
         $interpolator->shouldReceive('interpolate')->once()
-            ->with(':class/:id_partition/:attribute', $attachment)
-            ->andReturn('file/');
-
-        $helper->shouldReceive('addVariantToBasePath')->once()
-            ->with('file/', 'variantkey')
-            ->andReturn('file/variantkey');
+            ->with(':class/:id_partition/:attribute/:variant/:filename', $attachment)
+            ->andReturn('file/original/test.png');
 
         static::assertEquals('file/variantkey/test.png', $attachment->variantPath('variantkey'));
     }
@@ -459,14 +442,6 @@ class AttachmentTest extends TestCase
     protected function getMockInterpolator()
     {
         return Mockery::mock(InterpolatorInterface::class);
-    }
-
-    /**
-     * @return Mockery\MockInterface|Mockery\Mock|PathHelperInterface
-     */
-    protected function getMockPathHelper()
-    {
-        return Mockery::mock(PathHelperInterface::class);
     }
 
 }

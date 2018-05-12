@@ -42,7 +42,7 @@ class PaperclipAttachmentStaplerCompatibilityTest extends ProvisionedTestCase
     function it_accepts_stapler_config_keys_and_normalizes_them_to_paperclip()
     {
         $model = $this->getTestModelWithAttachmentConfig([
-            'url' => 'test/path/for-model',
+            'url' => 'test/path/for-model/original/:filename',
         ]);
 
         $model->attachment = new SplFileInfo($this->getTestFilePath());
