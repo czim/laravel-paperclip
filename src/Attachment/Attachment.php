@@ -256,6 +256,7 @@ class Attachment implements AttachmentInterface
      * Reprocesses variants from the currently set original file.
      *
      * @param array $variants   ['*'] for all
+     * @throws VariantProcessFailureException
      */
     public function reprocess($variants = ['*'])
     {
@@ -443,7 +444,6 @@ class Attachment implements AttachmentInterface
 
         $this->target = new Target($this->path());
 
-        // todo: ehr, why this?
         //$this->target->setVariantFilenames($this->variantFilenames());
         $this->target->setVariantExtensions($this->variantExtensions());
 
