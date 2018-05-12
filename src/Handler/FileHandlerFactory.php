@@ -2,7 +2,6 @@
 namespace Czim\Paperclip\Handler;
 
 use Czim\FileHandling\Contracts\Handler\FileHandlerInterface;
-use Czim\FileHandling\Contracts\Storage\PathHelperInterface;
 use Czim\FileHandling\Contracts\Variant\VariantProcessorInterface;
 use Czim\FileHandling\Handler\FileHandler;
 use Czim\FileHandling\Storage\Laravel\LaravelStorage;
@@ -24,8 +23,7 @@ class FileHandlerFactory implements FileHandlerFactoryInterface
 
         return new FileHandler(
             $this->makeStorage($storage),
-            $this->makeProcessor(),
-            $this->makePathHelper()
+            $this->makeProcessor()
         );
     }
 
@@ -50,14 +48,6 @@ class FileHandlerFactory implements FileHandlerFactoryInterface
     protected function makeProcessor()
     {
         return app(VariantProcessorInterface::class);
-    }
-
-    /**
-     * @return PathHelperInterface
-     */
-    protected function makePathHelper()
-    {
-        return app(PathHelperInterface::class);
     }
 
 }

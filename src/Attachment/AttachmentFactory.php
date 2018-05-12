@@ -2,7 +2,6 @@
 namespace Czim\Paperclip\Attachment;
 
 use Czim\FileHandling\Contracts\Handler\FileHandlerInterface;
-use Czim\FileHandling\Contracts\Storage\PathHelperInterface;
 use Czim\Paperclip\Contracts\AttachableInterface;
 use Czim\Paperclip\Contracts\AttachmentFactoryInterface;
 use Czim\Paperclip\Contracts\AttachmentInterface;
@@ -26,7 +25,6 @@ class AttachmentFactory implements AttachmentFactoryInterface
         $attachment->setName($name);
         $attachment->setConfig($config);
         $attachment->setInterpolator($this->getInterpolator());
-        $attachment->setPathHelper($this->getPathHelper());
 
         $disk = array_get($config, 'storage');
         $attachment->setHandler($this->getHandler($disk));
@@ -52,14 +50,6 @@ class AttachmentFactory implements AttachmentFactoryInterface
     protected function getInterpolator()
     {
         return app(InterpolatorInterface::class);
-    }
-
-    /**
-     * @return PathHelperInterface
-     */
-    protected function getPathHelper()
-    {
-        return app(PathHelperInterface::class);
     }
 
 }

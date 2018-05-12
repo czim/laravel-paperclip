@@ -3,10 +3,11 @@ namespace Czim\Paperclip\Attachment;
 
 use Carbon\Carbon;
 use Czim\FileHandling\Contracts\Handler\FileHandlerInterface;
-use Czim\FileHandling\Contracts\Storage\PathHelperInterface;
 use Czim\FileHandling\Contracts\Storage\StorableFileFactoryInterface;
 use Czim\FileHandling\Contracts\Storage\StorableFileInterface;
+use Czim\FileHandling\Contracts\Storage\TargetInterface;
 use Czim\FileHandling\Handler\FileHandler;
+use Czim\FileHandling\Storage\Path\Target;
 use Czim\Paperclip\Contracts\AttachableInterface;
 use Czim\Paperclip\Contracts\AttachmentInterface;
 use Czim\Paperclip\Contracts\Path\InterpolatorInterface;
@@ -39,11 +40,6 @@ class Attachment implements AttachmentInterface
     protected $interpolator;
 
     /**
-     * @var PathHelperInterface
-     */
-    protected $pathHelper;
-
-    /**
      * @var array
      */
     protected $config = [];
@@ -73,6 +69,13 @@ class Attachment implements AttachmentInterface
      * @var bool
      */
     protected $queuedForWrite = false;
+
+    /**
+     * The target definition for file handling.
+     *
+     * @var null|TargetInterface
+     */
+    protected $target;
 
 
     /**
@@ -138,17 +141,6 @@ class Attachment implements AttachmentInterface
     public function setInterpolator(InterpolatorInterface $interpolator)
     {
         $this->interpolator = $interpolator;
-
-        return $this;
-    }
-
-    /**
-     * @param PathHelperInterface $helper
-     * @return $this
-     */
-    public function setPathHelper(PathHelperInterface $helper)
-    {
-        $this->pathHelper = $helper;
 
         return $this;
     }
@@ -314,8 +306,10 @@ class Attachment implements AttachmentInterface
     {
         $variant = $variant ?: FileHandler::ORIGINAL;
 
+        $target = $this->getOrMakeTargetInstance();
+
         return array_get(
-            $this->handler->variantUrlsForBasePath($this->path(), $this->variantFilename($variant), [ $variant ]),
+            $this->handler->variantUrlsForTarget($target, [ $variant ]),
             $variant
         );
     }
@@ -340,8 +334,13 @@ class Attachment implements AttachmentInterface
     {
         $variant = $variant ?: FileHandler::ORIGINAL;
 
-        return $this->pathHelper->addVariantToBasePath($this->path(), $variant)
-             . '/' . $this->variantFilename($variant);
+        $target = $this->getOrMakeTargetInstance();
+
+        if ($variant == FileHandler::ORIGINAL) {
+            return $target->original();
+        }
+
+        return $target->variant($variant);
     }
 
     /**
@@ -420,6 +419,68 @@ class Attachment implements AttachmentInterface
         }
 
         return $data;
+    }
+
+    /**
+     * Returns the target instance to be passed to the file handler.
+     *
+     * @return TargetInterface
+     */
+    protected function getOrMakeTargetInstance()
+    {
+        if ($this->target) {
+            return $this->target;
+        }
+
+        $this->target = new Target($this->path());
+
+        // todo: ehr, why this?
+        //$this->target->setVariantFilenames($this->variantFilenames());
+        $this->target->setVariantExtensions($this->variantExtensions());
+
+        return $this->target;
+    }
+
+    /**
+     * Returns filenames keyed by variant.
+     *
+     * @return string[]
+     */
+    protected function variantFilenames()
+    {
+        $names = [];
+
+        foreach ($this->variants() as $variant) {
+            $names[ $variant ] = $this->variantFilename($variant);
+        }
+
+        return $names;
+    }
+
+    /**
+     * Returns alternative extensions keyed by variant.
+     *
+     * @return string[]
+     */
+    protected function variantExtensions()
+    {
+        $extensions = $this->getConfigValue("extensions", []);
+
+        $variants = $this->variantsAttribute();
+
+        if ( ! empty($variants)) {
+
+            foreach ($this->variants() as $variant) {
+
+                $extension = array_get($variants, "{$variant}.ext");
+
+                if ($extension) {
+                    $extensions[ $variant ] = $extension;continue;
+                }
+            }
+        }
+
+        return $extensions;
     }
 
 
@@ -516,7 +577,9 @@ class Attachment implements AttachmentInterface
             return;
         }
 
-        $storedFiles = $this->handler->process($this->uploadedFile, $this->path(), $this->normalizedConfig);
+        $target = $this->getOrMakeTargetInstance();
+
+        $storedFiles = $this->handler->process($this->uploadedFile, $target, $this->normalizedConfig);
 
         if ($this->shouldVariantInformationBeStored()) {
 
@@ -564,10 +627,12 @@ class Attachment implements AttachmentInterface
      */
     protected function processSingleVariant(StorableFileInterface $source, $variant, array &$information = [])
     {
+        $target = $this->getOrMakeTargetInstance();
+
         try {
             $storedFile = $this->handler->processVariant(
                 $source,
-                $this->path(),
+                $target,
                 $variant,
                 array_get($this->normalizedConfig, FileHandler::CONFIG_VARIANTS . '.' . $variant, [])
             );
