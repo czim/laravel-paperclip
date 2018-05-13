@@ -107,10 +107,6 @@ class AttachmentTest extends TestCase
 
         $model->setAttribute('image_file_name', 'test.png');
 
-        $interpolator->shouldReceive('interpolate')->once()
-            ->with(':class/:id_partition/:attribute/:variant/:filename', $attachment)
-            ->andReturn('file/variantkey');
-
         $handler->shouldReceive('variantUrlsForTarget')->once()
             ->with(Matchers::any(TargetInterface::class), ['variantkey'])
             ->andReturn(['variantkey' => 'http://fake.url/file/variantkey']);
@@ -136,8 +132,8 @@ class AttachmentTest extends TestCase
         $model->setAttribute('image_file_name', 'test.png');
 
         $interpolator->shouldReceive('interpolate')->once()
-            ->with(':class/:id_partition/:attribute/:variant/:filename', $attachment)
-            ->andReturn('file/original/test.png');
+            ->with(':class/:id_partition/:attribute/:variant/:filename', $attachment, 'variantkey')
+            ->andReturn('file/variantkey/test.png');
 
         static::assertEquals('file/variantkey/test.png', $attachment->variantPath('variantkey'));
     }
