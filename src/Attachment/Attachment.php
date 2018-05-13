@@ -527,7 +527,8 @@ class Attachment implements AttachmentInterface
                 $extension = array_get($variants, "{$variant}.ext");
 
                 if ($extension) {
-                    $extensions[ $variant ] = $extension;continue;
+                    $extensions[ $variant ] = $extension;
+                    continue;
                 }
             }
         }
