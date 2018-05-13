@@ -61,7 +61,6 @@ class Interpolator implements InterpolatorInterface
             ':name'         => 'getName',
             ':secure_hash'  => 'secureHash',
             ':style'        => 'style',
-            ':url'          => 'url',
             ':variant'      => 'style',
         ];
     }
@@ -77,19 +76,6 @@ class Interpolator implements InterpolatorInterface
     protected function filename(AttachmentInterface $attachment, $variant = '')
     {
         return $attachment->originalFilename();
-    }
-
-    /**
-     * Generates the url to a file upload.
-     *
-     * @param AttachmentInterface $attachment
-     * @param string              $variant
-     *
-     * @return string
-     */
-    protected function url(AttachmentInterface $attachment, $variant = '')
-    {
-        return $this->interpolate($attachment->url($variant), $attachment, $variant);
     }
 
     /**
