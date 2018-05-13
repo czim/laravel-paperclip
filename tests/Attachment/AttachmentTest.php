@@ -408,24 +408,6 @@ class AttachmentTest extends TestCase
 
         static::assertEquals(['some', 'variant', 'keys'], $attachment->variants());
     }
-    
-    /**
-     * @test
-     */
-    function it_converts_stapler_dimensions_to_resize_steps()
-    {
-        // todo
-        // should test in integration
-    }
-    
-    /**
-     * @test
-     */
-    function it_extracts_a_stapler_auto_orient_flag_to_its_own_variant_step()
-    {
-        // todo
-        // should test in integration
-    }
 
 
     /**
