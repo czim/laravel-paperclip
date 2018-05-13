@@ -173,7 +173,7 @@ class AttachmentData implements AttachmentDataInterface
     public function variantsAttribute()
     {
         if ( ! array_key_exists('variants', $this->attributes)) {
-            return null;
+            return [];
         }
 
         return $this->attributes['variants'];
