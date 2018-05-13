@@ -1,6 +1,6 @@
 # Changelog
 
-## 1.*
+## Laravel 5.5 and up
 
 ### [2.5.1] - 2018-05-13
 
@@ -34,7 +34,15 @@ This now relies on version `^1.0` for [czim/file-handling](https://github.com/cz
         This was done to prevent the risk of endless recursion.
         (It made no sense to me, anyway: an correct url is the *result* of the interpolation; how could it sensibly be used to interpolate its own result?).  
          If you do use this placeholder, please submit an issue with details on how and why, so we can think of a safe solution.
-                                                                                   
+
+                                                       
+## Laravel 5.4 and below
+
+### [2.0.0] - 2018-05-13
+
+This merges the changes for 2.5.0 and 2.5.1 in a new major version for Laravel 5.4 and earlier.
+
 
 [2.5.1]: https://github.com/czim/laravel-paperclip/compare/2.5.0...2.5.1
 [2.5.0]: https://github.com/czim/laravel-paperclip/compare/1.5.2...2.5.0
+[2.0.0]: https://github.com/czim/laravel-paperclip/compare/1.0.3...2.0.0
