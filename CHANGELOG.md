@@ -31,4 +31,4 @@ This now relies on version `^1.0` for [czim/file-handling](https://github.com/cz
          If you do use this placeholder, please submit an issue with details on how and why, so we can think of a safe solution.
                                                                                    
 
-[1.1.0]: https://github.com/czim/laravel-paperclip/compare/1.5.2...2.5.0
+[2.5.0]: https://github.com/czim/laravel-paperclip/compare/1.5.2...2.5.0
