@@ -5,7 +5,7 @@
     "homepage": "https://github.com/czim",
     "require": {
         "php": ">=7.0.0",
-        "czim/file-handling": "^0.9"
+        "czim/file-handling": "^1.0"
     },
     "require-dev": {
         "mockery/mockery": "0.9.*|~1.0",
