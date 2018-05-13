@@ -2,7 +2,7 @@
 namespace Czim\Paperclip\Path;
 
 use Czim\FileHandling\Handler\FileHandler;
-use Czim\Paperclip\Contracts\AttachmentInterface;
+use Czim\Paperclip\Contracts\AttachmentDataInterface;
 use Czim\Paperclip\Contracts\Path\InterpolatorInterface;
 
 /**
@@ -19,12 +19,12 @@ class Interpolator implements InterpolatorInterface
     /**
      * Interpolate a string.
      *
-     * @param string              $string
-     * @param AttachmentInterface $attachment
-     * @param string|null         $variant
+     * @param string                  $string
+     * @param AttachmentDataInterface $attachment
+     * @param string|null             $variant
      * @return string
      */
-    public function interpolate($string, AttachmentInterface $attachment, $variant = null)
+    public function interpolate($string, AttachmentDataInterface $attachment, $variant = null)
     {
         $variant = $variant ?: '';
 
@@ -68,12 +68,12 @@ class Interpolator implements InterpolatorInterface
     /**
      * Returns the file name.
      *
-     * @param AttachmentInterface $attachment
-     * @param string              $variant
+     * @param AttachmentDataInterface $attachment
+     * @param string                  $variant
      *
      * @return string
      */
-    protected function filename(AttachmentInterface $attachment, $variant = '')
+    protected function filename(AttachmentDataInterface $attachment, $variant = '')
     {
         return $attachment->originalFilename();
     }
@@ -81,12 +81,12 @@ class Interpolator implements InterpolatorInterface
     /**
      * Returns the application root of the project.
      *
-     * @param AttachmentInterface $attachment
-     * @param string              $variant
+     * @param AttachmentDataInterface $attachment
+     * @param string                  $variant
      *
      * @return string
      */
-    protected function appRoot(AttachmentInterface $attachment, $variant = '')
+    protected function appRoot(AttachmentDataInterface $attachment, $variant = '')
     {
         return app_path();
     }
@@ -95,11 +95,11 @@ class Interpolator implements InterpolatorInterface
      * Returns the current class name, taking into account namespaces, e.g
      * 'Swingline\Stapler' will become Swingline/Stapler.
      *
-     * @param AttachmentInterface $attachment
-     * @param string              $variant
+     * @param AttachmentDataInterface $attachment
+     * @param string                  $variant
      * @return string
      */
-    protected function getClass(AttachmentInterface $attachment, $variant = '')
+    protected function getClass(AttachmentDataInterface $attachment, $variant = '')
     {
         return $this->handleBackslashes($attachment->getInstanceClass());
     }
@@ -107,11 +107,11 @@ class Interpolator implements InterpolatorInterface
     /**
      * Returns the current class name, not taking into account namespaces, e.g.
      *
-     * @param AttachmentInterface $attachment
+     * @param AttachmentDataInterface $attachment
      * @param string              $variant
      * @return string
      */
-    protected function getClassName(AttachmentInterface $attachment, $variant = '')
+    protected function getClassName(AttachmentDataInterface $attachment, $variant = '')
     {
         $classComponents = explode('\\', $attachment->getInstanceClass());
 
@@ -122,12 +122,12 @@ class Interpolator implements InterpolatorInterface
      * Returns the current class name, exclusively taking into account namespaces, e.g
      * 'Swingline\Stapler' will become Swingline.
      *
-     * @param AttachmentInterface $attachment
-     * @param string              $variant
+     * @param AttachmentDataInterface $attachment
+     * @param string                  $variant
      *
      * @return string
      */
-    protected function getNamespace(AttachmentInterface $attachment, $variant = '')
+    protected function getNamespace(AttachmentDataInterface $attachment, $variant = '')
     {
         $classComponents = explode('\\', $attachment->getInstanceClass());
 
@@ -137,11 +137,11 @@ class Interpolator implements InterpolatorInterface
     /**
      * Returns the basename portion of the attached file, e.g 'file' for file.jpg.
      *
-     * @param AttachmentInterface $attachment
-     * @param string              $variant
+     * @param AttachmentDataInterface $attachment
+     * @param string                  $variant
      * @return string
      */
-    protected function basename(AttachmentInterface $attachment, $variant = '')
+    protected function basename(AttachmentDataInterface $attachment, $variant = '')
     {
         return pathinfo($attachment->originalFilename(), PATHINFO_FILENAME);
     }
@@ -149,11 +149,11 @@ class Interpolator implements InterpolatorInterface
     /**
      * Returns the extension of the attached file, e.g 'jpg' for file.jpg.
      *
-     * @param AttachmentInterface $attachment
-     * @param string              $variant
+     * @param AttachmentDataInterface $attachment
+     * @param string                  $variant
      * @return string
      */
-    protected function extension(AttachmentInterface $attachment, $variant = '')
+    protected function extension(AttachmentDataInterface $attachment, $variant = '')
     {
         return pathinfo($attachment->originalFilename(), PATHINFO_EXTENSION);
     }
@@ -161,23 +161,23 @@ class Interpolator implements InterpolatorInterface
     /**
      * Returns the id of the current object instance.
      *
-     * @param AttachmentInterface $attachment
-     * @param string              $variant
+     * @param AttachmentDataInterface $attachment
+     * @param string                  $variant
      * @return string
      */
-    protected function id(AttachmentInterface $attachment, $variant = '')
+    protected function id(AttachmentDataInterface $attachment, $variant = '')
     {
-        return $this->ensurePrintable($attachment->getInstance()->getKey());
+        return $this->ensurePrintable($attachment->getInstanceKey());
     }
 
     /**
      * Return a secure Bcrypt hash of the attachment's corresponding instance id.
      *
-     * @param AttachmentInterface $attachment
-     * @param string              $variant
+     * @param AttachmentDataInterface $attachment
+     * @param string                  $variant
      * @return string
      */
-    protected function secureHash(AttachmentInterface $attachment, $variant = '')
+    protected function secureHash(AttachmentDataInterface $attachment, $variant = '')
     {
         return hash(
             'sha256',
@@ -188,11 +188,11 @@ class Interpolator implements InterpolatorInterface
     /**
      * Return a Bcrypt hash of the attachment's corresponding instance id.
      *
-     * @param AttachmentInterface $attachment
-     * @param string              $variant
+     * @param AttachmentDataInterface $attachment
+     * @param string                  $variant
      * @return string
      */
-    protected function hash(AttachmentInterface $attachment, $variant = '')
+    protected function hash(AttachmentDataInterface $attachment, $variant = '')
     {
         return hash('sha256', $this->id($attachment, $variant));
     }
@@ -200,13 +200,13 @@ class Interpolator implements InterpolatorInterface
     /**
      * Generates the id partition of a record, e.g /000/001/234 for an id of 1234.
      *
-     * @param AttachmentInterface $attachment
-     * @param string              $variant
+     * @param AttachmentDataInterface $attachment
+     * @param string                  $variant
      * @return string
      */
-    protected function idPartition(AttachmentInterface $attachment, $variant = '')
+    protected function idPartition(AttachmentDataInterface $attachment, $variant = '')
     {
-        $id = $this->ensurePrintable($attachment->getInstance()->getKey());
+        $id = $this->ensurePrintable($attachment->getInstanceKey());
 
         if (is_numeric($id)) {
             return implode('/', str_split(sprintf('%09d', $id), 3));
@@ -225,11 +225,11 @@ class Interpolator implements InterpolatorInterface
      * Returns the pluralized form of the attachment name. e.g.
      * "avatars" for an attachment of :avatar.
      *
-     * @param AttachmentInterface $attachment
+     * @param AttachmentDataInterface $attachment
      * @param string              $variant
      * @return string
      */
-    protected function attachment(AttachmentInterface $attachment, $variant = '')
+    protected function attachment(AttachmentDataInterface $attachment, $variant = '')
     {
         return str_plural($attachment->name());
     }
@@ -237,11 +237,11 @@ class Interpolator implements InterpolatorInterface
     /**
      * Returns the style, or the default style if an empty style is supplied.
      *
-     * @param AttachmentInterface $attachment
-     * @param string              $variant
+     * @param AttachmentDataInterface $attachment
+     * @param string                  $variant
      * @return string
      */
-    protected function style(AttachmentInterface $attachment, $variant = '')
+    protected function style(AttachmentDataInterface $attachment, $variant = '')
     {
         if ($variant) {
             return $variant;
@@ -253,11 +253,11 @@ class Interpolator implements InterpolatorInterface
     /**
      * Returns the attachment attribute name.
      *
-     * @param AttachmentInterface $attachment
+     * @param AttachmentDataInterface $attachment
      * @param string              $variant
      * @return string
      */
-    protected function getName(AttachmentInterface $attachment, $variant = '')
+    protected function getName(AttachmentDataInterface $attachment, $variant = '')
     {
         return $attachment->name();
     }
