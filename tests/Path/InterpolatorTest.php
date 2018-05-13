@@ -10,27 +10,6 @@ use Mockery;
 class InterpolatorTest extends TestCase
 {
 
-    ///**
-    // * @test
-    // */
-    //function it_shit()
-    //{
-    //    $interpolator = new Interpolator;
-    //
-    //    $model = $this->getMockModel();
-    //    $model->shouldReceive('getKey')->andReturn(13);
-    //
-    //    $attachment = $this->getMockAttachment();
-    //    $attachment->shouldReceive('name')->once()->andReturn('attributename');
-    //    $attachment->shouldReceive('getInstance')->andReturn($model);
-    //    $attachment->shouldReceive('getInstanceClass')->once()->andReturn('App\\Models\\Test');
-    //    $attachment->shouldReceive('originalFilename')->once()->andReturn('testing.txt');
-    //
-    //    $result = $interpolator->interpolate('/:class_name/:attachment/:style/:hash.:extension', $attachment, 'variant');
-    //
-    //    dd($result);
-    //}
-
     /**
      * @test
      */
