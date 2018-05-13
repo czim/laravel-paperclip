@@ -21,6 +21,10 @@ This uses [czim/file-handling](https://github.com/czim/file-handling) under the 
  5.4.x and older     | 1.0.x
  5.5.x, 5.6.x        | 1.5.x
 
+## Change log
+
+[View the changelog](CHANGELOG.md).
+
 
 ## Installation
 
