@@ -465,6 +465,20 @@ class Attachment implements AttachmentInterface
         return $this->target;
     }
 
+    /**
+     * Returns a target instance with fixed historical data for the current state.
+     *
+     * @return TargetInterface
+     */
+    protected function makeTargetInstanceWithCurrentData()
+    {
+        $this->target = new InterpolatingTarget(
+            $this->interpolator,
+            $this->getCurrentAttachmentData(),
+            $this->getConfigValue('path'),
+            $this->getConfigValue('variant-path')
+        );
+
         $this->target->setVariantFilenames($this->variantFilenames());
         $this->target->setVariantExtensions($this->variantExtensions());
 
@@ -722,7 +736,7 @@ class Attachment implements AttachmentInterface
      */
     protected function queueSomeForDeletion(array $variants)
     {
-        $this->deleteTarget    = $this->getOrMakeTargetInstance();
+        $this->deleteTarget    = $this->makeTargetInstanceWithCurrentData();
         $this->queuedForDelete = array_unique(array_merge($this->queuedForDelete, $variants));
     }
 
@@ -736,8 +750,45 @@ class Attachment implements AttachmentInterface
             return;
         }
 
-        $this->deleteTarget    = $this->getOrMakeTargetInstance();
+        $this->deleteTarget    = $this->makeTargetInstanceWithCurrentData();
         $this->queuedForDelete = array_unique(array_merge($this->queuedForDelete, $this->variants(true)));
+    }
+
+    /**
+     * Returns the current attachment state data.
+     *
+     * @return AttachmentData
+     */
+    protected function getCurrentAttachmentData()
+    {
+        $attributes = [
+            'file_name'    => $this->originalFilename(),
+            'file_size'    => $this->size(),
+            'content_type' => $this->contentType(),
+            'updated_at'   => $this->updatedAt(),
+            'created_at'   => $this->createdAt(),
+            'variants'     => $this->variantsAttribute(),
+        ];
+
+        $variants = [];
+
+        foreach ($this->variants() as $variant) {
+
+            $variants[ $variant ] = [
+                'file_name'    => $this->variantFilename($variant),
+                'content_type' => $this->variantContentType($variant),
+                'extension'    => $this->variantExtension($variant),
+            ];
+        }
+
+        return new AttachmentData(
+            $this->name,
+            $this->getConfig(),
+            $attributes,
+            $variants,
+            $this->getInstanceKey(),
+            $this->getInstanceClass()
+        );
     }
 
 
