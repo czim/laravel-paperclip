@@ -3,6 +3,7 @@ namespace Czim\Paperclip\Test\Integration;
 
 use Czim\Paperclip\Attachment\Attachment;
 use Czim\Paperclip\Test\Helpers\Hooks\SpyCallableHook;
+use Czim\Paperclip\Test\Helpers\VariantStrategies\TestNoChangesStrategy;
 use Czim\Paperclip\Test\Helpers\VariantStrategies\TestTextToHtmlStrategy;
 use Czim\Paperclip\Test\ProvisionedTestCase;
 use SplFileInfo;
@@ -368,7 +369,36 @@ class PaperclipBasicAttachmentTest extends ProvisionedTestCase
             ],
         ], $model->attachment->variantsAttribute());
 
+        static::assertEquals('source.htm', $model->attachment->variantFilename('test'));
         static::assertEquals('htm', $model->attachment->variantExtension('test'));
+    }
+
+    /**
+     * @test
+     */
+    function it_does_not_store_variants_data_if_not_different_from_original()
+    {
+        $this->app['config']->set('paperclip.variants.aliases.test-html', TestNoChangesStrategy::class);
+
+        $model = $this->getTestModelWithAttachmentConfig([
+            'attributes' => [
+                'variants' => true,
+            ],
+            'variants' => [
+                'test' => [
+                    'test-html' => [],
+                ],
+            ],
+        ]);
+
+        $model->attachment = new SplFileInfo($this->getTestFilePath());
+        $model->save();
+
+        static::assertEquals([
+        ], $model->attachment->variantsAttribute());
+
+        static::assertEquals('source.txt', $model->attachment->variantFilename('test'));
+        static::assertFalse($model->attachment->variantExtension('test'));
     }
 
 
