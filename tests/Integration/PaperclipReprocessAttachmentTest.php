@@ -3,6 +3,7 @@ namespace Czim\Paperclip\Test\Integration;
 
 use Czim\FileHandling\Contracts\Storage\StorableFileFactoryInterface;
 use Czim\FileHandling\Storage\File\SplFileInfoStorableFile;
+use Czim\Paperclip\Test\Helpers\VariantStrategies\TestNoChangesStrategy;
 use Czim\Paperclip\Test\Helpers\VariantStrategies\TestTextToHtmlStrategy;
 use Czim\Paperclip\Test\ProvisionedTestCase;
 use Illuminate\Database\Eloquent\Model;
@@ -97,6 +98,46 @@ class PaperclipReprocessAttachmentTest extends ProvisionedTestCase
             'Variant information not rewritten after reprocessing'
         );
     }
+
+    /**
+     * @test
+     */
+    function it_reprocesses_a_variant_that_does_not_change_the_file_with_variants_attribute_enabled()
+    {
+        $this->app['config']->set('paperclip.variants.aliases.test-same', TestNoChangesStrategy::class);
+
+        $model = $this->getTestModelWithAttachmentConfig([
+            'attributes' => [
+                'variants' => true,
+            ],
+            'variants' => [
+                'test' => [
+                    'test-same' => [],
+                ],
+            ],
+        ]);
+
+        $model->attachment = new SplFileInfo($this->getTestFilePath('empty.gif'));
+        $model->save();
+
+        static::assertEquals([], $model->attachment->variantsAttribute());
+
+        $model->attachment_variants = null;
+        $model->save();
+
+        static::assertEmpty($model->attachment->variantsAttribute(), 'Variants should be empty for test');
+
+        $this->prepareMockSetupForReprocessingSource($model, 'attachment');
+
+        // Test
+        $model->attachment->reprocess();
+
+        static::assertEquals(
+            [],
+            $model->attachment->variantsAttribute(),
+            'Variant information not rewritten after reprocessing'
+        );
+    }
     
     /**
      * @test
@@ -170,13 +211,15 @@ class PaperclipReprocessAttachmentTest extends ProvisionedTestCase
     /**
      * @param string $path
      * @param string $name
+     * @param string $type
      * @return SplFileInfoStorableFile
      */
-    protected function getSourceForReprocessing($path, $name = 'empty.gif')
+    protected function getSourceForReprocessing($path, $name = 'empty.gif', $type = 'image/gif')
     {
         $source = new SplFileInfoStorableFile();
         $source->setData(new SplFileInfo($path));
         $source->setName($name);
+        $source->setMimeType($type);
 
         return $source;
     }
