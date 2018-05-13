@@ -696,6 +696,14 @@ class Attachment implements AttachmentInterface
     }
 
     /**
+     * Fill the queuedForWrite queue with all of this attachment's styles.
+     */
+    protected function queueAllForWrite()
+    {
+        $this->queuedForWrite = true;
+    }
+
+    /**
      * Add a subset (filtered by variant name) of the uploaded files
      * for this attachment to the queuedForDeletion queue.
      *
@@ -705,14 +713,6 @@ class Attachment implements AttachmentInterface
     {
         $this->deleteTarget    = $this->getOrMakeTargetInstance();
         $this->queuedForDelete = array_unique(array_merge($this->queuedForDelete, $variants));
-    }
-
-    /**
-     * Fill the queuedForWrite queue with all of this attachment's styles.
-     */
-    protected function queueAllForWrite()
-    {
-        $this->queuedForWrite = true;
     }
 
     /**
