@@ -109,6 +109,16 @@ class Attachment implements AttachmentInterface
     }
 
     /**
+     * Returns the key for the underlying object instance.
+     *
+     * @return mixed
+     */
+    public function getInstanceKey()
+    {
+        return $this->instance->getKey();
+    }
+
+    /**
      * Returns the class type of the attachment's underlying object instance.
      *
      * @return string
