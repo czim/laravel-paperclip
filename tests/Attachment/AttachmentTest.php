@@ -117,6 +117,27 @@ class AttachmentTest extends TestCase
     /**
      * @test
      */
+    function it_returns_the_original_path()
+    {
+        $interpolator = $this->getMockInterpolator();
+
+        $attachment = new Attachment;
+        $attachment->setInterpolator($interpolator);
+
+        $interpolator->shouldReceive('interpolate')
+            ->once()
+            ->with(
+                ':class/:id_partition/:attribute/:variant/:filename',
+                $attachment
+            )
+            ->andReturn('file/test.png');
+
+        static::assertEquals('file/test.png', $attachment->path());
+    }
+
+    /**
+     * @test
+     */
     function it_returns_the_variant_path_for_a_variant()
     {
         $model        = $this->getTestModel();
