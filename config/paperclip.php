@@ -63,6 +63,10 @@ return [
         // The path to the original file to be interpolated. This will also\
         // be used for variant paths if the variant key is unset.
         'original' => ':class/:id_partition/:attribute/:variant/:filename',
+
+        // If the structure for variant filenames should differ from the
+        // original, it may be defined here.
+        'variant'  => null,
     ],
 
     /*
