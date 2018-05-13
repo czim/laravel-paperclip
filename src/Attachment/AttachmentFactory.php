@@ -49,7 +49,9 @@ class AttachmentFactory implements AttachmentFactoryInterface
      */
     protected function getInterpolator()
     {
-        return app(InterpolatorInterface::class);
+        $interpolatorClass = config('paperclip.path.interpolator', InterpolatorInterface::class);
+
+        return app($interpolatorClass);
     }
 
 }
