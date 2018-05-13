@@ -706,8 +706,8 @@ class Attachment implements AttachmentInterface
             return;
         }
 
-        $originalExtension  = pathinfo($this->originalFilename(), PATHINFO_EXTENSION);
-        $originalMimeType   = $this->contentType();
+        $originalExtension = pathinfo($this->originalFilename(), PATHINFO_EXTENSION);
+        $originalMimeType  = $this->contentType();
 
         if (    $storedFile->extension() == $originalExtension
             &&  $storedFile->mimeType() == $originalMimeType
