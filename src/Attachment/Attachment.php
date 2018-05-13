@@ -456,6 +456,7 @@ class Attachment implements AttachmentInterface
             $this->interpolator,
             $this,
             $this->getConfigValue('path'),
+            $this->getConfigValue('variant-path')
         );
 
         $this->target->setVariantFilenames($this->variantFilenames());
@@ -1026,6 +1027,7 @@ class Attachment implements AttachmentInterface
             'preserve-files' => 'preserve-files',
             'storage'        => 'storage.disk',
             'path'           => 'path.original',
+            'variant-path'   => 'path.variant',
 
             'attributes.size'         => 'model.attributes.size',
             'attributes.content_type' => 'model.attributes.content_type',
