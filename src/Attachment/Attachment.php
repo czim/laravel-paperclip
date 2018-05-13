@@ -454,7 +454,7 @@ class Attachment implements AttachmentInterface
 
         $this->target = new Target($this->path());
 
-        //$this->target->setVariantFilenames($this->variantFilenames());
+        $this->target->setVariantFilenames($this->variantFilenames());
         $this->target->setVariantExtensions($this->variantExtensions());
 
         return $this->target;
