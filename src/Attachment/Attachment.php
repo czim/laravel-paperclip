@@ -7,11 +7,11 @@ use Czim\FileHandling\Contracts\Storage\StorableFileFactoryInterface;
 use Czim\FileHandling\Contracts\Storage\StorableFileInterface;
 use Czim\FileHandling\Contracts\Storage\TargetInterface;
 use Czim\FileHandling\Handler\FileHandler;
-use Czim\FileHandling\Storage\Path\Target;
 use Czim\Paperclip\Contracts\AttachableInterface;
 use Czim\Paperclip\Contracts\AttachmentInterface;
 use Czim\Paperclip\Contracts\Path\InterpolatorInterface;
 use Czim\Paperclip\Exceptions\VariantProcessFailureException;
+use Czim\Paperclip\Path\InterpolatingTarget;
 use Exception;
 use Illuminate\Database\Eloquent\Model;
 
@@ -341,7 +341,7 @@ class Attachment implements AttachmentInterface
      */
     public function path()
     {
-        return $this->interpolator->interpolate($this->getConfigValue('path'), $this);
+        return $this->getOrMakeTargetInstance()->original();
     }
 
     /**
@@ -452,7 +452,17 @@ class Attachment implements AttachmentInterface
             return $this->target;
         }
 
-        $this->target = new Target($this->path());
+        $this->target = new InterpolatingTarget(
+            $this->interpolator,
+            $this,
+            $this->getConfigValue('path'),
+        );
+
+        $this->target->setVariantFilenames($this->variantFilenames());
+        $this->target->setVariantExtensions($this->variantExtensions());
+
+        return $this->target;
+    }
 
         $this->target->setVariantFilenames($this->variantFilenames());
         $this->target->setVariantExtensions($this->variantExtensions());
