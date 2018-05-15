@@ -70,7 +70,7 @@ A `<key>_variants` text or varchar column is optional:
     $table->string('attachmentname_variants', 255)->nullable();
 ```
 
-A `text()` column is recommended in cases where a seriously *huge* amount of variants.
+A `text()` column is recommended in cases where a seriously *huge* amount of variants are created.
 
 If it is added and configured to be used (more on that [in the config section](CONFIG.md)), JSON information about variants will be stored in it.  
 
