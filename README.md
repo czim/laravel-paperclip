@@ -162,9 +162,11 @@ Under the hood, the refresh command is also much less likely to run out of memor
 
 A final change is that the trait uses its own boot method, not the global Model's `boot()`, making this package less likely to conflict with other traits and model implementations.
 
+
 ## Amazon S3 cache-control
 
-In order to set cache-control: max-age headers on uploaded files to S3, edit config/filesystems.php setting and add custom options:
+If you use Amazon S3 as storage disk for your attachments, note that you can set `Cache-Control` headers in the options for the `filesystems.disks.s3` configuration key. 
+For example, to set `max-age` headers on all uploaded files to S3, edit `config/filesystems.php` like so:
 
 ```
 's3' => [
@@ -179,6 +181,7 @@ In order to set cache-control: max-age headers on uploaded files to S3, edit con
     ],
 ],
 ```
+
 
 ## Contributing
 
