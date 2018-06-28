@@ -2,6 +2,10 @@
 
 ## Laravel 5.5 and up
 
+### [2.5.2] - 2018-06-28
+
+Fixed issue where variant URLs and storage paths made use of the original name, rather than the variant's name (and extension).
+
 ### [2.5.1] - 2018-05-13
 
 Now actually uses `path.interpolator` configuration setting.
@@ -43,6 +47,8 @@ This now relies on version `^1.0` for [czim/file-handling](https://github.com/cz
 This merges the changes for 2.5.0 and 2.5.1 in a new major version for Laravel 5.4 and earlier.
 
 
+[2.5.2]: https://github.com/czim/laravel-paperclip/compare/2.5.1...2.5.2
 [2.5.1]: https://github.com/czim/laravel-paperclip/compare/2.5.0...2.5.1
 [2.5.0]: https://github.com/czim/laravel-paperclip/compare/1.5.2...2.5.0
+
 [2.0.0]: https://github.com/czim/laravel-paperclip/compare/1.0.3...2.0.0
