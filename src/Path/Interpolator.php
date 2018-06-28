@@ -75,6 +75,10 @@ class Interpolator implements InterpolatorInterface
      */
     protected function filename(AttachmentDataInterface $attachment, $variant = '')
     {
+        if ($variant) {
+            return $attachment->variantFilename($variant);
+        }
+
         return $attachment->originalFilename();
     }
 
@@ -143,7 +147,7 @@ class Interpolator implements InterpolatorInterface
      */
     protected function basename(AttachmentDataInterface $attachment, $variant = '')
     {
-        return pathinfo($attachment->originalFilename(), PATHINFO_FILENAME);
+        return pathinfo($this->filename($attachment, $variant), PATHINFO_FILENAME);
     }
 
     /**
@@ -155,7 +159,7 @@ class Interpolator implements InterpolatorInterface
      */
     protected function extension(AttachmentDataInterface $attachment, $variant = '')
     {
-        return pathinfo($attachment->originalFilename(), PATHINFO_EXTENSION);
+        return pathinfo($this->filename($attachment, $variant), PATHINFO_EXTENSION);
     }
 
     /**
@@ -181,7 +185,7 @@ class Interpolator implements InterpolatorInterface
     {
         return hash(
             'sha256',
-            $this->id($attachment, $variant) . $attachment->size() . $attachment->originalFilename()
+            $this->id($attachment, $variant) . $attachment->size() . $this->filename($attachment, $variant)
         );
     }
 
