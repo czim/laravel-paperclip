@@ -34,7 +34,7 @@ class InterpolatorTest extends TestCase
         $interpolator = new Interpolator;
 
         $attachment = $this->getMockAttachmentData();
-        $attachment->shouldReceive('variantfilename')->once()->with('variant')
+        $attachment->shouldReceive('variantFilename')->once()->with('variant')
             ->andReturn('testing.gif');
 
         $result = $interpolator->interpolate('test/:filename', $attachment, 'variant');
