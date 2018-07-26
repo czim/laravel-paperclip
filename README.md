@@ -36,7 +36,7 @@ $ composer require czim/laravel-paperclip
 ```
 
 Autodiscover may be used to register the service provider automatically.
-Otherwise you can register the service provider in `config/app.php`:
+Otherwise, you can manually register the service provider in `config/app.php`:
 
 ```php
 <?php
