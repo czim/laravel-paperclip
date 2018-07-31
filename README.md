@@ -202,7 +202,7 @@ For example, to set `max-age` headers on all uploaded files to S3, edit `config/
 
 ### Updating Dependencies
 
-Update your `czim/laravel-paperclip` dependency to `2.5.*` in your `composer.json` file.
+Update your `czim/laravel-paperclip` dependency to `^2.5` in your `composer.json` file.
 
 ```
 	"require": {
@@ -218,7 +218,7 @@ Then, in your terminal run:
 composer update czim/laravel-paperclip --with-dependencies
 ```
 
-In addition, if you are using the `czim/file-handling` package directly, you should upgrade the package to it's `^1,0` release, but be sure to checkout the [CHANGELOG](https://github.com/czim/file-handling/blob/master/CHANGELOG.md)
+In addition, if you are using the `czim/file-handling` package directly, you should upgrade the package to its `^1,0` release, but be sure to checkout the [CHANGELOG](https://github.com/czim/file-handling/blob/master/CHANGELOG.md)
 
 ```
 	"require": {
@@ -230,7 +230,7 @@ In addition, if you are using the `czim/file-handling` package directly, you sho
 
 ### Update Configuration
 
-Update your `config/paperclip.php` file and replace
+Update your `config/paperclip.php` file and replace:
 
 ```
         // The base path that the interpolator should use
@@ -249,7 +249,8 @@ With:
         'variant'  => null,
 ```
 
-This should now include placeholders to make a full file path including the filename, as opposed to only a directory. Note that this makes the path interpolation logic more in line with the Stapler handled it.
+This should now include placeholders to make a full file path including the filename, as opposed to only a directory. Note that this makes the path interpolation logic more in line with the way Stapler handled it.
+
 
 ## Contributing
 
