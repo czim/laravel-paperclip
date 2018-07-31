@@ -194,6 +194,63 @@ For example, to set `max-age` headers on all uploaded files to S3, edit `config/
 ],
 ```
 
+## Upgrade Guide
+
+### Upgrading from 1.5.* to 2.5.*
+
+**Estimated Upgrade Time: 5 - 10 Minutes**
+
+### Updating Dependencies
+
+Update your `czim/laravel-paperclip` dependency to `^2.5` in your `composer.json` file.
+
+```
+	"require": {
+		...
+		"czim/laravel-paperclip": "^2.5",
+		...
+	}
+```
+
+Then, in your terminal run:
+
+```
+composer update czim/laravel-paperclip --with-dependencies
+```
+
+In addition, if you are using the `czim/file-handling` package directly, you should upgrade the package to its `^1,0` release, but be sure to checkout the [CHANGELOG](https://github.com/czim/file-handling/blob/master/CHANGELOG.md)
+
+```
+	"require": {
+		...
+		"czim/file-handling": "^1.0",
+		...
+	}
+```
+
+### Update Configuration
+
+Update your `config/paperclip.php` file and replace:
+
+```
+        // The base path that the interpolator should use
+        'base-path' => ':class/:id_partition/:attribute',
+```
+
+With:
+
+```
+        // The path to the original file to be interpolated. This will also\
+        // be used for variant paths if the variant key is unset.
+        'original' => ':class/:id_partition/:attribute/:variant/:filename',
+        
+        // If the structure for variant filenames should differ from the
+        // original, it may be defined here.
+        'variant'  => null,
+```
+
+This should now include placeholders to make a full file path including the filename, as opposed to only a directory. Note that this makes the path interpolation logic more in line with the way Stapler handled it.
+
 
 ## Contributing
 
