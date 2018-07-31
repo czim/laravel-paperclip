@@ -26,6 +26,7 @@ This uses [czim/file-handling](https://github.com/czim/file-handling) under the 
 
 [View the changelog](CHANGELOG.md).
 
+
 ## Installation
 
 Via Composer:
@@ -51,6 +52,7 @@ Publish the configuration file:
 ``` bash
 php artisan vendor:publish --provider="Czim\Paperclip\Providers\PaperclipServiceProvider"
 ```
+
 
 ## Usage
 
