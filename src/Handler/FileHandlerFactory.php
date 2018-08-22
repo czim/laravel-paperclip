@@ -33,10 +33,10 @@ class FileHandlerFactory implements FileHandlerFactoryInterface
      */
     protected function makeStorage($disk)
     {
-        $isLocal = 'local' === config("filesystems.{$disk}.driver");
+        $isLocal = 'local' === config("filesystems.disks.{$disk}.driver");
         $baseUrl = config(
             "paperclip.storage.base-urls.{$disk}",
-            config("filesystems.{$disk}.url", url())
+            config("filesystems.disks.{$disk}.url", url())
         );
 
         return new LaravelStorage(Storage::disk($disk), $isLocal, $baseUrl);
