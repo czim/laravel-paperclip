@@ -2,6 +2,11 @@
 
 ## Laravel 5.5 and up
 
+### [2.5.3] - 2018-09-08
+
+Fixed issue with Laravel `5.6.37` and up (with a hack).  
+Fixed a broken config reference to filesystem disk 'local'-checking.
+
 ### [2.5.2] - 2018-06-28
 
 Fixed issue where variant URLs and storage paths made use of the original name, rather than the variant's name (and extension).
@@ -51,6 +56,7 @@ See 2.5.2.
 This merges the changes for 2.5.0 and 2.5.1 in a new major version for Laravel 5.4 and earlier.
 
 
+[2.5.2]: https://github.com/czim/laravel-paperclip/compare/2.5.2...2.5.3
 [2.5.2]: https://github.com/czim/laravel-paperclip/compare/2.5.1...2.5.2
 [2.5.1]: https://github.com/czim/laravel-paperclip/compare/2.5.0...2.5.1
 [2.5.0]: https://github.com/czim/laravel-paperclip/compare/1.5.2...2.5.0
