@@ -7,6 +7,7 @@ use Czim\Paperclip\Contracts\AttachableInterface;
 use Czim\Paperclip\Contracts\AttachmentFactoryInterface;
 use Czim\Paperclip\Contracts\AttachmentInterface;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Arr;
 
 trait PaperclipTrait
 {
@@ -144,6 +145,11 @@ trait PaperclipTrait
      */
     public function getAttributes()
     {
+        // Quick, ugly hack to handle 5.6.37 update (getAttributes() now also called in performInsert()).
+        if ($this->isPerformInsertInBacktrace()) {
+            return parent::getAttributes();
+        }
+
         return array_merge($this->attachedFiles, parent::getAttributes());
     }
 
@@ -211,6 +217,17 @@ trait PaperclipTrait
     public function markAttachmentUpdated()
     {
         $this->attachedUpdated = true;
+    }
+
+    /**
+     * @return bool
+     */
+    protected function isPerformInsertInBacktrace()
+    {
+        return false !== Arr::first(debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS), function (array $step) {
+            return  Arr::get($step, 'function') === 'performInsert'
+                &&  Arr::get($step, 'class') === Model::class;
+        }, false);
     }
 
 }
