@@ -39,6 +39,21 @@ interface AttachmentInterface extends AttachmentDataInterface, JsonSerializable
     public function getNormalizedConfig();
 
     /**
+     * Sets the storage disk identifier.
+     *
+     * @param string $storage   disk identifier
+     * @return $this
+     */
+    public function setStorage($storage);
+
+    /**
+     * Returns the storage disk used by the attachment.
+     *
+     * @return null|string
+     */
+    public function getStorage();
+
+    /**
      * Sets the name (the attribute on the model) for the attachment.
      *
      * @param string $name

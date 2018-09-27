@@ -9,13 +9,15 @@ use Czim\FileHandling\Contracts\Storage\TargetInterface;
 use Czim\FileHandling\Handler\FileHandler;
 use Czim\Paperclip\Contracts\AttachableInterface;
 use Czim\Paperclip\Contracts\AttachmentInterface;
+use Czim\Paperclip\Contracts\FileHandlerFactoryInterface;
 use Czim\Paperclip\Contracts\Path\InterpolatorInterface;
 use Czim\Paperclip\Exceptions\VariantProcessFailureException;
 use Czim\Paperclip\Path\InterpolatingTarget;
 use Exception;
 use Illuminate\Database\Eloquent\Model;
+use Serializable;
 
-class Attachment implements AttachmentInterface
+class Attachment implements AttachmentInterface, Serializable
 {
     const NULL_ATTACHMENT = '44e1ec68e2a43f32741cbd4cb4d77c79e28d6a5c';
 
@@ -33,6 +35,11 @@ class Attachment implements AttachmentInterface
      * @var FileHandlerInterface
      */
     protected $handler;
+
+    /**
+     * @var string|null
+     */
+    protected $storage;
 
     /**
      * @var InterpolatorInterface
@@ -198,14 +205,31 @@ class Attachment implements AttachmentInterface
     }
 
     /**
-     * @param FileHandlerInterface $handler
+     * Sets the storage disk identifier.
+     *
+     * @param string $storage   disk identifier
      * @return $this
      */
-    public function setHandler(FileHandlerInterface $handler)
+    public function setStorage($storage)
     {
-        $this->handler = $handler;
+        if ($this->storage !== $storage || ! $this->handler) {
+
+            $this->storage = $storage;
+
+            $this->handler = $this->getFileHandlerFactory()->create($storage);
+        }
 
         return $this;
+    }
+
+    /**
+     * Returns the storage disk used by the attachment.
+     *
+     * @return null|string
+     */
+    public function getStorage()
+    {
+        return $this->storage;
     }
 
     /**
@@ -1101,6 +1125,57 @@ class Attachment implements AttachmentInterface
     protected function getStorableFileFactory()
     {
         return app(StorableFileFactoryInterface::class);
+    }
+
+    /**
+     * @return FileHandlerFactoryInterface
+     */
+    protected function getFileHandlerFactory()
+    {
+        return app(FileHandlerFactoryInterface::class);
+    }
+
+
+    /**
+     * @return string
+     */
+    public function serialize()
+    {
+        // Serialize everything that is unlikely to involve closures
+        return serialize([
+            'instance'         => $this->instance,
+            'storage'          => $this->storage,
+            'name'             => $this->name,
+            'interpolator'     => $this->interpolator,
+            'config'           => $this->config,
+            'normalizedConfig' => $this->normalizedConfig,
+            'uploadedFile'     => $this->uploadedFile,
+            'queuedForDelete'  => $this->queuedForDelete,
+            'queuedForWrite'   => $this->queuedForWrite,
+            'target'           => $this->target,
+            'deleteTarget'     => $this->deleteTarget,
+        ]);
+    }
+
+    /**
+     * @param string $serialized
+     */
+    public function unserialize($serialized)
+    {
+        $data = unserialize($serialized);
+
+        $this->instance         = $data['instance'];
+        $this->name             = $data['name'];
+        $this->interpolator     = $data['interpolator'];
+        $this->config           = $data['config'];
+        $this->normalizedConfig = $data['normalizedConfig'];
+        $this->uploadedFile     = $data['uploadedFile'];
+        $this->queuedForDelete  = $data['queuedForDelete'];
+        $this->queuedForWrite   = $data['queuedForWrite'];
+        $this->target           = $data['target'];
+        $this->deleteTarget     = $data['deleteTarget'];
+
+        $this->setStorage($data['storage']);
     }
 
 }
