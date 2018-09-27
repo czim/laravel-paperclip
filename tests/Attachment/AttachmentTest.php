@@ -4,6 +4,7 @@ namespace Czim\Paperclip\Test\Attachment;
 use Czim\FileHandling\Contracts\Handler\FileHandlerInterface;
 use Czim\FileHandling\Contracts\Storage\TargetInterface;
 use Czim\Paperclip\Attachment\Attachment;
+use Czim\Paperclip\Contracts\FileHandlerFactoryInterface;
 use Czim\Paperclip\Contracts\Path\InterpolatorInterface;
 use Czim\Paperclip\Test\TestCase;
 use Hamcrest\Matchers;
@@ -63,13 +64,15 @@ class AttachmentTest extends TestCase
     /**
      * @test
      */
-    function it_takes_and_returns_a_file_handler()
+    function it_takes_and_returns_a_storage_identifier_and_handler()
     {
         $handler = $this->getMockHandler();
+        $this->app->instance(FileHandlerFactoryInterface::class, $this->getMockHandlerFactory($handler));
 
         $attachment = new Attachment;
-        static::assertSame($attachment, $attachment->setHandler($handler));
+        static::assertSame($attachment, $attachment->setStorage('test'));
 
+        static::assertSame('test', $attachment->getStorage());
         static::assertSame($handler, $attachment->getHandler());
     }
 
@@ -99,9 +102,11 @@ class AttachmentTest extends TestCase
         $handler      = $this->getMockHandler();
         $interpolator = $this->getMockInterpolator();
 
+        $this->app->instance(FileHandlerFactoryInterface::class, $this->getMockHandlerFactory($handler));
+
         $attachment = new Attachment;
         $attachment->setInstance($model);
-        $attachment->setHandler($handler);
+        $attachment->setStorage('paperclip');
         $attachment->setInterpolator($interpolator);
         $attachment->setName('image');
 
@@ -144,9 +149,11 @@ class AttachmentTest extends TestCase
         $handler      = $this->getMockHandler();
         $interpolator = $this->getMockInterpolator();
 
+        $this->app->instance(FileHandlerFactoryInterface::class, $this->getMockHandlerFactory($handler));
+
         $attachment = new Attachment;
         $attachment->setInstance($model);
-        $attachment->setHandler($handler);
+        $attachment->setStorage('paperclip');
         $attachment->setInterpolator($interpolator);
         $attachment->setName('image');
 
@@ -433,6 +440,19 @@ class AttachmentTest extends TestCase
     protected function getMockHandler()
     {
         return Mockery::mock(FileHandlerInterface::class);
+    }
+
+    /**
+     * @param FileHandlerInterface $handler
+     * @return Mockery\MockInterface|Mockery\Mock|FileHandlerFactoryInterface
+     */
+    protected function getMockHandlerFactory(FileHandlerInterface $handler)
+    {
+        $mock = Mockery::mock(FileHandlerFactoryInterface::class);
+
+        $mock->shouldReceive('create')->andReturn($handler);
+
+        return $mock;
     }
 
     /**
