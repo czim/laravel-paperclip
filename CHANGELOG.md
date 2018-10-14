@@ -2,6 +2,10 @@
 
 ## Laravel 5.5 and up
 
+### [2.5.5] - 2018-10-14
+
+Now allows configuration of deletion hash through `paperclip.delete-hash` key.
+
 ### [2.5.4] - 2018-09-27
 
 Fixed issue with serialization of Attachment instance (and, by extension, any models with the paperclip trait).  
@@ -61,6 +65,7 @@ See 2.5.2.
 This merges the changes for 2.5.0 and 2.5.1 in a new major version for Laravel 5.4 and earlier.
 
 
+[2.5.5]: https://github.com/czim/laravel-paperclip/compare/2.5.4...2.5.5
 [2.5.4]: https://github.com/czim/laravel-paperclip/compare/2.5.3...2.5.4
 [2.5.3]: https://github.com/czim/laravel-paperclip/compare/2.5.2...2.5.3
 [2.5.2]: https://github.com/czim/laravel-paperclip/compare/2.5.1...2.5.2
