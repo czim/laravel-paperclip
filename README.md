@@ -54,7 +54,7 @@ php artisan vendor:publish --provider="Czim\Paperclip\Providers\PaperclipService
 ```
 
 
-## Usage
+## Set up and Configuration
 
 ### Model Preparation
 
@@ -159,6 +159,80 @@ Example:
 ```bash
 php artisan paperclip:refresh "App\Models\BlogPost" --attachments header,background
 ```
+
+
+## Usage
+
+Once a model is set up and configured for an attachment, you can simply set the attachment attribute on that model to create an attachment.
+
+```php
+<?php
+
+public function someControllerAction(Request $request) {
+    
+    $model = ModelWithAttachment::first();
+    
+    // You can set any UploadedFile instance from a request on
+    // the attribute you configured a Paperclipped model for.
+    $model->attachmentname = $request->file('uploaded');
+    
+    // Saving the model will then process and store the attachment.
+    $model->save();
+    
+    // ...
+}
+```
+
+
+### Setting attachments without uploads
+
+Usually, you will want to set an uploaded file as an attachment. If you want to store a file from within your application, without the context of a request or a file upload, you can use the following approach:
+
+```php
+<?php
+// You can use the built in SplFileInfo class:
+$model->attachmentname = new \SplFileInfo('local/path/to.file');
+
+
+// Or a file-handler class that allows you to override values:
+$file = new \Czim\FileHandling\Storage\File\SplFileInfoStorableFile();
+$file->setData(new \SplFileInfo('local/path/to.file'));
+// Optional, will be derived from the file normally
+$file->setMimeType('image/jpeg');
+// Optional, the file's current name will be used normally
+$file->setName('original-file-name.jpg');
+$model->attachmentname = $file;
+
+
+// Or even a class representing raw content
+$raw = new \Czim\FileHandling\Storage\File\RawStorableFile();
+$raw->setData('... string with raw content of file ...');
+$raw->setMimeType('image/jpeg');
+$raw->setName('original-file-name.jpg');
+$model->attachmentname = $raw;
+```
+
+
+### Clearing attachments
+
+In order to prevent accidental deletion, setting the attachment to `null` will *not* destroy a previously stored attachment.
+Instead you have to explicitly destroy it.
+
+```php
+<?php
+// You can set a special string value, the deletion hash, like so:
+$model->attachmentname = \Czim\Paperclip\Attachment\Attachment::NULL_ATTACHMENT;
+// In version 2.5.5 and up, this value is configurable and available in the config:
+$model->attachmentname = config('paperclip.delete-hash');
+
+// You can also directly clear the attachment by flagging it for deletion:
+$model->attachmentname->setToBeDeleted();
+
+
+// After any of these approaches, saving the model will make the deletion take effect.
+$model->save();
+```
+
 
 ## Differences with Stapler
 
