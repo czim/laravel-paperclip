@@ -115,6 +115,9 @@ return [
     // Set this to true in order to prevent file uploads from being deleted as attachments are destroyed.
     'preserve-files' => false,
 
+    // A string value that, when set on an attachment property, will delete the attachment.
+    'delete-hash' => Czim\Paperclip\Attachment\Attachment::NULL_ATTACHMENT,
+
     /*
     |--------------------------------------------------------------------------
     | Imagine

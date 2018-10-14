@@ -117,7 +117,7 @@ trait PaperclipTrait
             if ($value) {
                 $attachedFile = $this->attachedFiles[ $key ];
 
-                if ($value === Attachment::NULL_ATTACHMENT) {
+                if ($value === $this->getDeleteAttachmentString()) {
                     $attachedFile->setToBeDeleted();
                     return;
                 }
@@ -228,6 +228,16 @@ trait PaperclipTrait
             return  Arr::get($step, 'function') === 'performInsert'
                 &&  Arr::get($step, 'class') === Model::class;
         }, false);
+    }
+
+    /**
+     * Returns the string with which an attachment can be deleted.
+     *
+     * @return string
+     */
+    protected function getDeleteAttachmentString()
+    {
+        return config('paperclip.delete-hash', Attachment::NULL_ATTACHMENT);
     }
 
 }
