@@ -102,10 +102,10 @@ class FileHandlerFactory implements FileHandlerFactoryInterface
      */
     protected function getBaseUrlForDisk($disk)
     {
-        $disk = config("paperclip.storage.base-urls.{$disk}") ?: config("filesystems.disks.{$disk}.url", url());
+        $url = config("paperclip.storage.base-urls.{$disk}") ?: config("filesystems.disks.{$disk}.url");
 
-        if (is_string($disk)) {
-            return $disk;
+        if (is_string($url)) {
+            return $url;
         }
 
         throw new RuntimeException("Could not determine base URL for storage disk '{$disk}'");
