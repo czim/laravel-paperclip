@@ -73,11 +73,14 @@ class FileHandlerFactory implements FileHandlerFactoryInterface
     }
 
     /**
-     * @return string
+     * Returns the storage disk to use. If no paperclip storage is defined, the default storage is used.
+     *
+     * @return string|null
      */
     protected function getStorageDisk()
     {
-        return config('paperclip.storage.disk') ?: 'paperclip';
+        return  config('paperclip.storage.disk')
+            ?:  config('filesystems.default');
     }
 
     /**
