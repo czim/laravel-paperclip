@@ -2,6 +2,14 @@
 
 ## Laravel 5.5 and up
 
+### [2.5.6] - 2018-10-25
+
+Improved configuration defaults and analysis for storage and base URL.
+If no storage driver is configured, or if it is incorrectly configured, a descriptive exception is thrown.  
+If no base-URL could be determined, an exception is thrown.
+
+It is no longer required to set `paperclip.storage.base-urls` entries if the relevant `filesystems.disks.<disk>.url` is set.
+
 ### [2.5.5] - 2018-10-14
 
 Now allows configuration of deletion hash through `paperclip.delete-hash` key.
@@ -65,6 +73,7 @@ See 2.5.2.
 This merges the changes for 2.5.0 and 2.5.1 in a new major version for Laravel 5.4 and earlier.
 
 
+[2.5.6]: https://github.com/czim/laravel-paperclip/compare/2.5.5...2.5.6
 [2.5.5]: https://github.com/czim/laravel-paperclip/compare/2.5.4...2.5.5
 [2.5.4]: https://github.com/czim/laravel-paperclip/compare/2.5.3...2.5.4
 [2.5.3]: https://github.com/czim/laravel-paperclip/compare/2.5.2...2.5.3
