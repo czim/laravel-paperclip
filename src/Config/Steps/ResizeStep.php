@@ -3,7 +3,7 @@ namespace Czim\Paperclip\Config\Steps;
 
 use BadMethodCallException;
 
-class ResizeStep extends AutoOrientStep
+class ResizeStep extends VariantStep
 {
 
     /**
@@ -60,6 +60,17 @@ class ResizeStep extends AutoOrientStep
     }
 
     /**
+     * @param int $pixels
+     * @return $this
+     */
+    public function square($pixels)
+    {
+        $this->width = $this->height = $pixels;
+
+        return $this;
+    }
+
+    /**
      * @return $this
      */
     public function crop()
@@ -107,12 +118,24 @@ class ResizeStep extends AutoOrientStep
      */
     protected function compileDimensionsString()
     {
+        // If neither width nor height are set, the configuration is incomplete.
+        if ( ! $this->width && ! $this->height) {
+            throw new BadMethodCallException('Either width or height must be set');
+        }
+
         // If width or height is not set, the crop or ignore-ratio option are not available.
         if (    ! ($this->width && $this->height)
             &&  ($this->crop || $this->ignoreRatio)
         ) {
             throw new BadMethodCallException(
                 "Cannot use 'crop' or 'ignoreRatio' unless both width and height are set"
+            );
+        }
+
+        // Crop and ignore-ratio conflict.
+        if ($this->crop && $this->ignoreRatio) {
+            throw new BadMethodCallException(
+                "Only one of 'crop' and 'ignoreRatio' can be used"
             );
         }
 
