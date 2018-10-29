@@ -2,6 +2,12 @@
 
 ## Laravel 5.5 and up
 
+### [2.5.7] - 2018-10-29
+
+Added possibility to configure variants using fluent syntax configuration objects. 
+This is entirely optional. The documentation has been updated to reflect this.
+
+
 ### [2.5.6] - 2018-10-25
 
 Improved configuration defaults and analysis for storage and base URL.
@@ -73,6 +79,7 @@ See 2.5.2.
 This merges the changes for 2.5.0 and 2.5.1 in a new major version for Laravel 5.4 and earlier.
 
 
+[2.5.7]: https://github.com/czim/laravel-paperclip/compare/2.5.6...2.5.7
 [2.5.6]: https://github.com/czim/laravel-paperclip/compare/2.5.5...2.5.6
 [2.5.5]: https://github.com/czim/laravel-paperclip/compare/2.5.4...2.5.5
 [2.5.4]: https://github.com/czim/laravel-paperclip/compare/2.5.3...2.5.4
