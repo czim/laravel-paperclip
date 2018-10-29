@@ -7,6 +7,7 @@ use Czim\FileHandling\Contracts\Storage\StorableFileFactoryInterface;
 use Czim\FileHandling\Contracts\Storage\StorableFileInterface;
 use Czim\FileHandling\Contracts\Storage\TargetInterface;
 use Czim\FileHandling\Handler\FileHandler;
+use Czim\Paperclip\Config\Variant;
 use Czim\Paperclip\Contracts\AttachableInterface;
 use Czim\Paperclip\Contracts\AttachmentInterface;
 use Czim\Paperclip\Contracts\FileHandlerFactoryInterface;
@@ -1027,11 +1028,30 @@ class Attachment implements AttachmentInterface, Serializable
             $config['variants'] = config('paperclip.variants.default');
         }
 
-        // Normalize variant definitions
-        foreach (array_get($config, 'variants', []) as $variant => $options) {
+        $extensions = [];
 
-            array_set($config, "variants.{$variant}", $this->normalizeVariantConfigEntry($options));
+        // Normalize variant definitions
+        $variants = [];
+
+        foreach (array_get($config, 'variants', []) as $variantName => $options) {
+
+            if ($options instanceof Variant) {
+
+                $variantName = $options->getName();
+
+                if ($options->getExtension()) {
+                    $extensions[ $variantName ] = $options->getExtension();
+                }
+
+                $options = $options->getSteps();
+            }
+
+            $variants[ $variantName ] = $this->normalizeVariantConfigEntry($options);
+
         }
+
+        array_set($config, 'variants', $variants);
+        unset($variants);
 
         // Simple renames of stapler config keys
         $renames = [
@@ -1049,6 +1069,15 @@ class Attachment implements AttachmentInterface, Serializable
                 $config[ $new ] = array_get($config, $old);
             }
             array_forget($config, $old);
+        }
+
+        // Merge in extensions set through indirect means.
+        if (count($extensions)) {
+            array_set(
+                $config,
+                'extensions',
+                array_merge(array_get($config, 'extensions', []), $extensions)
+            );
         }
 
         return $config;
