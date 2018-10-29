@@ -121,6 +121,27 @@ class Comment extends Model implements \Czim\Paperclip\Contracts\AttachableInter
 }
 ```
 
+Since version `2.5.7` it is also possible to use an easier to use fluent object syntax for defining variant steps:
+
+```php
+<?php
+    use \Czim\Paperclip\Config\Variant;
+    use \Czim\Paperclip\Config\Steps\AutoOrientStep;
+    use \Czim\Paperclip\Config\Steps\ResizeStep;
+    
+    // ...
+
+    $this->hasAttachedFile('image', [
+        'variants' => [
+            Variant::make('medium')->steps([
+                AutoOrientStep::make(),
+                ResizeStep::make()->width(300)->height(150)->crop(),
+            ]),
+            Variant::make('medium')->steps(ResizeStep::make()->square(100)),
+        ],
+    ]);
+```
+
 
 ### Variant Configuration
 
