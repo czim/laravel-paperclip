@@ -14,6 +14,7 @@ use Czim\Paperclip\Contracts\Path\InterpolatorInterface;
 use Czim\Paperclip\Exceptions\VariantProcessFailureException;
 use Czim\Paperclip\Path\InterpolatingTarget;
 use Exception;
+use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Database\Eloquent\Model;
 use Serializable;
 
@@ -1028,30 +1029,8 @@ class Attachment implements AttachmentInterface, Serializable
 
         // Normalize variant definitions
         foreach (array_get($config, 'variants', []) as $variant => $options) {
-            // Assume dimensions if not an array
-            if ( ! is_array($options)) {
-                $options = ['resize' => ['dimensions' => $options]];
-                array_set($config, "variants.{$variant}", $options);
-            }
 
-            if (array_key_exists('dimensions', $options)) {
-                $options = ['resize' => $options];
-                array_set($config, "variants.{$variant}", $options);
-            }
-
-            // If auto-orient is set, extract it to its own step
-            if (    (   array_get($options, 'resize.auto-orient')
-                    ||  array_get($options, 'resize.auto_orient')
-                    )
-                && ! array_has($options, 'auto-orient')
-            ) {
-                $options = array_merge(['auto-orient' => []], $options);
-                array_set($config, "variants.{$variant}", $options);
-                array_forget($config, [
-                    "variants.{$variant}.resize.auto-orient",
-                    "variants.{$variant}.resize.auto_orient",
-                ]);
-            }
+            array_set($config, "variants.{$variant}", $this->normalizeVariantConfigEntry($options));
         }
 
         // Simple renames of stapler config keys
@@ -1073,6 +1052,56 @@ class Attachment implements AttachmentInterface, Serializable
         }
 
         return $config;
+    }
+
+    /**
+     * @param mixed $options
+     * @return array
+     */
+    protected function normalizeVariantConfigEntry($options)
+    {
+        // Assume dimensions if a string (with dimensions)
+        if (is_string($options)) {
+            $options = ['resize' => ['dimensions' => $options]];
+        }
+
+        // Convert objects to arrays for fluent syntax support
+        if ($options instanceof Arrayable) {
+            $options = [ $options ];
+        }
+
+        if (array_key_exists('dimensions', $options)) {
+            $options = ['resize' => $options];
+        }
+
+        // If auto-orient is set, extract it to its own step
+        if (    (   array_get($options, 'resize.auto-orient')
+                ||  array_get($options, 'resize.auto_orient')
+            )
+            && ! array_has($options, 'auto-orient')
+        ) {
+            $options = array_merge(['auto-orient' => []], $options);
+
+            array_forget($options, [
+                'resize.auto-orient',
+                'resize.auto_orient',
+            ]);
+        }
+
+        // Convert to array for fluent syntax support
+        $converted = [];
+
+        foreach ($options as $key => $value) {
+
+            if ($value instanceof Arrayable) {
+                $converted = array_merge($value->toArray(), $converted);
+                continue;
+            }
+
+            $converted[ $key ] = $value;
+        }
+
+        return $converted;
     }
 
     /**
