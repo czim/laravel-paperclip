@@ -43,6 +43,7 @@ class VariantStep implements Arrayable
 
     /**
      * @return array
+     * @codeCoverageIgnore 
      */
     protected function getStepOptionArray()
     {
