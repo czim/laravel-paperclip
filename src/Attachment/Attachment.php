@@ -7,15 +7,15 @@ use Czim\FileHandling\Contracts\Storage\StorableFileFactoryInterface;
 use Czim\FileHandling\Contracts\Storage\StorableFileInterface;
 use Czim\FileHandling\Contracts\Storage\TargetInterface;
 use Czim\FileHandling\Handler\FileHandler;
-use Czim\Paperclip\Config\Variant;
+use Czim\Paperclip\Config\PaperclipConfig;
 use Czim\Paperclip\Contracts\AttachableInterface;
 use Czim\Paperclip\Contracts\AttachmentInterface;
+use Czim\Paperclip\Contracts\Config\ConfigInterface;
 use Czim\Paperclip\Contracts\FileHandlerFactoryInterface;
 use Czim\Paperclip\Contracts\Path\InterpolatorInterface;
 use Czim\Paperclip\Exceptions\VariantProcessFailureException;
 use Czim\Paperclip\Path\InterpolatingTarget;
 use Exception;
-use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Database\Eloquent\Model;
 use Serializable;
 
@@ -49,9 +49,9 @@ class Attachment implements AttachmentInterface, Serializable
     protected $interpolator;
 
     /**
-     * @var array
+     * @var ConfigInterface
      */
-    protected $config = [];
+    protected $config;
 
     /**
      * Contents of the config file normalized to be used
@@ -93,6 +93,11 @@ class Attachment implements AttachmentInterface, Serializable
      */
     protected $deleteTarget;
 
+
+    public function __construct()
+    {
+        $this->setConfig([]);
+    }
 
     /**
      * Sets the underlying instance object.
@@ -179,9 +184,7 @@ class Attachment implements AttachmentInterface, Serializable
      */
     public function setConfig(array $config)
     {
-        $this->config = $config;
-
-        $this->normalizedConfig = $this->normalizeConfig();
+        $this->config = new PaperclipConfig($config);
 
         return $this;
     }
@@ -193,7 +196,7 @@ class Attachment implements AttachmentInterface, Serializable
      */
     public function getConfig()
     {
-        return $this->config;
+        return $this->config->getOriginalConfig();
     }
 
     /**
@@ -203,7 +206,7 @@ class Attachment implements AttachmentInterface, Serializable
      */
     public function getNormalizedConfig()
     {
-        return $this->normalizedConfig;
+        return $this->config->toArray();
     }
 
     /**
@@ -253,7 +256,7 @@ class Attachment implements AttachmentInterface, Serializable
     {
         $this->instance->markAttachmentUpdated();
 
-        if ( ! $this->getConfigValue('keep-old-files')) {
+        if ( ! $this->config->keepOldFiles()) {
             $this->clear();
         }
 
@@ -281,7 +284,7 @@ class Attachment implements AttachmentInterface, Serializable
     {
         $this->instance->markAttachmentUpdated();
 
-        if ( ! $this->getConfigValue('keep-old-files')) {
+        if ( ! $this->config->keepOldFiles()) {
             $this->clear();
         }
 
@@ -333,7 +336,7 @@ class Attachment implements AttachmentInterface, Serializable
      */
     public function variants($withOriginal = false)
     {
-        $variants = array_keys($this->getConfigValue('variants', []));
+        $variants = array_keys($this->config->variantConfigs());
 
         if ($withOriginal && ! in_array(FileHandler::ORIGINAL, $variants)) {
             array_unshift($variants, FileHandler::ORIGINAL);
@@ -418,7 +421,7 @@ class Attachment implements AttachmentInterface, Serializable
             return array_get($variants, "{$variant}.ext") ?: false;
         }
 
-        return $this->getConfigValue("extensions.{$variant}", false);
+        return $this->config->variantExtension($variant);
     }
 
     /**
@@ -435,7 +438,7 @@ class Attachment implements AttachmentInterface, Serializable
             return array_get($variants, "{$variant}.type") ?: false;
         }
 
-        if (false !== ($type = $this->getConfigValue("types.{$variant}", false))) {
+        if (false !== ($type = $this->config->variantMimeType($variant))) {
             return $type;
         }
 
@@ -481,8 +484,8 @@ class Attachment implements AttachmentInterface, Serializable
         $this->target = new InterpolatingTarget(
             $this->interpolator,
             $this,
-            $this->getConfigValue('path'),
-            $this->getConfigValue('variant-path')
+            $this->config->path(),
+            $this->config->variantPath()
         );
 
         $this->target->setVariantFilenames($this->variantFilenames());
@@ -501,8 +504,8 @@ class Attachment implements AttachmentInterface, Serializable
         $this->target = new InterpolatingTarget(
             $this->interpolator,
             $this->getCurrentAttachmentData(),
-            $this->getConfigValue('path'),
-            $this->getConfigValue('variant-path')
+            $this->config->path(),
+            $this->config->variantPath()
         );
 
         $this->target->setVariantFilenames($this->variantFilenames());
@@ -542,7 +545,7 @@ class Attachment implements AttachmentInterface, Serializable
      */
     protected function variantExtensions()
     {
-        $extensions = $this->getConfigValue("extensions", []);
+        $extensions = $this->config->variantExtensions();
 
         $variants = $this->variantsAttribute();
 
@@ -589,7 +592,7 @@ class Attachment implements AttachmentInterface, Serializable
     {
         $this->instance = $instance;
 
-        if ( ! $this->getConfigValue('preserve-files')) {
+        if ( ! $this->config->preserveFiles()) {
             $this->clear();
         }
     }
@@ -658,7 +661,7 @@ class Attachment implements AttachmentInterface, Serializable
 
         $target = $this->getOrMakeTargetInstance();
 
-        $storedFiles = $this->handler->process($this->uploadedFile, $target, $this->normalizedConfig);
+        $storedFiles = $this->handler->process($this->uploadedFile, $target, $this->config->toArray());
 
         if ($this->shouldVariantInformationBeStored()) {
 
@@ -717,7 +720,7 @@ class Attachment implements AttachmentInterface, Serializable
                 $source,
                 $target,
                 $variant,
-                array_get($this->normalizedConfig, FileHandler::CONFIG_VARIANTS . '.' . $variant, [])
+                $this->config->variantConfig($variant)
             );
         } catch (Exception $e) {
 
@@ -929,7 +932,7 @@ class Attachment implements AttachmentInterface, Serializable
     public function instanceWrite($property, $value)
     {
         // Ignore properties that should not be settable
-        if ($property !== 'file_name' && ! $this->getConfigValue("attributes.{$property}", true)) {
+        if ($property !== 'file_name' && ! $this->config->attributeProperty($property)) {
             return;
         }
 
@@ -967,7 +970,19 @@ class Attachment implements AttachmentInterface, Serializable
      */
     protected function performCallableHook($type)
     {
-        $hook = $this->getConfigValue($type);
+        switch ($type) {
+
+            case 'before':
+                $hook = $this->config->beforeCallable();
+                break;
+
+            case 'after':
+                $hook = $this->config->afterCallable();
+                break;
+
+            default:
+                throw new \UnexpectedValueException("Unknown callable type '{$type}'");
+        }
 
         if ( ! $hook) {
             return true;
@@ -1004,135 +1019,6 @@ class Attachment implements AttachmentInterface, Serializable
     }
 
 
-    // ------------------------------------------------------------------------------
-    //      Configuration
-    // ------------------------------------------------------------------------------
-
-    /**
-     * Takes the set config and creates a normalized version.
-     *
-     * This can also take stapler configs and normalize them for paperclip.
-     *
-     * @return array
-     */
-    protected function normalizeConfig()
-    {
-        $config = $this->config;
-
-        if ( ! array_has($config, 'variants') && array_has($config, 'styles')) {
-            $config['variants'] = array_get($config, 'styles', []);
-        }
-        array_forget($config, 'styles');
-
-        if ( ! array_has($config, 'variants')) {
-            $config['variants'] = config('paperclip.variants.default');
-        }
-
-        $extensions = [];
-
-        // Normalize variant definitions
-        $variants = [];
-
-        foreach (array_get($config, 'variants', []) as $variantName => $options) {
-
-            if ($options instanceof Variant) {
-
-                $variantName = $options->getName();
-
-                if ($options->getExtension()) {
-                    $extensions[ $variantName ] = $options->getExtension();
-                }
-
-                $options = $options->getSteps();
-            }
-
-            $variants[ $variantName ] = $this->normalizeVariantConfigEntry($options);
-
-        }
-
-        array_set($config, 'variants', $variants);
-        unset($variants);
-
-        // Simple renames of stapler config keys
-        $renames = [
-            'url'            => 'path',
-            'keep_old_files' => 'keep-old-files',
-            'preserve_files' => 'preserve-files',
-        ];
-
-        foreach ($renames as $old => $new) {
-            if ( ! array_has($config, $old)) {
-                continue;
-            }
-
-            if ( ! array_has($config, $new)) {
-                $config[ $new ] = array_get($config, $old);
-            }
-            array_forget($config, $old);
-        }
-
-        // Merge in extensions set through indirect means.
-        if (count($extensions)) {
-            array_set(
-                $config,
-                'extensions',
-                array_merge(array_get($config, 'extensions', []), $extensions)
-            );
-        }
-
-        return $config;
-    }
-
-    /**
-     * @param mixed $options
-     * @return array
-     */
-    protected function normalizeVariantConfigEntry($options)
-    {
-        // Assume dimensions if a string (with dimensions)
-        if (is_string($options)) {
-            $options = ['resize' => ['dimensions' => $options]];
-        }
-
-        // Convert objects to arrays for fluent syntax support
-        if ($options instanceof Arrayable) {
-            $options = [ $options ];
-        }
-
-        if (array_key_exists('dimensions', $options)) {
-            $options = ['resize' => $options];
-        }
-
-        // If auto-orient is set, extract it to its own step
-        if (    (   array_get($options, 'resize.auto-orient')
-                ||  array_get($options, 'resize.auto_orient')
-            )
-            && ! array_has($options, 'auto-orient')
-        ) {
-            $options = array_merge(['auto-orient' => []], $options);
-
-            array_forget($options, [
-                'resize.auto-orient',
-                'resize.auto_orient',
-            ]);
-        }
-
-        // Convert to array for fluent syntax support
-        $converted = [];
-
-        foreach ($options as $key => $value) {
-
-            if ($value instanceof Arrayable) {
-                $converted = array_merge($value->toArray(), $converted);
-                continue;
-            }
-
-            $converted[ $key ] = $value;
-        }
-
-        return $converted;
-    }
-
     /**
      * If we're writing variants, log information about the variants,
      * if the model is set up and configured to use the variants attribute.
@@ -1141,40 +1027,7 @@ class Attachment implements AttachmentInterface, Serializable
      */
     protected function shouldVariantInformationBeStored()
     {
-        return (bool) $this->getConfigValue('attributes.variants');
-    }
-
-    /**
-     * @param string      $key
-     * @param string|null $default
-     * @return mixed
-     */
-    protected function getConfigValue($key, $default = null)
-    {
-        if (array_has($this->normalizedConfig, $key)) {
-            return array_get($this->normalizedConfig, $key);
-        }
-
-        // Fall back to default configured values
-        $map = [
-            'keep-old-files' => 'keep-old-files',
-            'preserve-files' => 'preserve-files',
-            'storage'        => 'storage.disk',
-            'path'           => 'path.original',
-            'variant-path'   => 'path.variant',
-
-            'attributes.size'         => 'model.attributes.size',
-            'attributes.content_type' => 'model.attributes.content_type',
-            'attributes.updated_at'   => 'model.attributes.updated_at',
-            'attributes.created_at'   => 'model.attributes.created_at',
-            'attributes.variants'     => 'model.attributes.variants',
-        ];
-
-        if ( ! in_array($key, array_keys($map))) {
-            return $default;
-        }
-
-        return config('paperclip.' . $map[ $key ], $default);
+        return (bool) $this->config->variantsAttribute();
     }
 
     /**
