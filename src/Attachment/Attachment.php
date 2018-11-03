@@ -908,7 +908,6 @@ class Attachment implements AttachmentInterface, Serializable
         return json_decode($this->instance->getAttribute("{$this->name}_variants"), true) ?: [];
     }
 
-
     /**
      * Clears all attachment related model attributes.
      */
@@ -937,6 +936,7 @@ class Attachment implements AttachmentInterface, Serializable
         $this->instance->setAttribute("{$this->name}_{$property}", $value);
     }
 
+
     // ------------------------------------------------------------------------------
     //      Hooks
     // ------------------------------------------------------------------------------
@@ -962,7 +962,7 @@ class Attachment implements AttachmentInterface, Serializable
     }
 
     /**
-     * @param string $type
+     * @param string $type  'before', 'after'
      * @return bool
      */
     protected function performCallableHook($type)
