@@ -40,7 +40,9 @@ class TestModel extends Model implements AttachableInterface
         $this->hasAttachedFile('image', [
             'variants'  => [
                 'medium'   => [
-                    'resize' => ['dimensions' => '300x300'],
+                    'resize' => [
+                        'dimensions' => '300x300',
+                    ],
                 ],
             ],
         ]);

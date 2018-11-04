@@ -99,6 +99,7 @@ class Attachment implements AttachmentInterface, Serializable
         $this->config = new PaperclipConfig([]);
     }
 
+
     /**
      * Sets the underlying instance object.
      *
