@@ -106,10 +106,22 @@ return [
             'resize'      => \Czim\FileHandling\Variant\Strategies\ImageResizeStrategy::class,
         ],
 
+        // Set this to true to always merge in the default variants into any attachment configuration.
+        // False only sets defaults if no variants are configured for an attachment;
+        // true always merges them in (not overriding specifics by variant name).
+        //
+        // When this is enabled, it is possible to 'disable' the default variants by setting
+        // the attachment configuration to `false` (instead of an array with steps).
+        'merge-default' => false,
+
         // If no specific variants are set for a clipped file on a Model, these
         // variant definitions will be used.
         'default' => [
 
+            // Fluent object format is allowed:
+            // \Czim\Paperclip\Config\Steps\ResizeStep::make('variant-name')->square(50)->crop(),
+
+            // Classic array format is allowed:
             // 'variantname' => [
             //     'strategy-alias' => [ 'strategy' => 'configuration' ],
             // ],

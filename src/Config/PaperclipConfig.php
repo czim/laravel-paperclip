@@ -14,39 +14,18 @@ class PaperclipConfig extends AbstractConfig
      */
     protected function normalizeConfig(array $config)
     {
-        if ( ! array_has($config, 'variants')) {
-            $config['variants'] = config('paperclip.variants.default');
+        $hasVariantsConfigured = array_has($config, 'variants');
+
+        $variantList = $this->castVariantsToVariantList(array_get($config, 'variants', []));
+
+        if ( ! $hasVariantsConfigured || $this->shouldMergeDefaultVariants()) {
+            $variantList->mergeDefault(config('paperclip.variants.default', []));
         }
 
-        $extensions = [];
-        $urls       = [];
+        $extensions = $variantList->extensions();
+        $urls       = $variantList->urls();
 
-        // Normalize variant definitions
-        $variants = [];
-
-        foreach (array_get($config, 'variants', []) as $variantName => $options) {
-
-            if ($options instanceof Variant) {
-
-                $variantName = $options->getName();
-
-                if ($options->getExtension()) {
-                    $extensions[ $variantName ] = $options->getExtension();
-                }
-
-                if ($options->getUrl()) {
-                    $urls[ $variantName ] = $options->getUrl();
-                }
-
-                $options = $options->getSteps();
-            }
-
-            $variants[ $variantName ] = $this->normalizeVariantConfigEntry($options);
-
-        }
-
-        array_set($config, 'variants', $variants);
-        unset($variants);
+        array_set($config, 'variants', $variantList->variants());
 
 
         // Merge in extensions set through indirect means.
@@ -68,6 +47,25 @@ class PaperclipConfig extends AbstractConfig
         }
 
         return $config;
+    }
+
+    /**
+     * @param array $variants
+     * @return VariantList
+     */
+    protected function castVariantsToVariantList(array $variants)
+    {
+        return new VariantList($variants);
+    }
+
+    /**
+     * Returns whether default configured variants should always be merged in.
+     *
+     * @return bool
+     */
+    protected function shouldMergeDefaultVariants()
+    {
+        return (bool) config('paperclip.variants.merge-default');
     }
 
 }

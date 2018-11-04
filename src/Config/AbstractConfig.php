@@ -3,7 +3,6 @@ namespace Czim\Paperclip\Config;
 
 use Czim\FileHandling\Handler\FileHandler;
 use Czim\Paperclip\Contracts\Config\ConfigInterface;
-use Illuminate\Contracts\Support\Arrayable;
 
 abstract class AbstractConfig implements ConfigInterface
 {
@@ -262,55 +261,6 @@ abstract class AbstractConfig implements ConfigInterface
      */
     abstract protected function normalizeConfig(array $config);
 
-    /**
-     * @param mixed $options
-     * @return array
-     */
-    protected function normalizeVariantConfigEntry($options)
-    {
-        // Assume dimensions if a string (with dimensions)
-        if (is_string($options)) {
-            $options = ['resize' => ['dimensions' => $options]];
-        }
-
-        // Convert objects to arrays for fluent syntax support
-        if ($options instanceof Arrayable) {
-            $options = [ $options ];
-        }
-
-        if (array_key_exists('dimensions', $options)) {
-            $options = ['resize' => $options];
-        }
-
-        // If auto-orient is set, extract it to its own step
-        if (    (   array_get($options, 'resize.auto-orient')
-                ||  array_get($options, 'resize.auto_orient')
-            )
-            &&  ! array_has($options, 'auto-orient')
-        ) {
-            $options = array_merge(['auto-orient' => []], $options);
-
-            array_forget($options, [
-                'resize.auto-orient',
-                'resize.auto_orient',
-            ]);
-        }
-
-        // Convert to array for fluent syntax support
-        $converted = [];
-
-        foreach ($options as $key => $value) {
-
-            if ($value instanceof Arrayable) {
-                $converted = array_merge($value->toArray(), $converted);
-                continue;
-            }
-
-            $converted[ $key ] = $value;
-        }
-
-        return $converted;
-    }
 
     /**
      * Returns the config value relevant for this attachment.
