@@ -2,6 +2,8 @@
 namespace Czim\Paperclip\Test\Config;
 
 use Czim\Paperclip\Config\PaperclipConfig;
+use Czim\Paperclip\Config\Steps\ResizeStep;
+use Czim\Paperclip\Config\Variant;
 use Czim\Paperclip\Test\TestCase;
 
 class PaperclipConfigTest extends TestCase
@@ -84,6 +86,124 @@ class PaperclipConfigTest extends TestCase
 
         static::assertTrue($config->keepOldFiles());
         static::assertTrue($config->preserveFiles());
+    }
+
+    /**
+     * @test
+     */
+    function it_uses_default_global_variants_if_no_variants_are_configured()
+    {
+        $this->app['config']->set('paperclip.variants.default', [
+            'one' => [
+                'resize' => [
+                    'dimensions' => '50x50',
+                ],
+            ],
+        ]);
+
+        $config = new PaperclipConfig([
+            'types' => [
+                'one' => 'image/png',
+            ],
+        ]);
+
+        static::assertTrue($config->hasVariantConfig('one'));
+
+        static::assertEquals('image/png', $config->variantMimeType('one'));
+    }
+
+    /**
+     * @test
+     */
+    function it_merges_in_default_global_variants_that_are_not_configured_if_merge_default_enabled()
+    {
+        $this->app['config']->set('paperclip.variants.merge-default', true);
+        $this->app['config']->set('paperclip.variants.default', [
+            'four'  => [
+                'resize' => [
+                    'dimensions' => '50x50',
+                ],
+            ],
+            'two'   => [
+                'resize' => [
+                    'dimensions' => '50x50',
+                ],
+            ],
+            'three' => [
+                'resize' => [
+                    'dimensions' => '50x50',
+                ],
+            ],
+        ]);
+
+        $config = new PaperclipConfig([
+            'variants' => [
+                'one'   => [
+                    'resize' => [
+                        'dimensions' => '50x50',
+                    ],
+                ],
+                // test whether variant set in attachment config does not get overrule by global
+                'three' => [
+                    'resize' => [
+                        'dimensions' => '100x100',
+                    ],
+                ],
+                // test whether variant set by object config gets handled correctly
+                (new Variant('four'))->steps([
+                    (new ResizeStep())->square(100),
+                ])
+            ],
+        ]);
+
+        static::assertTrue($config->hasVariantConfig('one'));
+        static::assertTrue($config->hasVariantConfig('two'));
+        static::assertTrue($config->hasVariantConfig('three'));
+        static::assertTrue($config->hasVariantConfig('four'));
+
+        static::assertEquals(
+            '100x100',
+            $config->variantConfig('three')['resize']['dimensions'],
+            "Variant 'three' should not be overridden by global configuration"
+        );
+        static::assertEquals(
+            '100x100',
+            $config->variantConfig('four')['resize']['dimensions'],
+            "Variant 'four' should not be overridden by global configuration"
+        );
+    }
+
+    /**
+     * @test
+     */
+    function it_does_not_merge_in_default_global_variants_that_included_as_a_literal_false()
+    {
+        $this->app['config']->set('paperclip.variants.merge-default', true);
+        $this->app['config']->set('paperclip.variants.default', [
+            'two'   => [
+                'resize' => [
+                    'dimensions' => '50x50',
+                ],
+            ],
+        ]);
+
+        $config = new PaperclipConfig([
+            'variants' => [
+                'one'   => [
+                    'resize' => [
+                        'dimensions' => '50x50',
+                    ],
+                ],
+                // test whether a variant set globally is left out when set to literal false on attachment
+                'two' => false,
+                // test whether any old variant defined by literal false is ignored
+                'three' => false,
+            ],
+        ]);
+
+        static::assertTrue($config->hasVariantConfig('one'));
+        static::assertFalse($config->hasVariantConfig('two'));
+        static::assertFalse($config->hasVariantConfig('three'));
     }
 
 }
