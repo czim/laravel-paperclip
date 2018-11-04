@@ -1,11 +1,42 @@
 <?php
 namespace Czim\Paperclip\Test\Integration;
 
+use Czim\Paperclip\Attachment\Attachment;
+use Czim\Paperclip\Config\StaplerConfig;
 use Czim\Paperclip\Test\ProvisionedTestCase;
 use SplFileInfo;
 
 class PaperclipAttachmentStaplerCompatibilityTest extends ProvisionedTestCase
 {
+
+    /**
+     * {@inheritdoc}
+     */
+    public function setUp()
+    {
+        parent::setUp();
+
+        // Enable stapler fallback interpretation through config.
+        $this->app['config']->set('paperclip.config.mode', 'stapler');
+    }
+
+
+    /**
+     * @test
+     */
+    function it_uses_stapler_styles_key_for_variants()
+    {
+        $attachment = new Attachment;
+        $attachment->setConfig(new StaplerConfig([
+            'styles' => [
+                'some'    => '100x100',
+                'variant' => '50x30',
+                'keys'    => '40x',
+            ],
+        ]));
+
+        static::assertEquals(['some', 'variant', 'keys'], $attachment->variants());
+    }
 
     /**
      * @test

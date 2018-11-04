@@ -61,4 +61,24 @@ class VariantTest extends TestCase
         static::assertNull($config->getExtension());
     }
 
+    /**
+     * @test
+     */
+    function it_takes_a_url()
+    {
+        $config = Variant::make('test')->url('http://www.doesnotexist.com');
+
+        static::assertEquals('http://www.doesnotexist.com', $config->getUrl());
+    }
+
+    /**
+     * @test
+     */
+    function it_returns_null_for_url_by_default()
+    {
+        $config = Variant::make('test');
+
+        static::assertNull($config->getUrl());
+    }
+
 }

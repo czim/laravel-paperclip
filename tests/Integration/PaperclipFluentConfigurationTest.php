@@ -80,7 +80,8 @@ class PaperclipFluentConfigurationTest extends ProvisionedTestCase
                             ->ignoreRatio()
                             ->convertOptions(['quality' => 90]),
                     ])
-                    ->extension('jpg'),
+                    ->extension('jpg')
+                    ->url('http://test'),
             ],
         ]);
 
@@ -110,6 +111,47 @@ class PaperclipFluentConfigurationTest extends ProvisionedTestCase
                 ],
                 'extensions' => [
                     'test' => 'jpg',
+                ],
+                'urls' => [
+                    'test' => 'http://test',
+                ],
+            ],
+            $model->attachment->getNormalizedConfig()
+        );
+
+        if (file_exists($processedFilePath)) {
+            unlink($processedFilePath);
+        }
+    }
+
+    /**
+     * @test
+     */
+    function it_processes_and_stores_a_new_file_with_fluent_variant_steps_configuration_without_wrapped_array()
+    {
+        $model = $this->getTestModelWithAttachmentConfig([
+            'variants' => [
+                'test' => AutoOrientStep::make()->quiet()
+            ],
+        ]);
+
+        $model->attachment = new SplFileInfo($this->getTestFilePath('rotated.jpg'));
+        $model->save();
+
+        $processedFilePath = $this->getUploadedAttachmentPath($model, 'rotated.jpg');
+
+        static::assertInstanceOf(Attachment::class, $model->attachment);
+        static::assertEquals('rotated.jpg', $model->attachment_file_name);
+        static::assertFileExists($processedFilePath, "File was not stored");
+
+        static::assertEquals(
+            [
+                "variants" => [
+                    "test" => [
+                        "auto-orient" => [
+                            "quiet" => true,
+                        ],
+                    ],
                 ],
             ],
             $model->attachment->getNormalizedConfig()
