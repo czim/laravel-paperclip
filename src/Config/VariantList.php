@@ -85,14 +85,15 @@ class VariantList
             }
 
             if ($options instanceof Variant) {
-
                 $variantName = $options->getName();
+            }
 
-                // If the variant name is already set, don't overwrite anything
-                if ( ! $this->shouldMerge($variantName)) {
-                    continue;
-                }
+            // If the variant name is already set, don't overwrite anything
+            if ( ! $this->shouldMerge($variantName)) {
+                continue;
+            }
 
+            if ($options instanceof Variant) {
 
                 if ($options->getExtension()) {
                     $this->extensions[ $variantName ] = $options->getExtension();
