@@ -2,6 +2,26 @@
 
 ## Laravel 5.5 and up
 
+### [2.6.0] - 2018-11-04
+
+Rewrote configuration handling. This used to be all-array, now it is object-based.
+
+This includes a breaking change for basic usage: Stapler configuration support is not enabled by default.
+To enable it, set the `paperclip.config.mode` configuration option to `'stapler'`.
+
+It may also break custom extensions of paperclip classes. Note especially the interface change for the `Attachment` class: `setConfig()` now takes a `ConfigInterface` object, instead of an array.
+This is unlikely to affect the average application of this package.
+
+Additionally, support has been added for setting a default URL that is returned when no file is stored.
+This must be set per attachment, and may set per variant.
+
+Further, configuration options for default variants has improved. 
+It is now possible to always merge in the default variants into any and all specific attachment variants,
+using the `paperclip.variants.merge-default` setting.
+
+The [CONFIG](CONFIG.md) readme has been updated to reflect these changes. 
+ 
+
 ### [2.5.7] - 2018-10-29
 
 Added possibility to configure variants using fluent syntax configuration objects. 
@@ -78,6 +98,8 @@ See 2.5.2.
 
 This merges the changes for 2.5.0 and 2.5.1 in a new major version for Laravel 5.4 and earlier.
 
+
+[2.6.0]: https://github.com/czim/laravel-paperclip/compare/2.5.7...2.6.0
 
 [2.5.7]: https://github.com/czim/laravel-paperclip/compare/2.5.6...2.5.7
 [2.5.6]: https://github.com/czim/laravel-paperclip/compare/2.5.5...2.5.6
