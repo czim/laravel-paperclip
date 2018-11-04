@@ -355,6 +355,11 @@ class Attachment implements AttachmentInterface, Serializable
     {
         $variant = $variant ?: FileHandler::ORIGINAL;
 
+        // If no attached file exists, we may return null or give a fallback URL.
+        if ( ! $this->exists()) {
+            return $this->config->defaultVariantUrl($variant);
+        }
+
         $target = $this->getOrMakeTargetInstance();
 
         return array_get(
