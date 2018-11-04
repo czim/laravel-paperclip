@@ -253,6 +253,7 @@ abstract class AbstractConfig implements ConfigInterface
         return $this->normalizedConfig;
     }
 
+
     /**
      * Takes the set config and creates a normalized version.
      *
