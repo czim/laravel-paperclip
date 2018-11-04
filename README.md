@@ -19,7 +19,8 @@ This uses [czim/file-handling](https://github.com/czim/file-handling) under the 
  Laravel             | Package 
 :--------------------|:--------
  5.4.x and older     | 1.0.x, 2.0.x
- 5.5.x, 5.6.x        | 1.5.x, 2.5.x
+ 5.5.x               | 1.5.x, 2.5.x
+ 5.6.x and up        | 2.6.x
 
 
 ## Change log
@@ -145,7 +146,9 @@ Since version `2.5.7` it is also possible to use an easier to use fluent object 
 
 ### Variant Configuration
 
-For the most part, the configuration of variants ('styles') is nearly identical to Stapler, so it should be easy to make the transition either way. 
+For the most part, the configuration of variants is nearly identical to Stapler, so it should be easy to make the transition either way.
+
+Since version `2.6`, Stapler configuration support is disabled by default, but legacy support for this may be enabled by setting the `paperclip.config.mode` to `'stapler'`. 
 
 [Get more information on configuration here](CONFIG.md).
 
@@ -169,7 +172,7 @@ Make sure that `paperclip.storage.base-urls.<your storage disk>` is set, so vali
 
 It is possible to 'hook' into the paperclip goings on when files are processed. This may be done by using the `before` and/or `after` configuration keys. Before hooks are called after the file is uploaded and stored locally, but before variants are processed; after hooks are called when all variants have been processed.
 
-More information and examples are in [the config section](CONFIG.md).
+More information and examples are in [the Config section](CONFIG.md).
 
 ### Refreshing models
 
@@ -188,7 +191,6 @@ Once a model is set up and configured for an attachment, you can simply set the 
 
 ```php
 <?php
-
 public function someControllerAction(Request $request) {
     
     $model = ModelWithAttachment::first();
@@ -257,17 +259,25 @@ $model->save();
 
 ## Differences with Stapler
 
-One major difference is that the `convert_options` configuration settings are no longer available. Conversion options are now handled at the level of the variant strategies.
+- Paperclip does not handle (s3) storage internally, as Paperclip did.
+All storage is performed through Laravel's storage solution.
+You can still use S3 (or any other storage disk), but you will have to configure it in Laravel's storage configuration first.  
+It is possible to use different storage disks for different attachments.
 
+- Stapler would automatically resolve any string URL assigned to the Model's attachment attribute and download and store the response to that URL. Paperclip *does not do this* automatically.  
+If you wish to store the contents of a URL, you have some options. You can use the `Czim\FileHandling\Storage\File\StorableFileFactory@makeFromUrl` method and its return value.  
+Or, you can download the contents yourself and store them in a `Czim\FileHandling\Storage\File\RawStorableFile` (e.g.: `(new RawStorableFile)->setData(file_get_contents('your-URL-here'))`). You can also download the file to local disk, and store it on the model through an `\SplFileInfo` instance (see examples on the main readme page).
+
+- The `convert_options` configuration settings are no longer available. 
+Conversion options are now handled at the level of the variant strategies.  
 You can set them per attachment configuration, or modify the variant strategy to use a custom global configuration.
 
-Another difference is that this package does not handle (s3) storage.
-All storage is performed through Laravel's storage solution.
-
-The refresh command (`php artisan paperclip:refresh`) is very similar to stapler's refresh command, but it can optionally take a `--start #` and/or `--stop #` option, with ID numbers. This makes it possible to refresh only a subset of models.
+- The refresh command (`php artisan paperclip:refresh`) is very similar to stapler's refresh command, but it can optionally take a `--start #` and/or `--stop #` option, with ID numbers.
+This makes it possible to refresh only a subset of models.  
 Under the hood, the refresh command is also much less likely to run out of memory (it uses a generator to process models in chunks).
 
-A final change is that the trait uses its own boot method, not the global Model's `boot()`, making this package less likely to conflict with other traits and model implementations.
+- The Paperclip trait uses its own Eloquent boot method, not the global Model's `boot()`.
+ This makes Paperclip less likely to conflict with other traits and model implementations.
 
 
 ## Amazon S3 cache-control
