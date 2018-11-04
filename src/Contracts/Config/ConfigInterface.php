@@ -106,6 +106,21 @@ interface ConfigInterface extends Arrayable
     public function variantExtension($variant);
 
     /**
+     * Returns the default URL to use when no attachment is stored.
+     *
+     * @return string|null
+     */
+    public function defaultUrl();
+
+    /**
+     * Returns the default URL for a variant to use when no attachment is stored.
+     *
+     * @param string $variant
+     * @return string|null
+     */
+    public function defaultVariantUrl($variant);
+
+    /**
      * Returns whether a given attribute property should be saved.
      *
      * Expected values: 'created_at', 'content_type', ...

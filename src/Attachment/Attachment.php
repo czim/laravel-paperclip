@@ -96,7 +96,7 @@ class Attachment implements AttachmentInterface, Serializable
 
     public function __construct()
     {
-        $this->setConfig([]);
+        $this->config = new PaperclipConfig([]);
     }
 
     /**
@@ -179,12 +179,12 @@ class Attachment implements AttachmentInterface, Serializable
     /**
      * Sets the configuration.
      *
-     * @param array $config
+     * @param ConfigInterface $config
      * @return $this
      */
-    public function setConfig(array $config)
+    public function setConfig(ConfigInterface $config)
     {
-        $this->config = new PaperclipConfig($config);
+        $this->config = $config;
 
         return $this;
     }

@@ -21,9 +21,18 @@ class Variant
     protected $steps = [];
 
     /**
+     * The extension that the variant's file is expected to be stored with.
+     *
      * @var string|null
      */
     protected $extension;
+
+    /**
+     * Fallback-URL to use when no attachment is stored.
+     *
+     * @var string|null
+     */
+    protected $url;
 
 
     public function __construct($name)
@@ -75,6 +84,19 @@ class Variant
     }
 
     /**
+     * Sets the fallback URL to use when the attachment is not stored.
+     *
+     * @param string $url
+     * @return $this
+     */
+    public function url($url)
+    {
+        $this->url = $url;
+
+        return $this;
+    }
+
+    /**
      * @return string
      */
     public function getName()
@@ -96,6 +118,14 @@ class Variant
     public function getExtension()
     {
         return $this->extension;
+    }
+
+    /**
+     * @return null|string
+     */
+    public function getUrl()
+    {
+        return $this->url;
     }
 
 }

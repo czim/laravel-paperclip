@@ -1,9 +1,12 @@
 <?php
 namespace Czim\Paperclip\Attachment;
 
+use Czim\Paperclip\Config\PaperclipConfig;
+use Czim\Paperclip\Config\StaplerConfig;
 use Czim\Paperclip\Contracts\AttachableInterface;
 use Czim\Paperclip\Contracts\AttachmentFactoryInterface;
 use Czim\Paperclip\Contracts\AttachmentInterface;
+use Czim\Paperclip\Contracts\Config\ConfigInterface;
 use Czim\Paperclip\Contracts\Path\InterpolatorInterface;
 
 class AttachmentFactory implements AttachmentFactoryInterface
@@ -19,15 +22,28 @@ class AttachmentFactory implements AttachmentFactoryInterface
     {
         $attachment = new Attachment;
 
+        $configObject = $this->makeConfigObject($config);
+
         $attachment->setInstance($instance);
         $attachment->setName($name);
-        $attachment->setConfig($config);
+        $attachment->setConfig($configObject);
         $attachment->setInterpolator($this->getInterpolator());
-
-        $disk = array_get($config, 'storage');
-        $attachment->setStorage($disk);
+        $attachment->setStorage($configObject->storageDisk());
 
         return $attachment;
+    }
+
+    /**
+     * @param array $config
+     * @return ConfigInterface
+     */
+    protected function makeConfigObject(array $config)
+    {
+        if (config('paperclip.config.mode') === 'stapler') {
+            return new StaplerConfig($config);
+        }
+
+        return new PaperclipConfig($config);
     }
 
     /**

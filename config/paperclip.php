@@ -4,6 +4,22 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Configuration
+    |--------------------------------------------------------------------------
+    |
+    | Configure how attachment configuration should be interpreted.
+    | This allows for enabling legacy interpretation of Stapler configuration
+    | for hasAttachedFile() calls.
+    |
+    */
+
+    'config' => [
+        // Available modes: 'paperclip' (default), 'stapler'
+        'mode' => 'paperclip',
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
     | Model
     |--------------------------------------------------------------------------
     |
