@@ -116,12 +116,16 @@ class FileHandlerFactory implements FileHandlerFactoryInterface
             $storage = $this->getLaravelStorageInstance($disk);
 
             if ($storage instanceof CloudFilesystemContract) {
-                return $storage->url('.');
+                $url =  $storage->url('.');
             }
 
         } catch (Exception $e) {
 
             throw new RuntimeException("Could not determine base URL through Storage::url() for '{$disk}'");
+        }
+
+        if (is_string($url)) {
+            return $url;
         }
 
         throw new RuntimeException("Could not determine base URL for storage disk '{$disk}'");
