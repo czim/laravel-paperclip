@@ -6,6 +6,9 @@ use Czim\FileHandling\Contracts\Variant\VariantProcessorInterface;
 use Czim\FileHandling\Handler\FileHandler;
 use Czim\FileHandling\Storage\Laravel\LaravelStorage;
 use Czim\Paperclip\Contracts\FileHandlerFactoryInterface;
+use Exception;
+use Illuminate\Contracts\Filesystem\Cloud as CloudFilesystemContract;
+use Illuminate\Contracts\Filesystem\Filesystem as FilesystemContract;
 use RuntimeException;
 use Storage;
 
@@ -50,7 +53,7 @@ class FileHandlerFactory implements FileHandlerFactoryInterface
         $isLocal = $this->isDiskLocal($disk);
         $baseUrl = $this->getBaseUrlForDisk($disk);
 
-        return new LaravelStorage(Storage::disk($disk), $isLocal, $baseUrl);
+        return new LaravelStorage($this->getLaravelStorageInstance($disk), $isLocal, $baseUrl);
     }
 
     /**
@@ -108,7 +111,28 @@ class FileHandlerFactory implements FileHandlerFactoryInterface
             return $url;
         }
 
+        // Attempt to get URL from cloud storage directly
+        try {
+            $storage = $this->getLaravelStorageInstance($disk);
+
+            if ($storage instanceof CloudFilesystemContract) {
+                return $storage->url('.');
+            }
+
+        } catch (Exception $e) {
+
+            throw new RuntimeException("Could not determine base URL through Storage::url() for '{$disk}'");
+        }
+
         throw new RuntimeException("Could not determine base URL for storage disk '{$disk}'");
+    }
+
+    /**
+     * @return FilesystemContract|CloudFilesystemContract
+     */
+    protected function getLaravelStorageInstance($disk)
+    {
+        return Storage::disk($disk);
     }
 
 }
