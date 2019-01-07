@@ -37,16 +37,4 @@ class PaperclipConfigurationErrorsTest extends ProvisionedTestCase
         $this->getTestModel();
     }
 
-    /**
-     * @test
-     * @expectedException \RuntimeException
-     * @expectedExceptionMessageRegExp /could not determine base url for storage disk 'local'/i
-     */
-    function it_throws_an_exception_if_the_baseurl_could_not_be_determined()
-    {
-        $this->app['config']->set('paperclip.storage.disk', null);
-
-        $this->getTestModel();
-    }
-
 }
