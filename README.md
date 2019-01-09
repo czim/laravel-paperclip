@@ -264,8 +264,9 @@ All storage is performed through Laravel's storage solution.
 You can still use S3 (or any other storage disk), but you will have to configure it in Laravel's storage configuration first.  
 It is possible to use different storage disks for different attachments.
 
-- Stapler would automatically resolve any string URL assigned to the Model's attachment attribute and download and store the response to that URL. Paperclip *does not do this* automatically.  
-If you wish to store the contents of a URL, you have some options. You can use the `Czim\FileHandling\Storage\File\StorableFileFactory@makeFromUrl` method and its return value.  
+- Paperclip *might* show slightly different behavior when storing a `string` value on the attachment attribute. It will attempt to interpret the string as a URI (or a dataURI), and otherwise treat the string as raw text file content.  
+
+If you wish to force storing the contents of a URL without letting Paperclip interpret it, you have some options. You can use the `Czim\FileHandling\Storage\File\StorableFileFactory@makeFromUrl` method and its return value.  
 Or, you can download the contents yourself and store them in a `Czim\FileHandling\Storage\File\RawStorableFile` (e.g.: `(new RawStorableFile)->setData(file_get_contents('your-URL-here'))`). You can also download the file to local disk, and store it on the model through an `\SplFileInfo` instance (see examples on the main readme page).
 
 - The `convert_options` configuration settings are no longer available. 
