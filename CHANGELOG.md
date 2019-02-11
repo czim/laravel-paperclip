@@ -2,6 +2,10 @@
 
 ## Laravel 5.5 and up
 
+### [2.6.1] - 2019-01-07
+
+Minor cloud storage fix.
+
 ### [2.6.0] - 2018-11-04
 
 Rewrote configuration handling. This used to be all-array, now it is object-based.
@@ -90,6 +94,10 @@ This now relies on version `^1.0` for [czim/file-handling](https://github.com/cz
                                                        
 ## Laravel 5.4 and below
 
+### [2.1.0] - 2019-02-11
+
+Updates added for 2.6.1.
+
 ### [2.0.1] - 2018-06-28
 
 See 2.5.2.
@@ -110,5 +118,6 @@ This merges the changes for 2.5.0 and 2.5.1 in a new major version for Laravel 5
 [2.5.1]: https://github.com/czim/laravel-paperclip/compare/2.5.0...2.5.1
 [2.5.0]: https://github.com/czim/laravel-paperclip/compare/1.5.2...2.5.0
 
+[2.1.0]: https://github.com/czim/laravel-paperclip/compare/2.0.1...2.1.0
 [2.0.1]: https://github.com/czim/laravel-paperclip/compare/2.0.0...2.0.1
 [2.0.0]: https://github.com/czim/laravel-paperclip/compare/1.0.3...2.0.0
