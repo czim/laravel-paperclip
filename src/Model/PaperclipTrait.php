@@ -7,7 +7,11 @@ use Czim\Paperclip\Contracts\AttachableInterface;
 use Czim\Paperclip\Contracts\AttachmentFactoryInterface;
 use Czim\Paperclip\Contracts\AttachmentInterface;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Arr;
 
+/**
+ * @mixin AttachableInterface
+ */
 trait PaperclipTrait
 {
 
@@ -116,7 +120,7 @@ trait PaperclipTrait
             if ($value) {
                 $attachedFile = $this->attachedFiles[ $key ];
 
-                if ($value === Attachment::NULL_ATTACHMENT) {
+                if ($value === $this->getDeleteAttachmentString()) {
                     $attachedFile->setToBeDeleted();
                     return;
                 }
@@ -195,6 +199,27 @@ trait PaperclipTrait
     public function markAttachmentUpdated()
     {
         $this->attachedUpdated = true;
+    }
+
+    /**
+     * @return bool
+     */
+    protected function isPerformInsertInBacktrace()
+    {
+        return false !== Arr::first(debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS), function (array $step) {
+                return  Arr::get($step, 'function') === 'performInsert'
+                    &&  Arr::get($step, 'class') === Model::class;
+            }, false);
+    }
+
+    /**
+     * Returns the string with which an attachment can be deleted.
+     *
+     * @return string
+     */
+    protected function getDeleteAttachmentString()
+    {
+        return config('paperclip.delete-hash', Attachment::NULL_ATTACHMENT);
     }
 
 }

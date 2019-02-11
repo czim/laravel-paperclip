@@ -2,6 +2,7 @@
 namespace Czim\Paperclip\Contracts;
 
 use Czim\FileHandling\Contracts\Storage\StorableFileInterface;
+use Czim\Paperclip\Contracts\Config\ConfigInterface;
 use Czim\Paperclip\Contracts\Path\InterpolatorInterface;
 use JsonSerializable;
 
@@ -26,10 +27,10 @@ interface AttachmentInterface extends AttachmentDataInterface, JsonSerializable
     /**
      * Sets the configuration.
      *
-     * @param array $config
+     * @param ConfigInterface $config
      * @return $this
      */
-    public function setConfig(array $config);
+    public function setConfig(ConfigInterface $config);
 
     /**
      * Returns the configuration after normalization.
@@ -37,6 +38,20 @@ interface AttachmentInterface extends AttachmentDataInterface, JsonSerializable
      * @return array
      */
     public function getNormalizedConfig();
+
+    /**
+     * Sets the storage disk identifier.
+     *
+     * @param string $storage   disk identifier
+     * @return $this
+     */
+    public function setStorage($storage);
+    /**
+     * Returns the storage disk used by the attachment.
+     *
+     * @return null|string
+     */
+    public function getStorage();
 
     /**
      * Sets the name (the attribute on the model) for the attachment.

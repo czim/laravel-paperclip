@@ -7,15 +7,19 @@ use Czim\FileHandling\Contracts\Storage\StorableFileFactoryInterface;
 use Czim\FileHandling\Contracts\Storage\StorableFileInterface;
 use Czim\FileHandling\Contracts\Storage\TargetInterface;
 use Czim\FileHandling\Handler\FileHandler;
+use Czim\Paperclip\Config\PaperclipConfig;
 use Czim\Paperclip\Contracts\AttachableInterface;
 use Czim\Paperclip\Contracts\AttachmentInterface;
+use Czim\Paperclip\Contracts\Config\ConfigInterface;
+use Czim\Paperclip\Contracts\FileHandlerFactoryInterface;
 use Czim\Paperclip\Contracts\Path\InterpolatorInterface;
 use Czim\Paperclip\Exceptions\VariantProcessFailureException;
 use Czim\Paperclip\Path\InterpolatingTarget;
 use Exception;
 use Illuminate\Database\Eloquent\Model;
+use Serializable;
 
-class Attachment implements AttachmentInterface
+class Attachment implements AttachmentInterface, Serializable
 {
     const NULL_ATTACHMENT = '44e1ec68e2a43f32741cbd4cb4d77c79e28d6a5c';
 
@@ -35,14 +39,19 @@ class Attachment implements AttachmentInterface
     protected $handler;
 
     /**
+     * @var string|null
+     */
+    protected $storage;
+
+    /**
      * @var InterpolatorInterface
      */
     protected $interpolator;
 
     /**
-     * @var array
+     * @var ConfigInterface
      */
-    protected $config = [];
+    protected $config;
 
     /**
      * Contents of the config file normalized to be used
@@ -83,6 +92,12 @@ class Attachment implements AttachmentInterface
      * @var null|TargetInterface
      */
     protected $deleteTarget;
+
+
+    public function __construct()
+    {
+        $this->config = new PaperclipConfig([]);
+    }
 
 
     /**
@@ -165,14 +180,12 @@ class Attachment implements AttachmentInterface
     /**
      * Sets the configuration.
      *
-     * @param array $config
+     * @param ConfigInterface $config
      * @return $this
      */
-    public function setConfig(array $config)
+    public function setConfig(ConfigInterface $config)
     {
         $this->config = $config;
-
-        $this->normalizedConfig = $this->normalizeConfig();
 
         return $this;
     }
@@ -184,7 +197,7 @@ class Attachment implements AttachmentInterface
      */
     public function getConfig()
     {
-        return $this->config;
+        return $this->config->getOriginalConfig();
     }
 
     /**
@@ -194,18 +207,32 @@ class Attachment implements AttachmentInterface
      */
     public function getNormalizedConfig()
     {
-        return $this->normalizedConfig;
+        return $this->config->toArray();
     }
 
     /**
-     * @param FileHandlerInterface $handler
+     * Sets the storage disk identifier.
+     *
+     * @param string $storage   disk identifier
      * @return $this
      */
-    public function setHandler(FileHandlerInterface $handler)
+    public function setStorage($storage)
     {
-        $this->handler = $handler;
-
+        if ($this->storage !== $storage || ! $this->handler) {
+            $this->storage = $storage;
+            $this->handler = $this->getFileHandlerFactory()->create($storage);
+        }
         return $this;
+    }
+
+    /**
+     * Returns the storage disk used by the attachment.
+     *
+     * @return null|string
+     */
+    public function getStorage()
+    {
+        return $this->storage;
     }
 
     /**
@@ -227,7 +254,7 @@ class Attachment implements AttachmentInterface
     {
         $this->instance->markAttachmentUpdated();
 
-        if ( ! $this->getConfigValue('keep-old-files')) {
+        if ( ! $this->config->keepOldFiles()) {
             $this->clear();
         }
 
@@ -255,7 +282,7 @@ class Attachment implements AttachmentInterface
     {
         $this->instance->markAttachmentUpdated();
 
-        if ( ! $this->getConfigValue('keep-old-files')) {
+        if ( ! $this->config->keepOldFiles()) {
             $this->clear();
         }
 
@@ -307,7 +334,7 @@ class Attachment implements AttachmentInterface
      */
     public function variants($withOriginal = false)
     {
-        $variants = array_keys($this->getConfigValue('variants', []));
+        $variants = array_keys($this->config->variantConfigs());
 
         if ($withOriginal && ! in_array(FileHandler::ORIGINAL, $variants)) {
             array_unshift($variants, FileHandler::ORIGINAL);
@@ -325,6 +352,11 @@ class Attachment implements AttachmentInterface
     public function url($variant = null)
     {
         $variant = $variant ?: FileHandler::ORIGINAL;
+
+        // If no attached file exists, we may return null or give a fallback URL.
+        if ( ! $this->exists()) {
+            return $this->config->defaultVariantUrl($variant);
+        }
 
         $target = $this->getOrMakeTargetInstance();
 
@@ -392,7 +424,7 @@ class Attachment implements AttachmentInterface
             return array_get($variants, "{$variant}.ext") ?: false;
         }
 
-        return $this->getConfigValue("extensions.{$variant}", false);
+        return $this->config->variantExtension($variant);
     }
 
     /**
@@ -409,7 +441,7 @@ class Attachment implements AttachmentInterface
             return array_get($variants, "{$variant}.type") ?: false;
         }
 
-        if (false !== ($type = $this->getConfigValue("types.{$variant}", false))) {
+        if (false !== ($type = $this->config->variantMimeType($variant))) {
             return $type;
         }
 
@@ -455,8 +487,8 @@ class Attachment implements AttachmentInterface
         $this->target = new InterpolatingTarget(
             $this->interpolator,
             $this,
-            $this->getConfigValue('path'),
-            $this->getConfigValue('variant-path')
+            $this->config->path(),
+            $this->config->variantPath()
         );
 
         $this->target->setVariantFilenames($this->variantFilenames());
@@ -475,8 +507,8 @@ class Attachment implements AttachmentInterface
         $this->target = new InterpolatingTarget(
             $this->interpolator,
             $this->getCurrentAttachmentData(),
-            $this->getConfigValue('path'),
-            $this->getConfigValue('variant-path')
+            $this->config->path(),
+            $this->config->variantPath()
         );
 
         $this->target->setVariantFilenames($this->variantFilenames());
@@ -516,7 +548,7 @@ class Attachment implements AttachmentInterface
      */
     protected function variantExtensions()
     {
-        $extensions = $this->getConfigValue("extensions", []);
+        $extensions = $this->config->variantExtensions();
 
         $variants = $this->variantsAttribute();
 
@@ -563,7 +595,7 @@ class Attachment implements AttachmentInterface
     {
         $this->instance = $instance;
 
-        if ( ! $this->getConfigValue('preserve-files')) {
+        if ( ! $this->config->preserveFiles()) {
             $this->clear();
         }
     }
@@ -632,7 +664,7 @@ class Attachment implements AttachmentInterface
 
         $target = $this->getOrMakeTargetInstance();
 
-        $storedFiles = $this->handler->process($this->uploadedFile, $target, $this->normalizedConfig);
+        $storedFiles = $this->handler->process($this->uploadedFile, $target, $this->config->toArray());
 
         if ($this->shouldVariantInformationBeStored()) {
 
@@ -691,7 +723,7 @@ class Attachment implements AttachmentInterface
                 $source,
                 $target,
                 $variant,
-                array_get($this->normalizedConfig, FileHandler::CONFIG_VARIANTS . '.' . $variant, [])
+                $this->config->variantConfig($variant)
             );
         } catch (Exception $e) {
 
@@ -904,12 +936,13 @@ class Attachment implements AttachmentInterface
     public function instanceWrite($property, $value)
     {
         // Ignore properties that should not be settable
-        if ($property !== 'file_name' && ! $this->getConfigValue("attributes.{$property}", true)) {
+        if ($property !== 'file_name' && ! $this->config->attributeProperty($property)) {
             return;
         }
 
         $this->instance->setAttribute("{$this->name}_{$property}", $value);
     }
+
 
     // ------------------------------------------------------------------------------
     //      Hooks
@@ -936,12 +969,24 @@ class Attachment implements AttachmentInterface
     }
 
     /**
-     * @param string $type
+     * @param string $type  'before', 'after'
      * @return bool
      */
     protected function performCallableHook($type)
     {
-        $hook = $this->getConfigValue($type);
+        switch ($type) {
+
+            case 'before':
+                $hook = $this->config->beforeCallable();
+                break;
+
+            case 'after':
+                $hook = $this->config->afterCallable();
+                break;
+
+            default:
+                throw new \UnexpectedValueException("Unknown callable type '{$type}'");
+        }
 
         if ( ! $hook) {
             return true;
@@ -983,75 +1028,6 @@ class Attachment implements AttachmentInterface
     // ------------------------------------------------------------------------------
 
     /**
-     * Takes the set config and creates a normalized version.
-     *
-     * This can also take stapler configs and normalize them for paperclip.
-     *
-     * @return array
-     */
-    protected function normalizeConfig()
-    {
-        $config = $this->config;
-
-        if ( ! array_has($config, 'variants') && array_has($config, 'styles')) {
-            $config['variants'] = array_get($config, 'styles', []);
-        }
-        array_forget($config, 'styles');
-
-        if ( ! array_has($config, 'variants')) {
-            $config['variants'] = config('paperclip.variants.default');
-        }
-
-        // Normalize variant definitions
-        foreach (array_get($config, 'variants', []) as $variant => $options) {
-            // Assume dimensions if not an array
-            if ( ! is_array($options)) {
-                $options = ['resize' => ['dimensions' => $options]];
-                array_set($config, "variants.{$variant}", $options);
-            }
-
-            if (array_key_exists('dimensions', $options)) {
-                $options = ['resize' => $options];
-                array_set($config, "variants.{$variant}", $options);
-            }
-
-            // If auto-orient is set, extract it to its own step
-            if (    (   array_get($options, 'resize.auto-orient')
-                    ||  array_get($options, 'resize.auto_orient')
-                    )
-                && ! array_has($options, 'auto-orient')
-            ) {
-                $options = array_merge(['auto-orient' => []], $options);
-                array_set($config, "variants.{$variant}", $options);
-                array_forget($config, [
-                    "variants.{$variant}.resize.auto-orient",
-                    "variants.{$variant}.resize.auto_orient",
-                ]);
-            }
-        }
-
-        // Simple renames of stapler config keys
-        $renames = [
-            'url'            => 'path',
-            'keep_old_files' => 'keep-old-files',
-            'preserve_files' => 'preserve-files',
-        ];
-
-        foreach ($renames as $old => $new) {
-            if ( ! array_has($config, $old)) {
-                continue;
-            }
-
-            if ( ! array_has($config, $new)) {
-                $config[ $new ] = array_get($config, $old);
-            }
-            array_forget($config, $old);
-        }
-
-        return $config;
-    }
-
-    /**
      * If we're writing variants, log information about the variants,
      * if the model is set up and configured to use the variants attribute.
      *
@@ -1059,40 +1035,7 @@ class Attachment implements AttachmentInterface
      */
     protected function shouldVariantInformationBeStored()
     {
-        return (bool) $this->getConfigValue('attributes.variants');
-    }
-
-    /**
-     * @param string      $key
-     * @param string|null $default
-     * @return mixed
-     */
-    protected function getConfigValue($key, $default = null)
-    {
-        if (array_has($this->normalizedConfig, $key)) {
-            return array_get($this->normalizedConfig, $key);
-        }
-
-        // Fall back to default configured values
-        $map = [
-            'keep-old-files' => 'keep-old-files',
-            'preserve-files' => 'preserve-files',
-            'storage'        => 'storage.disk',
-            'path'           => 'path.original',
-            'variant-path'   => 'path.variant',
-
-            'attributes.size'         => 'model.attributes.size',
-            'attributes.content_type' => 'model.attributes.content_type',
-            'attributes.updated_at'   => 'model.attributes.updated_at',
-            'attributes.created_at'   => 'model.attributes.created_at',
-            'attributes.variants'     => 'model.attributes.variants',
-        ];
-
-        if ( ! in_array($key, array_keys($map))) {
-            return $default;
-        }
-
-        return config('paperclip.' . $map[ $key ], $default);
+        return (bool) $this->config->variantsAttribute();
     }
 
     /**
@@ -1101,6 +1044,54 @@ class Attachment implements AttachmentInterface
     protected function getStorableFileFactory()
     {
         return app(StorableFileFactoryInterface::class);
+    }
+
+    /**
+     * @return FileHandlerFactoryInterface
+     */
+    protected function getFileHandlerFactory()
+    {
+        return app(FileHandlerFactoryInterface::class);
+    }
+
+    /**
+     * @return string
+     */
+    public function serialize()
+    {
+        // Serialize everything that is unlikely to involve closures
+        return serialize([
+            'instance'         => $this->instance,
+            'storage'          => $this->storage,
+            'name'             => $this->name,
+            'interpolator'     => $this->interpolator,
+            'config'           => $this->config,
+            'normalizedConfig' => $this->normalizedConfig,
+            'uploadedFile'     => $this->uploadedFile,
+            'queuedForDelete'  => $this->queuedForDelete,
+            'queuedForWrite'   => $this->queuedForWrite,
+            'target'           => $this->target,
+            'deleteTarget'     => $this->deleteTarget,
+        ]);
+    }
+
+    /**
+     * @param string $serialized
+     */
+    public function unserialize($serialized)
+    {
+        $data = unserialize($serialized);
+        $this->instance         = $data['instance'];
+        $this->name             = $data['name'];
+        $this->interpolator     = $data['interpolator'];
+        $this->config           = $data['config'];
+        $this->normalizedConfig = $data['normalizedConfig'];
+        $this->uploadedFile     = $data['uploadedFile'];
+        $this->queuedForDelete  = $data['queuedForDelete'];
+        $this->queuedForWrite   = $data['queuedForWrite'];
+        $this->target           = $data['target'];
+        $this->deleteTarget     = $data['deleteTarget'];
+        $this->setStorage($data['storage']);
     }
 
 }
