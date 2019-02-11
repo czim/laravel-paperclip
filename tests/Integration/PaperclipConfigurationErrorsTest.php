@@ -1,12 +1,7 @@
 <?php
 namespace Czim\Paperclip\Test\Integration;
 
-use Czim\Paperclip\Attachment\Attachment;
-use Czim\Paperclip\Test\Helpers\Hooks\SpyCallableHook;
-use Czim\Paperclip\Test\Helpers\VariantStrategies\TestNoChangesStrategy;
-use Czim\Paperclip\Test\Helpers\VariantStrategies\TestTextToHtmlStrategy;
 use Czim\Paperclip\Test\ProvisionedTestCase;
-use SplFileInfo;
 
 class PaperclipConfigurationErrorsTest extends ProvisionedTestCase
 {
