@@ -34,7 +34,8 @@ class InterpolatorTest extends TestCase
         $interpolator = new Interpolator;
 
         $attachment = $this->getMockAttachmentData();
-        $attachment->shouldReceive('originalFilename')->once()->andReturn('testing.gif');
+        $attachment->shouldReceive('variantFilename')->once()->with('variant')
+            ->andReturn('testing.gif');
 
         $result = $interpolator->interpolate('test/:filename', $attachment, 'variant');
 
@@ -108,7 +109,8 @@ class InterpolatorTest extends TestCase
         $interpolator = new Interpolator;
 
         $attachment = $this->getMockAttachmentData();
-        $attachment->shouldReceive('originalFilename')->once()->andReturn('testing.txt');
+        $attachment->shouldReceive('variantFilename')->once()->with('variant')
+            ->andReturn('testing.txt');
 
         $result = $interpolator->interpolate(':basename/test', $attachment, 'variant');
 
@@ -123,7 +125,8 @@ class InterpolatorTest extends TestCase
         $interpolator = new Interpolator;
 
         $attachment = $this->getMockAttachmentData();
-        $attachment->shouldReceive('originalFilename')->once()->andReturn('testing.txt');
+        $attachment->shouldReceive('variantFilename')->once()->with('variant')
+            ->andReturn('testing.txt');
 
         $result = $interpolator->interpolate(':extension/test', $attachment, 'variant');
 
@@ -140,7 +143,8 @@ class InterpolatorTest extends TestCase
         $attachment = $this->getMockAttachmentData();
         $attachment->shouldReceive('getInstanceKey')->andReturn(13);
         $attachment->shouldReceive('size')->once()->andReturn(333);
-        $attachment->shouldReceive('originalFilename')->once()->andReturn('testing.txt');
+        $attachment->shouldReceive('variantFilename')->once()->with('variant')
+            ->andReturn('testing.txt');
 
         $result = $interpolator->interpolate(':secure_hash', $attachment, 'variant');
 
