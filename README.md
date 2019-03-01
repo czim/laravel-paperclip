@@ -18,9 +18,10 @@ This uses [czim/file-handling](https://github.com/czim/file-handling) under the 
 
  Laravel             | Package 
 :--------------------|:--------
- 5.4.x and older     | 1.0.x, 2.1.x
- 5.5.x               | 1.5.x, 2.5.x
- 5.6.x and up        | 2.6.x
+ 5.4 and older       | 1.0, 2.1
+ 5.5                 | 1.5, 2.5
+ 5.6, 5.7            | 2.6
+ 5.8                 | 2.7
 
 
 ## Change log
