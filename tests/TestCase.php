@@ -8,6 +8,14 @@ use Illuminate\Support\Facades\Schema;
 abstract class TestCase extends \Orchestra\Testbench\TestCase
 {
 
+    public function setUp(): void
+    {
+        parent::setUp();
+
+        $this->setUpDatabase();
+    }
+
+
     /**
      * {@inheritdoc}
      */
@@ -33,18 +41,6 @@ abstract class TestCase extends \Orchestra\Testbench\TestCase
         return [
             PaperclipServiceProvider::class,
         ];
-    }
-
-    /**
-     * Setup the test environment.
-     *
-     * @return void
-     */
-    public function setUp()
-    {
-        parent::setUp();
-
-        $this->setUpDatabase();
     }
 
     /**
