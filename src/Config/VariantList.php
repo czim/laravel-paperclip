@@ -2,6 +2,7 @@
 namespace Czim\Paperclip\Config;
 
 use Illuminate\Contracts\Support\Arrayable;
+use Illuminate\Support\Arr;
 
 class VariantList
 {
@@ -137,14 +138,14 @@ class VariantList
         }
 
         // If auto-orient is set, extract it to its own step
-        if (    (   array_get($options, 'resize.auto-orient')
-                ||  array_get($options, 'resize.auto_orient')
+        if (    (   Arr::get($options, 'resize.auto-orient')
+                ||  Arr::get($options, 'resize.auto_orient')
             )
-            &&  ! array_has($options, 'auto-orient')
+            &&  ! Arr::has($options, 'auto-orient')
         ) {
             $options = array_merge(['auto-orient' => []], $options);
 
-            array_forget($options, [
+            Arr::forget($options, [
                 'resize.auto-orient',
                 'resize.auto_orient',
             ]);
@@ -174,8 +175,8 @@ class VariantList
      */
     protected function shouldMerge($variantName)
     {
-        return  ! array_has($this->variants, $variantName)
-            &&  ! array_get($this->exclude, $variantName);
+        return  ! Arr::has($this->variants, $variantName)
+            &&  ! Arr::get($this->exclude, $variantName);
     }
 
     /**
