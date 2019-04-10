@@ -47,6 +47,14 @@ class ResizeStep extends VariantStep
 
         return $this;
     }
+    
+    /**
+     * @return int
+     */
+    public function getWidth()
+    {
+        return $this->width;
+    }
 
     /**
      * @param int $pixels
@@ -57,6 +65,14 @@ class ResizeStep extends VariantStep
         $this->height = $pixels;
 
         return $this;
+    }
+    
+    /**
+     * @return int
+     */
+    public function getHeight()
+    {
+        return $this->height;
     }
 
     /**
