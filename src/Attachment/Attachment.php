@@ -17,6 +17,7 @@ use Czim\Paperclip\Exceptions\VariantProcessFailureException;
 use Czim\Paperclip\Path\InterpolatingTarget;
 use Exception;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Arr;
 use Serializable;
 
 class Attachment implements AttachmentInterface, Serializable
@@ -363,7 +364,7 @@ class Attachment implements AttachmentInterface, Serializable
 
         $target = $this->getOrMakeTargetInstance();
 
-        return array_get(
+        return Arr::get(
             $this->handler->variantUrlsForTarget($target, [ $variant ]),
             $variant
         );
@@ -424,7 +425,7 @@ class Attachment implements AttachmentInterface, Serializable
         $variants = $this->variantsAttribute();
 
         if ( ! empty($variants)) {
-            return array_get($variants, "{$variant}.ext") ?: false;
+            return Arr::get($variants, "{$variant}.ext") ?: false;
         }
 
         return $this->config->variantExtension($variant);
@@ -441,7 +442,7 @@ class Attachment implements AttachmentInterface, Serializable
         $variants = $this->variantsAttribute();
 
         if ( ! empty($variants)) {
-            return array_get($variants, "{$variant}.type") ?: false;
+            return Arr::get($variants, "{$variant}.type") ?: false;
         }
 
         if (false !== ($type = $this->config->variantMimeType($variant))) {
@@ -559,7 +560,7 @@ class Attachment implements AttachmentInterface, Serializable
 
             foreach ($this->variants() as $variant) {
 
-                $extension = array_get($variants, "{$variant}.ext");
+                $extension = Arr::get($variants, "{$variant}.ext");
 
                 if ($extension) {
                     $extensions[ $variant ] = $extension;

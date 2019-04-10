@@ -160,7 +160,7 @@ trait PaperclipTrait
      *
      * {@inheritdoc}
      */
-    protected function originalIsEquivalent($key, $current)
+    public function originalIsEquivalent($key, $current)
     {
         if (array_key_exists($key, $this->attachedFiles)) {
             return true;

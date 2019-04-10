@@ -3,6 +3,7 @@ namespace Czim\Paperclip\Config;
 
 use Czim\FileHandling\Handler\FileHandler;
 use Czim\Paperclip\Contracts\Config\ConfigInterface;
+use Illuminate\Support\Arr;
 
 abstract class AbstractConfig implements ConfigInterface
 {
@@ -116,7 +117,7 @@ abstract class AbstractConfig implements ConfigInterface
      */
     public function hasVariantConfig($variant)
     {
-        return array_has($this->variantConfigs(), $variant);
+        return Arr::has($this->variantConfigs(), $variant);
     }
 
     /**
@@ -127,7 +128,7 @@ abstract class AbstractConfig implements ConfigInterface
      */
     public function variantConfig($variant)
     {
-        return array_get($this->variantConfigs(), $variant, []);
+        return Arr::get($this->variantConfigs(), $variant, []);
     }
 
     /**
@@ -137,7 +138,7 @@ abstract class AbstractConfig implements ConfigInterface
      */
     public function variantConfigs()
     {
-        return array_get($this->normalizedConfig, FileHandler::CONFIG_VARIANTS);
+        return Arr::get($this->normalizedConfig, FileHandler::CONFIG_VARIANTS);
     }
 
     /**
@@ -271,8 +272,8 @@ abstract class AbstractConfig implements ConfigInterface
      */
     protected function getConfigValue($key, $default = null)
     {
-        if (array_has($this->normalizedConfig, $key)) {
-            return array_get($this->normalizedConfig, $key);
+        if (Arr::has($this->normalizedConfig, $key)) {
+            return Arr::get($this->normalizedConfig, $key);
         }
 
         return $this->getFallbackConfigValue($key, $default);

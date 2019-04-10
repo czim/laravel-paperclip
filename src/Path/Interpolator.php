@@ -4,6 +4,8 @@ namespace Czim\Paperclip\Path;
 use Czim\FileHandling\Handler\FileHandler;
 use Czim\Paperclip\Contracts\AttachmentDataInterface;
 use Czim\Paperclip\Contracts\Path\InterpolatorInterface;
+use Illuminate\Support\Arr;
+use Illuminate\Support\Str;
 
 /**
  * Class Interpolator
@@ -235,7 +237,7 @@ class Interpolator implements InterpolatorInterface
      */
     protected function attachment(AttachmentDataInterface $attachment, $variant = '')
     {
-        return str_plural($attachment->name());
+        return Str::plural($attachment->name());
     }
 
     /**
@@ -251,7 +253,7 @@ class Interpolator implements InterpolatorInterface
             return $variant;
         }
 
-        return array_get($attachment->getConfig(), 'default-variant', FileHandler::ORIGINAL);
+        return Arr::get($attachment->getConfig(), 'default-variant', FileHandler::ORIGINAL);
     }
 
     /**

@@ -1,6 +1,8 @@
 <?php
 namespace Czim\Paperclip\Config;
 
+use Illuminate\Support\Arr;
+
 class StaplerConfig extends PaperclipConfig
 {
 
@@ -15,10 +17,10 @@ class StaplerConfig extends PaperclipConfig
     protected function normalizeConfig(array $config)
     {
         // In Stapler, variants were called 'styles'.
-        if ( ! array_has($config, 'variants') && array_has($config, 'styles')) {
-            $config['variants'] = array_get($config, 'styles', []);
+        if ( ! Arr::has($config, 'variants') && Arr::has($config, 'styles')) {
+            $config['variants'] = Arr::get($config, 'styles', []);
         }
-        array_forget($config, 'styles');
+        Arr::forget($config, 'styles');
 
 
         // Simple renames of stapler config keys.
@@ -35,14 +37,14 @@ class StaplerConfig extends PaperclipConfig
         ];
 
         foreach ($renames as $old => $new) {
-            if ( ! array_has($config, $old)) {
+            if ( ! Arr::has($config, $old)) {
                 continue;
             }
 
-            if ( ! array_has($config, $new)) {
-                $config[ $new ] = array_get($config, $old);
+            if ( ! Arr::has($config, $new)) {
+                $config[ $new ] = Arr::get($config, $old);
             }
-            array_forget($config, $old);
+            Arr::forget($config, $old);
         }
 
         return parent::normalizeConfig($config);

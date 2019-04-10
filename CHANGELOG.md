@@ -1,6 +1,18 @@
 # Changelog
 
+## Laravel 5.8 and up
+
+### [2.7.0] - 2019-03-01
+
+Updated to support Laravel 5.8.
+No functional changes.
+
+
 ## Laravel 5.5 and up
+
+### [2.6.1] - 2019-01-07
+
+Minor cloud storage fix.
 
 ### [2.6.0] - 2018-11-04
 
@@ -90,6 +102,10 @@ This now relies on version `^1.0` for [czim/file-handling](https://github.com/cz
                                                        
 ## Laravel 5.4 and below
 
+### [2.1.0] - 2019-02-11
+
+Updates added for 2.6.1.
+
 ### [2.0.1] - 2018-06-28
 
 See 2.5.2.
@@ -99,6 +115,9 @@ See 2.5.2.
 This merges the changes for 2.5.0 and 2.5.1 in a new major version for Laravel 5.4 and earlier.
 
 
+[2.7.0]: https://github.com/czim/laravel-paperclip/compare/2.6.1...2.7.0
+
+[2.6.1]: https://github.com/czim/laravel-paperclip/compare/2.6.0...2.6.1
 [2.6.0]: https://github.com/czim/laravel-paperclip/compare/2.5.7...2.6.0
 
 [2.5.7]: https://github.com/czim/laravel-paperclip/compare/2.5.6...2.5.7
@@ -110,5 +129,6 @@ This merges the changes for 2.5.0 and 2.5.1 in a new major version for Laravel 5
 [2.5.1]: https://github.com/czim/laravel-paperclip/compare/2.5.0...2.5.1
 [2.5.0]: https://github.com/czim/laravel-paperclip/compare/1.5.2...2.5.0
 
+[2.1.0]: https://github.com/czim/laravel-paperclip/compare/2.0.1...2.1.0
 [2.0.1]: https://github.com/czim/laravel-paperclip/compare/2.0.0...2.0.1
 [2.0.0]: https://github.com/czim/laravel-paperclip/compare/1.0.3...2.0.0

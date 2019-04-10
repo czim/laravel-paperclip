@@ -1,6 +1,8 @@
 <?php
 namespace Czim\Paperclip\Config;
 
+use Illuminate\Support\Arr;
+
 class PaperclipConfig extends AbstractConfig
 {
 
@@ -14,9 +16,9 @@ class PaperclipConfig extends AbstractConfig
      */
     protected function normalizeConfig(array $config)
     {
-        $hasVariantsConfigured = array_has($config, 'variants');
+        $hasVariantsConfigured = Arr::has($config, 'variants');
 
-        $variantList = $this->castVariantsToVariantList(array_get($config, 'variants', []));
+        $variantList = $this->castVariantsToVariantList(Arr::get($config, 'variants', []));
 
         if ( ! $hasVariantsConfigured || $this->shouldMergeDefaultVariants()) {
             $variantList->mergeDefault(config('paperclip.variants.default', []));
@@ -25,24 +27,24 @@ class PaperclipConfig extends AbstractConfig
         $extensions = $variantList->extensions();
         $urls       = $variantList->urls();
 
-        array_set($config, 'variants', $variantList->variants());
+        Arr::set($config, 'variants', $variantList->variants());
 
 
         // Merge in extensions set through indirect means.
         if (count($extensions)) {
-            array_set(
+            Arr::set(
                 $config,
                 'extensions',
-                array_merge(array_get($config, 'extensions', []), $extensions)
+                array_merge(Arr::get($config, 'extensions', []), $extensions)
             );
         }
 
         // Merge in default URLs set through indirect means.
         if (count($urls)) {
-            array_set(
+            Arr::set(
                 $config,
                 'urls',
-                array_merge(array_get($config, 'urls', []), $urls)
+                array_merge(Arr::get($config, 'urls', []), $urls)
             );
         }
 
