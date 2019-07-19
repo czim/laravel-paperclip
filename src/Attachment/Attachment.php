@@ -3,6 +3,7 @@ namespace Czim\Paperclip\Attachment;
 
 use Carbon\Carbon;
 use Czim\FileHandling\Contracts\Handler\FileHandlerInterface;
+use Czim\FileHandling\Contracts\Handler\ProcessResultInterface;
 use Czim\FileHandling\Contracts\Storage\StorableFileFactoryInterface;
 use Czim\FileHandling\Contracts\Storage\StorableFileInterface;
 use Czim\FileHandling\Contracts\Storage\TargetInterface;
@@ -13,6 +14,7 @@ use Czim\Paperclip\Contracts\AttachmentInterface;
 use Czim\Paperclip\Contracts\Config\ConfigInterface;
 use Czim\Paperclip\Contracts\FileHandlerFactoryInterface;
 use Czim\Paperclip\Contracts\Path\InterpolatorInterface;
+use Czim\Paperclip\Events\TemporaryFileFailedToBeDeletedEvent;
 use Czim\Paperclip\Exceptions\VariantProcessFailureException;
 use Czim\Paperclip\Path\InterpolatingTarget;
 use Exception;
@@ -320,9 +322,19 @@ class Attachment implements AttachmentInterface, Serializable
         // Collect information about variants to update the variant information with after processing.
         $variantInformation = [];
 
+        $temporaryFiles = [];
+
         foreach ($variants as $variant) {
-            $this->processSingleVariant($source, $variant, $variantInformation);
+
+            $result = $this->processSingleVariant($source, $variant, $variantInformation);
+
+            foreach ($result->temporaryFiles() as $temporaryFile) {
+                $temporaryFiles[] = $temporaryFile;
+            }
         }
+
+        $this->cleanUpTemporaryFiles($temporaryFiles);
+        
 
         if ($this->shouldVariantInformationBeStored()) {
             $this->instanceWrite('variants', json_encode($variantInformation));
@@ -668,7 +680,9 @@ class Attachment implements AttachmentInterface, Serializable
 
         $target = $this->getOrMakeTargetInstance();
 
-        $storedFiles = $this->handler->process($this->uploadedFile, $target, $this->config->toArray());
+        $result = $this->handler->process($this->uploadedFile, $target, $this->config->toArray());
+
+        $storedFiles = $result->storedFiles();
 
         if ($this->shouldVariantInformationBeStored()) {
 
@@ -693,7 +707,33 @@ class Attachment implements AttachmentInterface, Serializable
             $this->instance->save();
         }
 
+
+        $this->cleanUpTemporaryFiles($result->temporaryFiles());
+
         $this->queuedForWrite = false;
+    }
+
+    /**
+     * @param StorableFileInterface[] $temporaryFiles
+     */
+    protected function cleanUpTemporaryFiles(array $temporaryFiles)
+    {
+        foreach ($temporaryFiles as $temporaryFile) {
+
+            try {
+                $temporaryFile->delete();
+
+            } catch (Exception $e) {
+
+                // Paperclip itself ignores problems while deleting temporary files.
+                // If you want to handle these errors yourself, you can set up a
+                // listener for the event fired here.
+
+                $this->getEventDispatcher()->dispatch(
+                    new TemporaryFileFailedToBeDeletedEvent($temporaryFile, $e)
+                );
+            }
+        }
     }
 
     /**
@@ -716,6 +756,7 @@ class Attachment implements AttachmentInterface, Serializable
      * @param StorableFileInterface $source
      * @param string                $variant
      * @param array                 $information
+     * @return ProcessResultInterface
      * @throws VariantProcessFailureException
      */
     protected function processSingleVariant(StorableFileInterface $source, $variant, array &$information = [])
@@ -723,7 +764,7 @@ class Attachment implements AttachmentInterface, Serializable
         $target = $this->getOrMakeTargetInstance();
 
         try {
-            $storedFile = $this->handler->processVariant(
+            $result = $this->handler->processVariant(
                 $source,
                 $target,
                 $variant,
@@ -738,8 +779,11 @@ class Attachment implements AttachmentInterface, Serializable
             );
         }
 
+        /** @var StorableFileInterface $storedFile */
+        $storedFile = array_values($result->storedFiles())[0];
+
         if ( ! $this->shouldVariantInformationBeStored()) {
-            return;
+            return $result;
         }
 
         $originalExtension = pathinfo($this->originalFilename(), PATHINFO_EXTENSION);
@@ -748,13 +792,15 @@ class Attachment implements AttachmentInterface, Serializable
         if (    $storedFile->extension() == $originalExtension
             &&  $storedFile->mimeType() == $originalMimeType
         ) {
-            return;
+            return $result;
         }
 
         $information[ $variant ] = [
             'ext'  => $storedFile->extension(),
             'type' => $storedFile->mimeType(),
         ];
+
+        return $result;
     }
 
     /**
@@ -1051,6 +1097,14 @@ class Attachment implements AttachmentInterface, Serializable
     protected function getFileHandlerFactory()
     {
         return app(FileHandlerFactoryInterface::class);
+    }
+
+    /**
+     * @return \Illuminate\Contracts\Events\Dispatcher
+     */
+    protected function getEventDispatcher()
+    {
+        return app('events');
     }
 
 
