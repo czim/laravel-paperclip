@@ -28,7 +28,7 @@ class PaperclipReprocessAttachmentTest extends ProvisionedTestCase
     /**
      * @test
      */
-    function it_reprocesses_variant()
+    function it_reprocesses_variants()
     {
         $model = $this->getTestModel();
 
