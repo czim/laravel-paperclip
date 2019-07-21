@@ -2,6 +2,10 @@
 
 ## Laravel 5.8 and up
 
+### [2.7.2] - 2019-07-21
+
+Artisan `paperclip:refresh` command now has `--variants=` option to refresh only specific variants.
+
 ### [2.7.1] - 2019-07-19
 
 Temporary files are now deleted after variants are processed.
@@ -14,9 +18,13 @@ No functional changes.
 
 ## Laravel 5.5 and up
 
+### [2.6.3] - 2019-07-21
+
+See changes for 2.7.2.
+
 ### [2.6.2] - 2019-07-19
 
-Temporary files are now deleted after variants are processed.
+See changes for 2.7.1.
 
 ### [2.6.1] - 2019-01-07
 
@@ -123,9 +131,11 @@ See 2.5.2.
 This merges the changes for 2.5.0 and 2.5.1 in a new major version for Laravel 5.4 and earlier.
 
 
+[2.7.2]: https://github.com/czim/laravel-paperclip/compare/2.7.1...2.7.2
 [2.7.1]: https://github.com/czim/laravel-paperclip/compare/2.7.0...2.7.1
 [2.7.0]: https://github.com/czim/laravel-paperclip/compare/2.6.1...2.7.0
 
+[2.6.3]: https://github.com/czim/laravel-paperclip/compare/2.6.2...2.6.3
 [2.6.2]: https://github.com/czim/laravel-paperclip/compare/2.6.1...2.6.2
 [2.6.1]: https://github.com/czim/laravel-paperclip/compare/2.6.0...2.6.1
 [2.6.0]: https://github.com/czim/laravel-paperclip/compare/2.5.7...2.6.0
