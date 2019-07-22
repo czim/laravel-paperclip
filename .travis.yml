@@ -4,7 +4,7 @@ php:
   - 7.1
   - 7.2
 
-install: composer install
+install: travis_wait composer install
 
 script:
   - mkdir -p build/logs
