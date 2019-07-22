@@ -11,7 +11,7 @@
     "require-dev": {
         "mockery/mockery": "0.9.*|~1.0",
         "phpunit/phpunit": "~6.0|~7.0",
-        "orchestra/testbench": "~3.5|~3.6",
+        "orchestra/testbench": "~3.5.0|~3.6.0|~3.7.0",
         "satooshi/php-coveralls": "^1.0"
     },
     "autoload": {
