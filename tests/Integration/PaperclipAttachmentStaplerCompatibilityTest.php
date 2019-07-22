@@ -9,10 +9,7 @@ use SplFileInfo;
 class PaperclipAttachmentStaplerCompatibilityTest extends ProvisionedTestCase
 {
 
-    /**
-     * {@inheritdoc}
-     */
-    public function setUp()
+    public function setUp(): void
     {
         parent::setUp();
 
