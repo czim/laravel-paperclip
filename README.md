@@ -21,7 +21,7 @@ This uses [czim/file-handling](https://github.com/czim/file-handling) under the 
  5.4 and older       | 1.0, 2.1
  5.5                 | 1.5, 2.5
  5.6, 5.7            | 2.6
- 5.8                 | 2.7
+ 5.8, 6.0            | 2.7
 
 
 ## Change log
