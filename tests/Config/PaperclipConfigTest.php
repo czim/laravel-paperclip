@@ -1,4 +1,7 @@
 <?php
+/** @noinspection ReturnTypeCanBeDeclaredInspection */
+/** @noinspection AccessModifierPresentedInspection */
+
 namespace Czim\Paperclip\Test\Config;
 
 use Czim\Paperclip\Config\PaperclipConfig;

@@ -8,7 +8,7 @@ class SpyCallableHook
     public $hookMethodCalled = false;
 
 
-    public function hookMethod(AttachmentInterface $attachment)
+    public function hookMethod(AttachmentInterface $attachment): void
     {
         $this->hookMethodCalled = true;
     }

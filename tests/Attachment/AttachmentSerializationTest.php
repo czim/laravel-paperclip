@@ -1,4 +1,7 @@
 <?php
+/** @noinspection ReturnTypeCanBeDeclaredInspection */
+/** @noinspection AccessModifierPresentedInspection */
+
 namespace Czim\Paperclip\Test\Attachment;
 
 use Czim\FileHandling\Contracts\Handler\FileHandlerInterface;
@@ -24,7 +27,7 @@ class AttachmentSerializationTest extends TestCase
 
         // Check if the file handler is actually restored properly after serialization
         static::assertInstanceOf(FileHandlerInterface::class, $attachment->getHandler());
-        static::assertInternalType('string', $serialized);
+        static::assertIsString($serialized);
 
         /** @var Attachment $unserialized */
         $unserialized = unserialize($serialized);

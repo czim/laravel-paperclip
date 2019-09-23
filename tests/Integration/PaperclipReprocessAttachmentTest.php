@@ -1,8 +1,12 @@
 <?php
+/** @noinspection ReturnTypeCanBeDeclaredInspection */
+/** @noinspection AccessModifierPresentedInspection */
+
 namespace Czim\Paperclip\Test\Integration;
 
 use Czim\FileHandling\Contracts\Storage\StorableFileFactoryInterface;
 use Czim\FileHandling\Storage\File\SplFileInfoStorableFile;
+use Czim\Paperclip\Exceptions\VariantProcessFailureException;
 use Czim\Paperclip\Test\Helpers\VariantStrategies\TestNoChangesStrategy;
 use Czim\Paperclip\Test\Helpers\VariantStrategies\TestTextToHtmlStrategy;
 use Czim\Paperclip\Test\ProvisionedTestCase;
@@ -138,14 +142,15 @@ class PaperclipReprocessAttachmentTest extends ProvisionedTestCase
             'Variant information not rewritten after reprocessing'
         );
     }
-    
+
     /**
      * @test
-     * @expectedException \Czim\Paperclip\Exceptions\VariantProcessFailureException
-     * @expectedExceptionMessageRegExp #failed to process variant 'medium'#i
      */
     function it_throws_an_exception_when_something_goes_wrong_while_reprocessing_a_variant()
     {
+        $this->expectException(VariantProcessFailureException::class);
+        $this->expectExceptionMessageRegExp("#failed to process variant 'medium'#i");
+
         $model = $this->getTestModel();
 
         $model->image = new SplFileInfo($this->getTestFilePath('empty.gif'));

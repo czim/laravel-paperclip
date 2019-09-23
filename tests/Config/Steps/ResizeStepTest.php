@@ -1,6 +1,10 @@
 <?php
+/** @noinspection ReturnTypeCanBeDeclaredInspection */
+/** @noinspection AccessModifierPresentedInspection */
+
 namespace Czim\Paperclip\Test\Config\Steps;
 
+use BadMethodCallException;
 use Czim\Paperclip\Config\Steps\ResizeStep;
 use Czim\Paperclip\Test\TestCase;
 
@@ -15,7 +19,7 @@ class ResizeStepTest extends TestCase
         // Minimal
         $array = ResizeStep::make()->width(100)->toArray();
 
-        static::assertInternalType('array', $array);
+        static::assertIsArray($array);
         static::assertEquals(
             [
                 'resize' => [
@@ -27,7 +31,7 @@ class ResizeStepTest extends TestCase
 
         $array = ResizeStep::make()->height(100)->toArray();
 
-        static::assertInternalType('array', $array);
+        static::assertIsArray($array);
         static::assertEquals(
             [
                 'resize' => [
@@ -85,37 +89,41 @@ class ResizeStepTest extends TestCase
 
     /**
      * @test
-     * @expectedException \BadMethodCallException
      */
     function it_throws_an_exception_if_neither_width_nor_height_are_set()
     {
+        $this->expectException(BadMethodCallException::class);
+
         ResizeStep::make()->toArray();
     }
 
     /**
      * @test
-     * @expectedException \BadMethodCallException
      */
     function it_throws_an_exception_if_width_and_height_are_not_both_set_when_using_crop()
     {
+        $this->expectException(BadMethodCallException::class);
+
         ResizeStep::make()->width(100)->crop()->toArray();
     }
 
     /**
      * @test
-     * @expectedException \BadMethodCallException
      */
     function it_throws_an_exception_if_width_and_height_are_not_both_set_when_using_ignore_ratio()
     {
+        $this->expectException(BadMethodCallException::class);
+
         ResizeStep::make()->height(100)->ignoreRatio()->toArray();
     }
 
     /**
      * @test
-     * @expectedException \BadMethodCallException
      */
     function it_throws_an_exception_if_corp_and_ignore_ratio_are_both_set()
     {
+        $this->expectException(BadMethodCallException::class);
+
         ResizeStep::make()->height(100)->width(150)->crop()->ignoreRatio()->toArray();
     }
 

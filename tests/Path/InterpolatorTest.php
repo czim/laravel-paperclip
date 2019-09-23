@@ -1,10 +1,15 @@
 <?php
+/** @noinspection ReturnTypeCanBeDeclaredInspection */
+/** @noinspection AccessModifierPresentedInspection */
+
 namespace Czim\Paperclip\Test\Path;
 
 use Czim\Paperclip\Contracts\AttachmentDataInterface;
 use Czim\Paperclip\Path\Interpolator;
 use Czim\Paperclip\Test\TestCase;
 use Mockery;
+use Mockery\Mock;
+use Mockery\MockInterface;
 
 class InterpolatorTest extends TestCase
 {
@@ -242,7 +247,7 @@ class InterpolatorTest extends TestCase
 
 
     /**
-     * @return \Mockery\MockInterface|AttachmentDataInterface
+     * @return Mock|MockInterface|AttachmentDataInterface
      */
     protected function getMockAttachmentData()
     {

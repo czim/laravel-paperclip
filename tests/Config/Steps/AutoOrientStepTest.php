@@ -1,4 +1,7 @@
 <?php
+/** @noinspection ReturnTypeCanBeDeclaredInspection */
+/** @noinspection AccessModifierPresentedInspection */
+
 namespace Czim\Paperclip\Test\Config\Steps;
 
 use Czim\Paperclip\Config\Steps\AutoOrientStep;
@@ -15,7 +18,7 @@ class AutoOrientStepTest extends TestCase
         // Default
         $array = AutoOrientStep::make()->toArray();
 
-        static::assertInternalType('array', $array);
+        static::assertIsArray($array);
         static::assertEquals(
             [
                 'auto-orient' => [
@@ -27,7 +30,7 @@ class AutoOrientStepTest extends TestCase
         // Specific
         $array = AutoOrientStep::make('testname')->quiet()->toArray();
 
-        static::assertInternalType('array', $array);
+        static::assertIsArray($array);
         static::assertEquals(
             [
                 'testname' => [

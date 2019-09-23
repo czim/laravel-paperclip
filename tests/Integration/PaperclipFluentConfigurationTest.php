@@ -1,4 +1,7 @@
 <?php
+/** @noinspection ReturnTypeCanBeDeclaredInspection */
+/** @noinspection AccessModifierPresentedInspection */
+
 namespace Czim\Paperclip\Test\Integration;
 
 use Czim\Paperclip\Attachment\Attachment;
@@ -40,20 +43,20 @@ class PaperclipFluentConfigurationTest extends ProvisionedTestCase
 
         static::assertInstanceOf(Attachment::class, $model->attachment);
         static::assertEquals('rotated.jpg', $model->attachment_file_name);
-        static::assertFileExists($processedFilePath, "File was not stored");
+        static::assertFileExists($processedFilePath, 'File was not stored');
 
         static::assertEquals(
             [
-                "variants" => [
-                    "test" => [
-                        "resize"      => [
-                            "dimensions"     => "100x100!",
-                            "convertOptions" => [
-                                "quality" => 90,
+                'variants' => [
+                    'test' => [
+                        'resize'      => [
+                            'dimensions'     => '100x100!',
+                            'convertOptions' => [
+                                'quality' => 90,
                             ],
                         ],
-                        "auto-orient" => [
-                            "quiet" => true,
+                        'auto-orient' => [
+                            'quiet' => true,
                         ],
                     ],
                 ],
@@ -92,20 +95,20 @@ class PaperclipFluentConfigurationTest extends ProvisionedTestCase
 
         static::assertInstanceOf(Attachment::class, $model->attachment);
         static::assertEquals('rotated.jpg', $model->attachment_file_name);
-        static::assertFileExists($processedFilePath, "File was not stored");
+        static::assertFileExists($processedFilePath, 'File was not stored');
 
         static::assertEquals(
             [
-                "variants" => [
-                    "test" => [
-                        "resize"      => [
-                            "dimensions"     => "100x100!",
-                            "convertOptions" => [
-                                "quality" => 90,
+                'variants' => [
+                    'test' => [
+                        'resize'      => [
+                            'dimensions'     => '100x100!',
+                            'convertOptions' => [
+                                'quality' => 90,
                             ],
                         ],
-                        "auto-orient" => [
-                            "quiet" => true,
+                        'auto-orient' => [
+                            'quiet' => true,
                         ],
                     ],
                 ],
@@ -142,14 +145,14 @@ class PaperclipFluentConfigurationTest extends ProvisionedTestCase
 
         static::assertInstanceOf(Attachment::class, $model->attachment);
         static::assertEquals('rotated.jpg', $model->attachment_file_name);
-        static::assertFileExists($processedFilePath, "File was not stored");
+        static::assertFileExists($processedFilePath, 'File was not stored');
 
         static::assertEquals(
             [
-                "variants" => [
-                    "test" => [
-                        "auto-orient" => [
-                            "quiet" => true,
+                'variants' => [
+                    'test' => [
+                        'auto-orient' => [
+                            'quiet' => true,
                         ],
                     ],
                 ],
