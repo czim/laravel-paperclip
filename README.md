@@ -260,7 +260,7 @@ $model->save();
 
 ## Differences with Stapler
 
-- Paperclip does not handle (s3) storage internally, as Paperclip did.
+- Paperclip does not handle (s3) storage internally, as Stapler did.
 All storage is performed through Laravel's storage solution.
 You can still use S3 (or any other storage disk), but you will have to configure it in Laravel's storage configuration first.  
 It is possible to use different storage disks for different attachments.
