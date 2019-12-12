@@ -131,7 +131,7 @@ class VariantList
             $options = [ $options ];
         }
 
-        if (array_key_exists('dimensions', $options)) {
+        if (property_exists($options, 'dimensions')) {
             $options = [
                 'resize' => $options,
             ];
