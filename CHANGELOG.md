@@ -2,6 +2,12 @@
 
 ## Laravel 5.8 and up
 
+### [2.7.3] - 2019-12-27
+
+Now fires events rather than throws exceptions on processing errors.
+Added `paperclip.processing.errors.events` boolean configuration toggle for this.
+This allows mass reprocessing to skip attachments with errors.
+
 ### [2.7.2] - 2019-07-21
 
 Artisan `paperclip:refresh` command now has `--variants=` option to refresh only specific variants.
@@ -43,23 +49,23 @@ This is unlikely to affect the average application of this package.
 Additionally, support has been added for setting a default URL that is returned when no file is stored.
 This must be set per attachment, and may set per variant.
 
-Further, configuration options for default variants has improved. 
+Further, configuration options for default variants has improved.
 It is now possible to always merge in the default variants into any and all specific attachment variants,
 using the `paperclip.variants.merge-default` setting.
 
-The [CONFIG](CONFIG.md) readme has been updated to reflect these changes. 
- 
+The [CONFIG](CONFIG.md) readme has been updated to reflect these changes.
+
 
 ### [2.5.7] - 2018-10-29
 
-Added possibility to configure variants using fluent syntax configuration objects. 
+Added possibility to configure variants using fluent syntax configuration objects.
 This is entirely optional. The documentation has been updated to reflect this.
 
 
 ### [2.5.6] - 2018-10-25
 
 Improved configuration defaults and analysis for storage and base URL.
-If no storage driver is configured, or if it is incorrectly configured, a descriptive exception is thrown.  
+If no storage driver is configured, or if it is incorrectly configured, a descriptive exception is thrown.
 If no base-URL could be determined, an exception is thrown.
 
 It is no longer required to set `paperclip.storage.base-urls` entries if the relevant `filesystems.disks.<disk>.url` is set.
@@ -70,12 +76,12 @@ Now allows configuration of deletion hash through `paperclip.delete-hash` key.
 
 ### [2.5.4] - 2018-09-27
 
-Fixed issue with serialization of Attachment instance (and, by extension, any models with the paperclip trait).  
+Fixed issue with serialization of Attachment instance (and, by extension, any models with the paperclip trait).
 This *may* include a breaking change, but only if you changed service provision or modified this package's instantiation or factory logic.
 
 ### [2.5.3] - 2018-09-08
 
-Fixed issue with Laravel `5.6.37` and up (with a hack).  
+Fixed issue with Laravel `5.6.37` and up (with a hack).
 Fixed a broken config reference to filesystem disk 'local'-checking.
 
 ### [2.5.2] - 2018-06-28
@@ -103,19 +109,19 @@ This now relies on version `^1.0` for [czim/file-handling](https://github.com/cz
     - It is recommended to use `:variant` and `:filename` in your placeholdered path for the `path.original` (and `path.variant`) value. See [the config](https://github.com/czim/laravel-paperclip/blob/97d02c77ce724f3e47acb0e17ad3e54e17aa5f12/config/paperclip.php#L65) for an example.
     - `:url` is no longer a usable path interpolation placeholder.
 - Attachment changes:
-    - The `AttachmentInterface` has been segregated into main and data interfaces (`AttachmentDataInterface`). 
-    - A historical set of attachment data is provided to the interpolator when handling queued deletes. 
+    - The `AttachmentInterface` has been segregated into main and data interfaces (`AttachmentDataInterface`).
+    - A historical set of attachment data is provided to the interpolator when handling queued deletes.
         This more accurately reflect the values used to create the file that is to be deleted.
     - Deletion queueing is now done using a `Target` instance and variant names, and uses fixed historical state saving to fix a number of (potential) issues.
 
 - Interpolator changes:
     - The path interpolator now depends on `AttachmentDataInterface` (and its added `getInstanceKey()` method). This is only likely to cause issues if you have extended or implemented your own interpolator.
-    - The `url()` method and placeholder have been removed and will no longer be interpolated.  
+    - The `url()` method and placeholder have been removed and will no longer be interpolated.
         This was done to prevent the risk of endless recursion.
-        (It made no sense to me, anyway: an correct url is the *result* of the interpolation; how could it sensibly be used to interpolate its own result?).  
+        (It made no sense to me, anyway: an correct url is the *result* of the interpolation; how could it sensibly be used to interpolate its own result?).
          If you do use this placeholder, please submit an issue with details on how and why, so we can think of a safe solution.
 
-                                                       
+
 ## Laravel 5.4 and below
 
 ### [2.1.0] - 2019-02-11
@@ -131,6 +137,7 @@ See 2.5.2.
 This merges the changes for 2.5.0 and 2.5.1 in a new major version for Laravel 5.4 and earlier.
 
 
+[2.7.3]: https://github.com/czim/laravel-paperclip/compare/2.7.2...2.7.3
 [2.7.2]: https://github.com/czim/laravel-paperclip/compare/2.7.1...2.7.2
 [2.7.1]: https://github.com/czim/laravel-paperclip/compare/2.7.0...2.7.1
 [2.7.0]: https://github.com/czim/laravel-paperclip/compare/2.6.1...2.7.0
