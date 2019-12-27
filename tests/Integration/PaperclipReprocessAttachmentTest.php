@@ -6,6 +6,7 @@ namespace Czim\Paperclip\Test\Integration;
 
 use Czim\FileHandling\Contracts\Storage\StorableFileFactoryInterface;
 use Czim\FileHandling\Storage\File\SplFileInfoStorableFile;
+use Czim\Paperclip\Events\ProcessingExceptionEvent;
 use Czim\Paperclip\Exceptions\VariantProcessFailureException;
 use Czim\Paperclip\Test\Helpers\VariantStrategies\TestNoChangesStrategy;
 use Czim\Paperclip\Test\Helpers\VariantStrategies\TestTextToHtmlStrategy;
@@ -146,8 +147,37 @@ class PaperclipReprocessAttachmentTest extends ProvisionedTestCase
     /**
      * @test
      */
-    function it_throws_an_exception_when_something_goes_wrong_while_reprocessing_a_variant()
+    function it_fires_an_even_when_something_goes_wrong_while_reprocessing_a_variant()
     {
+        $this->withoutEvents();
+        $this->expectsEvents(ProcessingExceptionEvent::class);
+
+        $model = $this->getTestModel();
+
+        $model->image = new SplFileInfo($this->getTestFilePath('empty.gif'));
+        $model->save();
+
+        $processedFilePath = $this->getUploadedAttachmentPath($model, 'empty.gif', 'image');
+
+        static::assertFileExists($processedFilePath, 'Original file does not exist');
+
+        // Delete the original file, so reprocessing fails
+        unlink($processedFilePath);
+        static::assertFileNotExists($processedFilePath, 'File should not exist after unlinking');
+
+        $this->prepareMockSetupForReprocessingException($model);
+
+        $model->image->reprocess();
+    }
+
+    /**
+     * @test
+     */
+    function it_throws_an_exception_when_something_goes_wrong_while_reprocessing_a_variant_when_configured_to()
+    {
+        // Disable event firing so the exception is thrown.
+        $this->app['config']->set('paperclip.processing.errors.events', false);
+
         $this->expectException(VariantProcessFailureException::class);
         $this->expectExceptionMessageRegExp("#failed to process variant 'medium'#i");
 

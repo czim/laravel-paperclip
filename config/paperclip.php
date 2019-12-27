@@ -168,6 +168,13 @@ return [
 
     'processing' => [
         'chunk-size' => 500,
+
+        // Handling of errors during processing.
+        'errors' => [
+            // Whether to fire exception events, rather than throw exceptions
+            // This prevents processing from halting on
+            'event' => true,
+        ],
     ],
 
 ];

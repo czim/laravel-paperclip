@@ -8,12 +8,14 @@ use Czim\FileHandling\Contracts\Storage\StorableFileFactoryInterface;
 use Czim\FileHandling\Contracts\Storage\StorableFileInterface;
 use Czim\FileHandling\Contracts\Storage\TargetInterface;
 use Czim\FileHandling\Handler\FileHandler;
+use Czim\FileHandling\Handler\ProcessResult;
 use Czim\Paperclip\Config\PaperclipConfig;
 use Czim\Paperclip\Contracts\AttachableInterface;
 use Czim\Paperclip\Contracts\AttachmentInterface;
 use Czim\Paperclip\Contracts\Config\ConfigInterface;
 use Czim\Paperclip\Contracts\FileHandlerFactoryInterface;
 use Czim\Paperclip\Contracts\Path\InterpolatorInterface;
+use Czim\Paperclip\Events\ProcessingExceptionEvent;
 use Czim\Paperclip\Events\TemporaryFileFailedToBeDeletedEvent;
 use Czim\Paperclip\Exceptions\VariantProcessFailureException;
 use Czim\Paperclip\Path\InterpolatingTarget;
@@ -772,6 +774,15 @@ class Attachment implements AttachmentInterface, Serializable
             );
         } catch (Exception $e) {
 
+            if ($this->shouldFireEventsForExceptions()) {
+
+                $this->getEventDispatcher()->dispatch(
+                    new ProcessingExceptionEvent($e, $source, $variant, $information)
+                );
+
+                return new ProcessResult([], []);
+            }
+
             throw new VariantProcessFailureException(
                 "Failed to process variant '{$variant}': {$e->getMessage()}",
                 $e->getCode(),
@@ -1081,6 +1092,14 @@ class Attachment implements AttachmentInterface, Serializable
     protected function shouldVariantInformationBeStored()
     {
         return (bool) $this->config->variantsAttribute();
+    }
+
+    /**
+     * @return bool
+     */
+    protected function shouldFireEventsForExceptions()
+    {
+        return (bool) config('paperclip.processing.errors.events', true);
     }
 
     /**
