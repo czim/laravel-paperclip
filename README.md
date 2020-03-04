@@ -175,6 +175,12 @@ It is possible to 'hook' into the paperclip goings on when files are processed. 
 
 More information and examples are in [the Config section](CONFIG.md).
 
+### Events
+
+The following events are available:
+
+* `AttachmentSavedEvent`: dispatched when any attachment is saved with a file
+
 ### Refreshing models
 
 When changing variant configurations for models, you may reprocess variants from previously created attachments with the `paperclip:refresh` Artisan command.

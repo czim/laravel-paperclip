@@ -15,6 +15,7 @@ use Czim\Paperclip\Contracts\AttachmentInterface;
 use Czim\Paperclip\Contracts\Config\ConfigInterface;
 use Czim\Paperclip\Contracts\FileHandlerFactoryInterface;
 use Czim\Paperclip\Contracts\Path\InterpolatorInterface;
+use Czim\Paperclip\Events\AttachmentSavedEvent;
 use Czim\Paperclip\Events\ProcessingExceptionEvent;
 use Czim\Paperclip\Events\TemporaryFileFailedToBeDeletedEvent;
 use Czim\Paperclip\Exceptions\VariantProcessFailureException;
@@ -713,6 +714,9 @@ class Attachment implements AttachmentInterface, Serializable
         $this->cleanUpTemporaryFiles($result->temporaryFiles());
 
         $this->queuedForWrite = false;
+
+        $event = new AttachmentSavedEvent($this, $this->uploadedFile);
+        $this->getEventDispatcher()->dispatch($event);
     }
 
     /**

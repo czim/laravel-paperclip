@@ -7,10 +7,12 @@
 namespace Czim\Paperclip\Test\Integration;
 
 use Czim\Paperclip\Attachment\Attachment;
+use Czim\Paperclip\Events\AttachmentSavedEvent;
 use Czim\Paperclip\Test\Helpers\Hooks\SpyCallableHook;
 use Czim\Paperclip\Test\Helpers\VariantStrategies\TestNoChangesStrategy;
 use Czim\Paperclip\Test\Helpers\VariantStrategies\TestTextToHtmlStrategy;
 use Czim\Paperclip\Test\ProvisionedTestCase;
+use Illuminate\Support\Facades\Event;
 use SplFileInfo;
 use UnexpectedValueException;
 
@@ -22,6 +24,10 @@ class PaperclipBasicAttachmentTest extends ProvisionedTestCase
      */
     function it_processes_and_stores_a_new_file()
     {
+        Event::fake([
+            AttachmentSavedEvent::class,
+        ]);
+
         $model = $this->getTestModel();
 
         $model->attachment = new SplFileInfo($this->getTestFilePath());
@@ -40,6 +46,14 @@ class PaperclipBasicAttachmentTest extends ProvisionedTestCase
         static::assertEquals(
             'http://localhost/paperclip/Czim/Paperclip/Test/Helpers/Model/TestModel/000/000/001/attachment/original/source.txt',
             $model->attachment->url()
+        );
+
+        Event::assertDispatched(
+            AttachmentSavedEvent::class,
+            function (AttachmentSavedEvent $event) use ($model) {
+                return $model->is($event->getAttachment()->getInstance()) &&
+                    $event->getUploadedFile()->name() === 'source.txt';
+            }
         );
 
         if (file_exists($processedFilePath)) {
