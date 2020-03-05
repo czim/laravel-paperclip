@@ -2,6 +2,10 @@
 
 ## Laravel 5.8 and up
 
+### [2.7.4] - 2020-03-05
+
+Now fires an event (`AttachmentSavedEvent`) on saving an attachment.
+
 ### [2.7.3] - 2019-12-27
 
 Now fires events rather than throws exceptions on processing errors.
