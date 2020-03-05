@@ -141,6 +141,7 @@ See 2.5.2.
 This merges the changes for 2.5.0 and 2.5.1 in a new major version for Laravel 5.4 and earlier.
 
 
+[2.7.4]: https://github.com/czim/laravel-paperclip/compare/2.7.3...2.7.4
 [2.7.3]: https://github.com/czim/laravel-paperclip/compare/2.7.2...2.7.3
 [2.7.2]: https://github.com/czim/laravel-paperclip/compare/2.7.1...2.7.2
 [2.7.1]: https://github.com/czim/laravel-paperclip/compare/2.7.0...2.7.1
