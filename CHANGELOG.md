@@ -1,6 +1,12 @@
 # Changelog
 
-## Laravel 5.8 and up
+## Laravel 7 and up
+
+### [3.0.0] - 2020-03-19
+
+Support for Laravel 7, not backwards compatible.
+
+## Laravel 5.8 and 6
 
 ### [2.7.4] - 2020-03-05
 
