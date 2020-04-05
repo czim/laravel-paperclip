@@ -2,6 +2,10 @@
 
 ## Laravel 7 and up
 
+### [3.1.0] - 2020-04-05
+
+Fixed issues with attribute handling, replaced attribute hack with nicer model-event based approach (Thanks to Austen Cameron).
+
 ### [3.0.1] - 2020-03-19
 
 Support for Laravel 7, not backwards compatible.
@@ -146,6 +150,7 @@ See 2.5.2.
 
 This merges the changes for 2.5.0 and 2.5.1 in a new major version for Laravel 5.4 and earlier.
 
+[3.1.0]: https://github.com/czim/laravel-paperclip/compare/3.0.1...3.1.0
 [3.0.1]: https://github.com/czim/laravel-paperclip/compare/2.7.4...3.0.1
 
 [2.7.4]: https://github.com/czim/laravel-paperclip/compare/2.7.3...2.7.4
