@@ -16,7 +16,7 @@ class PaperclipConfigurationErrorsTest extends ProvisionedTestCase
     function it_throws_an_exception_if_the_filesystem_disk_configured_does_not_exist()
     {
         $this->expectException(RuntimeException::class);
-        $this->expectExceptionMessageRegExp("/paperclip storage disk 'paperclip' is not configured/i");
+        $this->expectExceptionMessageMatches("/paperclip storage disk 'paperclip' is not configured/i");
 
         $this->app['config']->set('filesystems.disks', []);
 
@@ -29,7 +29,7 @@ class PaperclipConfigurationErrorsTest extends ProvisionedTestCase
     function it_throws_an_exception_if_the_paperclip_storage_disk_is_not_set()
     {
         $this->expectException(RuntimeException::class);
-        $this->expectExceptionMessageRegExp('/paperclip storage disk invalid or null/i');
+        $this->expectExceptionMessageMatches('/paperclip storage disk invalid or null/i');
 
         $this->app['config']->set('filesystems.default', null);
         //$this->app['config']->set('filesystems.disks', []);

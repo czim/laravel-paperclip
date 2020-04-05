@@ -70,7 +70,24 @@ trait PaperclipTrait
                 foreach ($model->getAttachedFiles() as $attachedFile) {
                     $attachedFile->afterSave($model);
                 }
+
+                $model->mergeFileAttributes();
             }
+        });
+
+        static::saving(function ($model) {
+            /** @var Model|AttachableInterface $model */
+            $model->removeFileAttributes();
+        });
+
+        static::updating(function ($model) {
+            /** @var Model|AttachableInterface $model */
+            $model->removeFileAttributes();
+        });
+
+        static::retrieved(function ($model) {
+            /** @var Model|AttachableInterface $model */
+            $model->mergeFileAttributes();
         });
 
         static::deleting(function ($model) {
@@ -136,21 +153,6 @@ trait PaperclipTrait
         }
 
         parent::setAttribute($key, $value);
-    }
-
-    /**
-     * Get all of the current attributes and attached files on the model.
-     *
-     * @return mixed
-     */
-    public function getAttributes()
-    {
-        // Quick, ugly hack to handle 5.6.37 update (getAttributes() now also called in performInsert()).
-        if ($this->isPerformInsertInBacktrace()) {
-            return parent::getAttributes();
-        }
-
-        return array_merge($this->attachedFiles, parent::getAttributes());
     }
 
     /**
@@ -220,14 +222,21 @@ trait PaperclipTrait
     }
 
     /**
-     * @return bool
+     * Add the attached files to the model's attributes.
      */
-    protected function isPerformInsertInBacktrace()
+    public function mergeFileAttributes()
     {
-        return false !== Arr::first(debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS), function (array $step) {
-            return  Arr::get($step, 'function') === 'performInsert'
-                &&  Arr::get($step, 'class') === Model::class;
-        }, false);
+        $this->attributes = $this->attributes + $this->getAttachedFiles();
+    }
+
+    /**
+     * Remove any attached file attributes so they aren't sent to the database.
+     */
+    public function removeFileAttributes()
+    {
+        foreach ($this->getAttachedFiles() as $key => $file) {
+            unset($this->attributes[$key]);
+        }
     }
 
     /**

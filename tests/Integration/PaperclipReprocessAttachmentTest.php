@@ -179,7 +179,7 @@ class PaperclipReprocessAttachmentTest extends ProvisionedTestCase
         $this->app['config']->set('paperclip.processing.errors.events', false);
 
         $this->expectException(VariantProcessFailureException::class);
-        $this->expectExceptionMessageRegExp("#failed to process variant 'medium'#i");
+        $this->expectExceptionMessageMatches("#failed to process variant 'medium'#i");
 
         $model = $this->getTestModel();
 
