@@ -131,6 +131,37 @@ public function __construct(array $attributes = [])
 ```
 
 
+### Callable resizer and using imagine for custom resize
+
+It is also possible to configure an attachment with just an array and using imagine for custom resizing:
+
+```php
+<?php
+
+
+public function resizeHandle($width, $height)
+    {
+        return function ($file, $imagine) use ($width, $height) {
+    
+        }
+    }
+
+public function __construct(array $attributes = [])
+{
+    $this->hasAttachedFile('image', [
+        'variants'  => [
+            'thumb' => '100x100',
+            'large' => [
+                'auto-orient' => [],
+                'resize'      => [
+                    'dimensions' => $this->resizeHandle(800, 600),
+                ]
+            ],
+        ],
+    ]);
+```
+
+
 ### Fallback URLs for missing attachments
 
 When no image is stored for a given attachment, any `url()` calls will return `null`.
