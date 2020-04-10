@@ -131,20 +131,19 @@ public function __construct(array $attributes = [])
 ```
 
 
-### Callable resizer and using imagine for custom resize
+### Resizing: callable resizer and using imagine
 
 It is also possible to configure an attachment with just an array and using imagine for custom resizing:
 
 ```php
 <?php
 
-
 public function resizeHandle($width, $height)
-    {
-        return function ($file, $imagine) use ($width, $height) {
-    
-        }
+{
+    return function ($file, $imagine) use ($width, $height) {   
+        // ...
     }
+}
 
 public function __construct(array $attributes = [])
 {
@@ -159,6 +158,7 @@ public function __construct(array $attributes = [])
             ],
         ],
     ]);
+}
 ```
 
 
