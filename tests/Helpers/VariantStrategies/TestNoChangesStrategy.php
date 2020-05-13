@@ -9,10 +9,11 @@ class TestNoChangesStrategy extends AbstractVariantStrategy
     /**
      * Performs manipulation of the file.
      *
-     * @return bool|null|void
+     * @return bool|null
      */
-    protected function perform()
+    protected function perform(): ?bool
     {
+        return null;
     }
 
 }

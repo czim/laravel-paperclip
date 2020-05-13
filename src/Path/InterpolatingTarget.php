@@ -48,7 +48,7 @@ class InterpolatingTarget extends Target
     /**
      * {@inheritdoc}
      */
-    public function original()
+    public function original(): string
     {
         return $this->interpolator->interpolate($this->originalPath, $this->attachment);
     }
@@ -56,15 +56,12 @@ class InterpolatingTarget extends Target
     /**
      * {@inheritdoc}
      */
-    public function variant($variant)
+    public function variant($variant): string
     {
         return $this->interpolator->interpolate($this->getVariantPath(), $this->attachment, $variant);
     }
 
-    /**
-     * @return string
-     */
-    protected function getVariantPath()
+    protected function getVariantPath(): string
     {
         if ($this->variantPath) {
             return $this->variantPath;
