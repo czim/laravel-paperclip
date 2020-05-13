@@ -1,4 +1,5 @@
 <?php
+
 namespace Czim\Paperclip\Console\Commands;
 
 use Czim\Paperclip\Contracts\AttachableInterface;
@@ -15,7 +16,7 @@ class RefreshAttachmentCommand extends Command
 {
     const DEFAULT_CHUNK_SIZE = 500;
 
-    protected $signature = 'paperclip:refresh 
+    protected $signature = 'paperclip:refresh
         { class : The model class to refresh attachments on }
         { --attachments= : A list of specific attachments to refresh, comma-separated }
         { --variants= : A list of specific variants to refresh, comma-separated }
@@ -44,7 +45,7 @@ class RefreshAttachmentCommand extends Command
         $count = $query->count();
 
         $this->progressStart($count);
-        
+
         foreach ($this->generateModelInstances($query, $count) as $instances) {
             /** @var \Illuminate\Support\Collection|Model[]|AttachableInterface[] $instances */
             foreach ($instances as $instance) {
@@ -273,5 +274,4 @@ class RefreshAttachmentCommand extends Command
     {
         $this->output->progressFinish();
     }
-
 }

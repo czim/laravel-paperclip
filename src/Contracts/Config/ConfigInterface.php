@@ -1,4 +1,5 @@
 <?php
+
 namespace Czim\Paperclip\Contracts\Config;
 
 use Illuminate\Contracts\Support\Arrayable;
@@ -150,5 +151,4 @@ interface ConfigInterface extends Arrayable
      * @return array
      */
     public function getOriginalConfig();
-
 }

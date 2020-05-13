@@ -1,4 +1,5 @@
 <?php
+
 namespace Czim\Paperclip\Test\Helpers\Model;
 
 use Czim\Paperclip\Contracts\AttachableInterface;
@@ -7,8 +8,6 @@ use Czim\Paperclip\Model\PaperclipTrait;
 use Illuminate\Database\Eloquent\Model;
 
 /**
- * Class TestModel
- *
  * @property string                   $name
  * @property AttachmentInterface|null $attachment
  * @property string                   $attachment_file_name
@@ -51,6 +50,4 @@ class TestModel extends Model implements AttachableInterface
 
         parent::__construct($attributes);
     }
-
-
 }

@@ -12,8 +12,6 @@ use Czim\Paperclip\Test\ProvisionedTestCase;
 use SplFileInfo;
 
 /**
- * Class PaperclipFluentConfigurationTest
- *
  * @uses \Czim\Paperclip\Config\Steps\AutoOrientStep
  * @uses \Czim\Paperclip\Config\Steps\ResizeStep
  */

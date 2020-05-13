@@ -1,4 +1,5 @@
 <?php
+
 namespace Czim\Paperclip\Contracts;
 
 interface AttachmentDataInterface
@@ -103,5 +104,4 @@ interface AttachmentDataInterface
      * @return string
      */
     public function getInstanceClass();
-
 }

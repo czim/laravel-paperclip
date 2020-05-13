@@ -1,4 +1,5 @@
 <?php
+
 namespace Czim\Paperclip\Test;
 
 use Czim\Paperclip\Providers\PaperclipServiceProvider;
@@ -95,5 +96,4 @@ abstract class TestCase extends \Orchestra\Testbench\TestCase
 
         return $model;
     }
-
 }

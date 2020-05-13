@@ -1,4 +1,5 @@
 <?php
+
 namespace Czim\Paperclip\Config;
 
 use Illuminate\Contracts\Support\Arrayable;
@@ -127,5 +128,4 @@ class Variant
     {
         return $this->url;
     }
-
 }

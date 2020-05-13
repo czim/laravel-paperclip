@@ -1,11 +1,10 @@
 <?php
+
 namespace Czim\Paperclip\Attachment;
 
 use Czim\Paperclip\Contracts\AttachmentDataInterface;
 
 /**
- * Class AttachmentData
- *
  * Data object that reflects a previous state of the attachment.
  * This is used for queued deletion of a previously stored attachment.
  */
@@ -252,5 +251,4 @@ class AttachmentData implements AttachmentDataInterface
     {
         return $this->instanceClass;
     }
-
 }

@@ -1,4 +1,5 @@
 <?php
+
 namespace Czim\Paperclip\Handler;
 
 use Czim\FileHandling\Contracts\Handler\FileHandlerInterface;
@@ -138,5 +139,4 @@ class FileHandlerFactory implements FileHandlerFactoryInterface
     {
         return Storage::disk($disk);
     }
-
 }

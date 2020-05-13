@@ -1,4 +1,5 @@
 <?php
+
 namespace Czim\Paperclip\Config;
 
 use Illuminate\Support\Arr;

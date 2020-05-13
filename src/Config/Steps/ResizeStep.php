@@ -1,4 +1,5 @@
 <?php
+
 namespace Czim\Paperclip\Config\Steps;
 
 use BadMethodCallException;
@@ -47,7 +48,7 @@ class ResizeStep extends VariantStep
 
         return $this;
     }
-    
+
     /**
      * @return int
      */
@@ -66,7 +67,7 @@ class ResizeStep extends VariantStep
 
         return $this;
     }
-    
+
     /**
      * @return int
      */
@@ -92,7 +93,7 @@ class ResizeStep extends VariantStep
     public function crop()
     {
         $this->crop = true;
-        
+
         return $this;
     }
 
@@ -161,5 +162,4 @@ class ResizeStep extends VariantStep
              . ($this->crop ? '#' : '')
              . ($this->ignoreRatio ? '!' : '');
     }
-
 }

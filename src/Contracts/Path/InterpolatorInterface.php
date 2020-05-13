@@ -1,4 +1,5 @@
 <?php
+
 namespace Czim\Paperclip\Contracts\Path;
 
 use Czim\Paperclip\Contracts\AttachmentDataInterface;
@@ -15,5 +16,4 @@ interface InterpolatorInterface
      * @return string
      */
     public function interpolate($string, AttachmentDataInterface $attachment, $variant = null);
-
 }

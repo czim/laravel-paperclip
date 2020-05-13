@@ -1,4 +1,5 @@
 <?php
+
 namespace Czim\Paperclip\Test\Helpers\Hooks;
 
 use Czim\Paperclip\Contracts\AttachmentInterface;
@@ -12,5 +13,4 @@ class SpyCallableHook
     {
         $this->hookMethodCalled = true;
     }
-
 }

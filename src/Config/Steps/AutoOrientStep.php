@@ -1,4 +1,5 @@
 <?php
+
 namespace Czim\Paperclip\Config\Steps;
 
 class AutoOrientStep extends VariantStep
@@ -34,5 +35,4 @@ class AutoOrientStep extends VariantStep
             'quiet' => $this->quiet,
         ];
     }
-
 }

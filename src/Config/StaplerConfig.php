@@ -1,4 +1,5 @@
 <?php
+
 namespace Czim\Paperclip\Config;
 
 use Illuminate\Support\Arr;
@@ -49,5 +50,4 @@ class StaplerConfig extends PaperclipConfig
 
         return parent::normalizeConfig($config);
     }
-
 }

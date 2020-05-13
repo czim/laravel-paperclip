@@ -1,4 +1,5 @@
 <?php
+
 namespace Czim\Paperclip\Config;
 
 use Illuminate\Contracts\Support\Arrayable;
@@ -188,5 +189,4 @@ class VariantList
     {
         $this->exclude[ $variantName ] = true;
     }
-
 }

@@ -1,4 +1,5 @@
 <?php
+
 namespace Czim\Paperclip\Test;
 
 use Illuminate\Database\Eloquent\Model;
@@ -29,5 +30,4 @@ abstract class ProvisionedTestCase extends TestCase
             . '/' . $variant
             . '/' . $file;
     }
-
 }

@@ -1,11 +1,11 @@
 <?php
+
 namespace Czim\Paperclip\Test\Helpers\VariantStrategies;
 
 use Czim\FileHandling\Variant\Strategies\AbstractVariantStrategy;
 
 class TestNoChangesStrategy extends AbstractVariantStrategy
 {
-
     /**
      * Performs manipulation of the file.
      *
@@ -15,5 +15,4 @@ class TestNoChangesStrategy extends AbstractVariantStrategy
     {
         return null;
     }
-
 }

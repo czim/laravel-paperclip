@@ -1,4 +1,5 @@
 <?php
+
 namespace Czim\Paperclip\Contracts;
 
 interface AttachmentFactoryInterface
@@ -11,5 +12,4 @@ interface AttachmentFactoryInterface
      * @return AttachmentInterface
      */
     public function create(AttachableInterface $instance, $name, array $config = []);
-
 }

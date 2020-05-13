@@ -1,4 +1,5 @@
 <?php
+
 namespace Czim\Paperclip\Attachment;
 
 use Czim\Paperclip\Config\PaperclipConfig;
@@ -55,5 +56,4 @@ class AttachmentFactory implements AttachmentFactoryInterface
 
         return app($interpolatorClass);
     }
-
 }

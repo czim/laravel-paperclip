@@ -1,4 +1,5 @@
 <?php
+
 namespace Czim\Paperclip\Contracts;
 
 use Czim\FileHandling\Contracts\Storage\StorableFileInterface;
@@ -151,5 +152,4 @@ interface AttachmentInterface extends AttachmentDataInterface, JsonSerializable
      * @param AttachableInterface $instance
      */
     public function afterDelete(AttachableInterface $instance);
-
 }

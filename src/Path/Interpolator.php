@@ -1,4 +1,5 @@
 <?php
+
 namespace Czim\Paperclip\Path;
 
 use Czim\FileHandling\Handler\FileHandler;
@@ -8,8 +9,6 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 
 /**
- * Class Interpolator
- *
  * Taken from CodeSleeve/Stapler: https://github.com/CodeSleeve/stapler
  * Modified to simplify, hug the interface better and rely on Laravel.
  *
@@ -300,5 +299,4 @@ class Interpolator implements InterpolatorInterface
 
         return $input;
     }
-
 }

@@ -1,4 +1,5 @@
 <?php
+
 namespace Czim\Paperclip\Config\Steps;
 
 use Illuminate\Contracts\Support\Arrayable;
@@ -43,7 +44,7 @@ class VariantStep implements Arrayable
 
     /**
      * @return array
-     * @codeCoverageIgnore 
+     * @codeCoverageIgnore
      */
     protected function getStepOptionArray()
     {

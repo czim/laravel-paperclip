@@ -1,4 +1,5 @@
 <?php
+
 namespace Czim\Paperclip\Config;
 
 use Czim\FileHandling\Handler\FileHandler;
@@ -326,5 +327,4 @@ abstract class AbstractConfig implements ConfigInterface
     {
         return config('paperclip.default-variant', 'original');
     }
-
 }

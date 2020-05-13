@@ -1,4 +1,5 @@
 <?php
+
 namespace Czim\Paperclip\Model;
 
 use Czim\FileHandling\Contracts\Storage\StorableFileFactoryInterface;
@@ -248,5 +249,4 @@ trait PaperclipTrait
     {
         return config('paperclip.delete-hash', Attachment::NULL_ATTACHMENT);
     }
-
 }

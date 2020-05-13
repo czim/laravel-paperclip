@@ -1,4 +1,5 @@
 <?php
+
 namespace Czim\Paperclip\Attachment;
 
 use Carbon\Carbon;
@@ -337,7 +338,7 @@ class Attachment implements AttachmentInterface, Serializable
         }
 
         $this->cleanUpTemporaryFiles($temporaryFiles);
-        
+
 
         if ($this->shouldVariantInformationBeStored()) {
             $this->instanceWrite('variants', json_encode($variantInformation));
@@ -1172,5 +1173,4 @@ class Attachment implements AttachmentInterface, Serializable
 
         $this->setStorage($data['storage']);
     }
-
 }

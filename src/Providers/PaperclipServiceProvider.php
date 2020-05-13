@@ -1,4 +1,5 @@
 <?php
+
 namespace Czim\Paperclip\Providers;
 
 use Czim\FileHandling\Contracts\Storage\StorableFileFactoryInterface;
@@ -118,5 +119,4 @@ class PaperclipServiceProvider extends ServiceProvider
 
         return $this;
     }
-
 }

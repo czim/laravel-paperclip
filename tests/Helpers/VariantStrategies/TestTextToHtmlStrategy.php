@@ -1,11 +1,11 @@
 <?php
+
 namespace Czim\Paperclip\Test\Helpers\VariantStrategies;
 
 use Czim\FileHandling\Variant\Strategies\AbstractVariantStrategy;
 
 class TestTextToHtmlStrategy extends AbstractVariantStrategy
 {
-
     /**
      * Performs manipulation of the file.
      *
