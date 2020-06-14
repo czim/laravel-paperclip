@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ChangeListManager">
+    <list default="true" id="0b6976a1-53f5-4cc9-aaf4-0bf8f75ea942" name="Default Changelist" comment="">
+      <change afterPath="$PROJECT_DIR$/src/ImgProxy/ImgProxyService.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/config/paperclip.php" beforeDir="false" afterPath="$PROJECT_DIR$/config/paperclip.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Attachment/Attachment.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Attachment/Attachment.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Attachment/AttachmentFactory.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Attachment/AttachmentFactory.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Config/AbstractConfig.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Config/AbstractConfig.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Contracts/Config/ConfigInterface.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Contracts/Config/ConfigInterface.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Providers/PaperclipServiceProvider.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Providers/PaperclipServiceProvider.php" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="ComposerSettings" synchronizationState="SYNCHRONIZE">
+    <pharConfigPath>$PROJECT_DIR$/composer.json</pharConfigPath>
+    <execution />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="ProjectId" id="1dJ6F2DYv6JAYf4ap7vYN09i1ZI" />
+  <component name="ProjectViewState">
+    <option name="autoscrollToSource" value="true" />
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+    <option name="showMembers" value="true" />
+  </component>
+  <component name="PropertiesComponent">
+    <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
+    <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
+    <property name="WebServerToolWindowFactoryState" value="false" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+  </component>
+  <component name="SvnConfiguration">
+    <configuration />
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="0b6976a1-53f5-4cc9-aaf4-0bf8f75ea942" name="Default Changelist" comment="" />
+      <created>1592130741223</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1592130741223</updated>
+      <workItem from="1592130742693" duration="556000" />
+    </task>
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="2" />
+  </component>
+  <component name="WindowStateProjectService">
+    <state x="-881" y="-1022" width="1795" height="982" key="MergeDialog" timestamp="1592131147883">
+      <screen x="-1006" y="-1080" width="1920" height="1080" />
+    </state>
+    <state x="-881" y="-1022" width="1795" height="982" key="MergeDialog/914.-1080.1920.1080/0.0.1920.1200/-1006.-1080.1920.1080@-1006.-1080.1920.1080" timestamp="1592131147883" />
+    <state x="-405" y="-693" width="1092" height="306" key="MultipleFileMergeDialog" timestamp="1592131147936">
+      <screen x="-1006" y="-1080" width="1920" height="1080" />
+    </state>
+    <state x="-405" y="-693" width="1092" height="306" key="MultipleFileMergeDialog/914.-1080.1920.1080/0.0.1920.1200/-1006.-1080.1920.1080@-1006.-1080.1920.1080" timestamp="1592131147936" />
+  </component>
+</project>

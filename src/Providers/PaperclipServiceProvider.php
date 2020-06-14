@@ -15,12 +15,14 @@ use Czim\FileHandling\Support\Content\UploadedContentInterpreter;
 use Czim\FileHandling\Support\Download\UrlDownloader;
 use Czim\FileHandling\Variant\VariantProcessor;
 use Czim\FileHandling\Variant\VariantStrategyFactory;
+use Czim\Paperclip\Attachment\Attachment;
 use Czim\Paperclip\Attachment\AttachmentFactory;
 use Czim\Paperclip\Console\Commands\RefreshAttachmentCommand;
 use Czim\Paperclip\Contracts\AttachmentFactoryInterface;
 use Czim\Paperclip\Contracts\FileHandlerFactoryInterface;
 use Czim\Paperclip\Contracts\Path\InterpolatorInterface;
 use Czim\Paperclip\Handler\FileHandlerFactory;
+use Czim\Paperclip\ImgProxy\ImgProxyService;
 use Czim\Paperclip\Path\Interpolator;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\ServiceProvider;
@@ -37,8 +39,12 @@ class PaperclipServiceProvider extends ServiceProvider
     public function register()
     {
         $this->registerConfig()
-             ->registerCommands()
-             ->registerInterfaceBindings();
+            ->registerCommands()
+            ->registerInterfaceBindings();
+
+        $this->app->singleton(ImgProxyService::class, function () {
+            return new ImgProxyService(config("paperclip.imgproxy.key"), config("paperclip.imgproxy.salt"), config("paperclip.imgproxy.signature_size"), config("paperclip.imgproxy.uri"), config("paperclip.imgproxy.file_server_uri"));
+        });
     }
 
     /**

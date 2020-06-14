@@ -142,6 +142,11 @@ abstract class AbstractConfig implements ConfigInterface
         return Arr::get($this->normalizedConfig, FileHandler::CONFIG_VARIANTS);
     }
 
+
+    public function imgProxyVariant()
+    {
+        return Arr::get($this->normalizedConfig, FileHandler::CONFIG_IMG_PROXY_VARIANTS);
+    }
     /**
      * Returns the mimetype specifically configured for a given variant.
      *

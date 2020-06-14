@@ -144,7 +144,8 @@ Since version `2.5.7` it is also possible to use an easier to use fluent object 
         ],
     ]);
 ```
-
+###Use Imgproxy
+to use imgproxy just change variants to imgproxy_variants
 
 ### Variant Configuration
 

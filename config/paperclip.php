@@ -32,12 +32,12 @@ return [
         // Mark which columns should be filled on the model by default.
         // These attributes are prefixed by <attribute name>_.
         'attributes' => [
-            'size'         => true,
+            'size' => true,
             'content_type' => true,
-            'updated_at'   => true,
-            'created_at'   => false,
+            'updated_at' => true,
+            'created_at' => false,
             // JSON information about stored variants.
-            'variants'     => false,
+            'variants' => false,
         ],
 
     ],
@@ -82,7 +82,7 @@ return [
 
         // If the structure for variant filenames should differ from the
         // original, it may be defined here.
-        'variant'  => null,
+        'variant' => null,
     ],
 
     /*
@@ -103,7 +103,7 @@ return [
 
         'aliases' => [
             'auto-orient' => \Czim\FileHandling\Variant\Strategies\ImageAutoOrientStrategy::class,
-            'resize'      => \Czim\FileHandling\Variant\Strategies\ImageResizeStrategy::class,
+            'resize' => \Czim\FileHandling\Variant\Strategies\ImageResizeStrategy::class,
         ],
 
         // Set this to true to always merge in the default variants into any attachment configuration.
@@ -177,4 +177,10 @@ return [
         ],
     ],
 
+    'imgproxy' => [
+        'key' => env('IMGPROXY_KEY'),
+        'salt' => env('IMGPROXY_SALT'),
+        'signature_size' => env('IMGPROXY_SIGNATURE_SIZE'),
+        'file_server_uri' => env('FILE_SERVER_URI'),
+    ]
 ];

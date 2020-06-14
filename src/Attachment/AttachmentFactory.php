@@ -21,7 +21,7 @@ class AttachmentFactory implements AttachmentFactoryInterface
      */
     public function create(AttachableInterface $instance, $name, array $config = [])
     {
-        $attachment = new Attachment;
+        $attachment = new   Attachment;
 
         $configObject = $this->makeConfigObject($config);
 
