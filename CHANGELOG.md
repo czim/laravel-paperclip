@@ -26,6 +26,10 @@ Support for Laravel 7, not backwards compatible.
 
 ## Laravel 5.8 and 6
 
+### [2.7.5] - 2020-06-18
+
+See changes for 3.2.1.
+
 ### [2.7.4] - 2020-03-05
 
 Now fires an event (`AttachmentSavedEvent`) on saving an attachment.
@@ -169,6 +173,7 @@ This merges the changes for 2.5.0 and 2.5.1 in a new major version for Laravel 5
 [3.1.0]: https://github.com/czim/laravel-paperclip/compare/3.0.1...3.1.0
 [3.0.1]: https://github.com/czim/laravel-paperclip/compare/2.7.4...3.0.1
 
+[2.7.5]: https://github.com/czim/laravel-paperclip/compare/2.7.4...2.7.5
 [2.7.4]: https://github.com/czim/laravel-paperclip/compare/2.7.3...2.7.4
 [2.7.3]: https://github.com/czim/laravel-paperclip/compare/2.7.2...2.7.3
 [2.7.2]: https://github.com/czim/laravel-paperclip/compare/2.7.1...2.7.2
