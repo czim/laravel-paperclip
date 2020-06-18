@@ -116,6 +116,8 @@ class Attachment implements AttachmentInterface, Serializable
     {
         $this->instance = $instance;
 
+        $this->clearTarget();
+
         return $this;
     }
 
@@ -159,6 +161,8 @@ class Attachment implements AttachmentInterface, Serializable
     {
         $this->name = $name;
 
+        $this->clearTarget();
+
         return $this;
     }
 
@@ -180,6 +184,8 @@ class Attachment implements AttachmentInterface, Serializable
     {
         $this->interpolator = $interpolator;
 
+        $this->clearTarget();
+
         return $this;
     }
 
@@ -192,6 +198,8 @@ class Attachment implements AttachmentInterface, Serializable
     public function setConfig(ConfigInterface $config)
     {
         $this->config = $config;
+
+        $this->clearTarget();
 
         return $this;
     }
