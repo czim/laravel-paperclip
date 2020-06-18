@@ -2,6 +2,12 @@
 
 ## Laravel 7 and up
 
+### [3.2.1] - 2020-06-18
+
+Attachment setters now call `clearTarget()` to reset the interpolator.
+This is highly unlikely to make a difference for your setup.
+This may help you if you are attempting to clone data, f.i. between models, at the Attachment object level.
+
 ### [3.2.0] - 2020-05-13
 
 Potentially breaking changes here!
@@ -158,6 +164,7 @@ See 2.5.2.
 
 This merges the changes for 2.5.0 and 2.5.1 in a new major version for Laravel 5.4 and earlier.
 
+[3.2.1]: https://github.com/czim/laravel-paperclip/compare/3.2.0...3.2.1
 [3.2.0]: https://github.com/czim/laravel-paperclip/compare/3.1.0...3.2.0
 [3.1.0]: https://github.com/czim/laravel-paperclip/compare/3.0.1...3.1.0
 [3.0.1]: https://github.com/czim/laravel-paperclip/compare/2.7.4...3.0.1
