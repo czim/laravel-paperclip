@@ -16,13 +16,13 @@ This uses [czim/file-handling](https://github.com/czim/file-handling) under the 
 
 ## Version Compatibility
 
- Laravel             | Package 
+ Laravel             | Package
 :--------------------|:--------
  5.4 and older       | 1.0, 2.1
  5.5                 | 1.5, 2.5
  5.6, 5.7            | 2.6
  5.8, 6              | 2.7
- 7                   | 3.0
+ 7, 8                | 3.0
 
 
 ## Change log
@@ -63,7 +63,7 @@ php artisan vendor:publish --provider="Czim\Paperclip\Providers\PaperclipService
 
 Modify the database to add some columns for the model that will get an attachment. Use the attachment key name as a prefix.
 
-An example migration: 
+An example migration:
 
 ```php
 <?php
@@ -75,7 +75,7 @@ An example migration:
     });
 ```
 
-Replace `attachmentname` here with the name of the attachment.  
+Replace `attachmentname` here with the name of the attachment.
 These attributes should be familiar if you've used Stapler before.
 
 A `<key>_variants` text or varchar column is optional:
@@ -87,7 +87,7 @@ A `<key>_variants` text or varchar column is optional:
 
 A `text()` column is recommended in cases where a seriously *huge* amount of variants are created.
 
-If it is added and configured to be used (more on that [in the config section](CONFIG.md)), JSON information about variants will be stored in it.  
+If it is added and configured to be used (more on that [in the config section](CONFIG.md)), JSON information about variants will be stored in it.
 
 
 ### Attachment Configuration
@@ -103,7 +103,7 @@ To add an attachment to a model:
 class Comment extends Model implements \Czim\Paperclip\Contracts\AttachableInterface
 {
     use \Czim\Paperclip\Model\PaperclipTrait;
-    
+
     public function __construct(array $attributes = [])
     {
         $this->hasAttachedFile('image', [
@@ -119,7 +119,7 @@ class Comment extends Model implements \Czim\Paperclip\Contracts\AttachableInter
             ],
         ]);
 
-        parent::__construct($attributes);   
+        parent::__construct($attributes);
     }
 }
 ```
@@ -131,7 +131,7 @@ Since version `2.5.7` it is also possible to use an easier to use fluent object 
     use \Czim\Paperclip\Config\Variant;
     use \Czim\Paperclip\Config\Steps\AutoOrientStep;
     use \Czim\Paperclip\Config\Steps\ResizeStep;
-    
+
     // ...
 
     $this->hasAttachedFile('image', [
@@ -150,7 +150,7 @@ Since version `2.5.7` it is also possible to use an easier to use fluent object 
 
 For the most part, the configuration of variants is nearly identical to Stapler, so it should be easy to make the transition either way.
 
-Since version `2.6`, Stapler configuration support is disabled by default, but legacy support for this may be enabled by setting the `paperclip.config.mode` to `'stapler'`. 
+Since version `2.6`, Stapler configuration support is disabled by default, but legacy support for this may be enabled by setting the `paperclip.config.mode` to `'stapler'`.
 
 [Get more information on configuration here](CONFIG.md).
 
@@ -200,16 +200,16 @@ Once a model is set up and configured for an attachment, you can simply set the 
 ```php
 <?php
 public function someControllerAction(Request $request) {
-    
+
     $model = ModelWithAttachment::first();
-    
+
     // You can set any UploadedFile instance from a request on
     // the attribute you configured a Paperclipped model for.
     $model->attachmentname = $request->file('uploaded');
-    
+
     // Saving the model will then process and store the attachment.
     $model->save();
-    
+
     // ...
 }
 ```
@@ -269,20 +269,20 @@ $model->save();
 
 - Paperclip does not handle (s3) storage internally, as Stapler did.
 All storage is performed through Laravel's storage solution.
-You can still use S3 (or any other storage disk), but you will have to configure it in Laravel's storage configuration first.  
+You can still use S3 (or any other storage disk), but you will have to configure it in Laravel's storage configuration first.
 It is possible to use different storage disks for different attachments.
 
-- Paperclip *might* show slightly different behavior when storing a `string` value on the attachment attribute. It will attempt to interpret the string as a URI (or a dataURI), and otherwise treat the string as raw text file content.  
+- Paperclip *might* show slightly different behavior when storing a `string` value on the attachment attribute. It will attempt to interpret the string as a URI (or a dataURI), and otherwise treat the string as raw text file content.
 
-If you wish to force storing the contents of a URL without letting Paperclip interpret it, you have some options. You can use the `Czim\FileHandling\Storage\File\StorableFileFactory@makeFromUrl` method and its return value.  
+If you wish to force storing the contents of a URL without letting Paperclip interpret it, you have some options. You can use the `Czim\FileHandling\Storage\File\StorableFileFactory@makeFromUrl` method and its return value.
 Or, you can download the contents yourself and store them in a `Czim\FileHandling\Storage\File\RawStorableFile` (e.g.: `(new RawStorableFile)->setData(file_get_contents('your-URL-here'))`). You can also download the file to local disk, and store it on the model through an `\SplFileInfo` instance (see examples on the main readme page).
 
-- The `convert_options` configuration settings are no longer available. 
-Conversion options are now handled at the level of the variant strategies.  
+- The `convert_options` configuration settings are no longer available.
+Conversion options are now handled at the level of the variant strategies.
 You can set them per attachment configuration, or modify the variant strategy to use a custom global configuration.
 
 - The refresh command (`php artisan paperclip:refresh`) is very similar to stapler's refresh command, but it can optionally take a `--start #` and/or `--stop #` option, with ID numbers.
-This makes it possible to refresh only a subset of models.  
+This makes it possible to refresh only a subset of models.
 Under the hood, the refresh command is also much less likely to run out of memory (it uses a generator to process models in chunks).
 
 - The Paperclip trait uses its own Eloquent boot method, not the global Model's `boot()`.
@@ -291,7 +291,7 @@ Under the hood, the refresh command is also much less likely to run out of memor
 
 ## Amazon S3 cache-control
 
-If you use Amazon S3 as storage disk for your attachments, note that you can set `Cache-Control` headers in the options for the `filesystems.disks.s3` configuration key. 
+If you use Amazon S3 as storage disk for your attachments, note that you can set `Cache-Control` headers in the options for the `filesystems.disks.s3` configuration key.
 For example, to set `max-age` headers on all uploaded files to S3, edit `config/filesystems.php` like so:
 
 ```
@@ -357,7 +357,7 @@ With:
         // The path to the original file to be interpolated. This will also\
         // be used for variant paths if the variant key is unset.
         'original' => ':class/:id_partition/:attribute/:variant/:filename',
-        
+
         // If the structure for variant filenames should differ from the
         // original, it may be defined here.
         'variant'  => null,
