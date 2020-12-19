@@ -5,6 +5,7 @@
 namespace Czim\Paperclip\Test\Config;
 
 use Czim\Paperclip\Config\PaperclipConfig;
+use Czim\Paperclip\Config\Steps\AutoOrientStep;
 use Czim\Paperclip\Config\Steps\ResizeStep;
 use Czim\Paperclip\Config\Variant;
 use Czim\Paperclip\Test\TestCase;
@@ -89,6 +90,24 @@ class PaperclipConfigTest extends TestCase
 
         static::assertTrue($config->keepOldFiles());
         static::assertTrue($config->preserveFiles());
+    }
+
+    /**
+     * @test
+     */
+    function it_keeps_the_auto_orient_and_resize_steps_in_the_right_order()
+    {
+        $config = new PaperclipConfig([
+            'variants' => [
+                Variant::make('testing')->steps([
+                    AutoOrientStep::make(),
+                    ResizeStep::make()->width(480)->height(270)->crop(),
+                ]),
+            ],
+        ]);
+
+        $stepKeys = array_keys($config->variantConfig('testing'));
+        static::assertEquals(['auto-orient', 'resize'], $stepKeys);
     }
 
     /**
