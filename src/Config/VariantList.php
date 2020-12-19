@@ -156,9 +156,10 @@ class VariantList
         $converted = [];
 
         foreach ($options as $key => $value) {
-
             if ($value instanceof Arrayable) {
-                $converted = array_merge($value->toArray(), $converted);
+                foreach ($value->toArray() as $nestedKey => $nestedValue) {
+                    $converted[$nestedKey] = $nestedValue;
+                }
                 continue;
             }
 
