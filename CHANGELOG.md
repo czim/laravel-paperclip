@@ -2,6 +2,11 @@
 
 ## Laravel 7 and up
 
+### [3.2.2] - 2020-12-19
+
+Fixed an issue with variant step configuration where the order of variant steps was reversed unintentionally.
+This caused issues with auto-orient & resize steps in combination.
+
 ### [3.2.1] - 2020-06-18
 
 Attachment setters now call `clearTarget()` to reset the interpolator.
