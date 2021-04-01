@@ -124,6 +124,11 @@ class Comment extends Model implements \Czim\Paperclip\Contracts\AttachableInter
 }
 ```
 
+Note: If you perform the `hasAttachedFile()` call(s) *after* the `parent::__construct()` call,
+everything will work the same, except that you cannot assign an image directly when creating a model.
+`ModelClass::create(['attachment' => ...])` will not work in that case.
+
+
 Since version `2.5.7` it is also possible to use an easier to use fluent object syntax for defining variant steps:
 
 ```php
