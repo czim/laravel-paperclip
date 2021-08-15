@@ -50,7 +50,7 @@ class PaperclipReprocessAttachmentTest extends ProvisionedTestCase
 
         // Delete the uploaded file, so we can see if it gets rewritten on reprocessing
         unlink($processedFilePath);
-        static::assertFileNotExists($processedFilePath, 'Variant file should not exist after unlinking');
+        static::assertFileDoesNotExist($processedFilePath, 'Variant file should not exist after unlinking');
 
 
         $this->prepareMockSetupForReprocessingSource($model);
@@ -163,7 +163,7 @@ class PaperclipReprocessAttachmentTest extends ProvisionedTestCase
 
         // Delete the original file, so reprocessing fails
         unlink($processedFilePath);
-        static::assertFileNotExists($processedFilePath, 'File should not exist after unlinking');
+        static::assertFileDoesNotExist($processedFilePath, 'File should not exist after unlinking');
 
         $this->prepareMockSetupForReprocessingException($model);
 
@@ -192,7 +192,7 @@ class PaperclipReprocessAttachmentTest extends ProvisionedTestCase
 
         // Delete the original file, so reprocessing fails
         unlink($processedFilePath);
-        static::assertFileNotExists($processedFilePath, 'File should not exist after unlinking');
+        static::assertFileDoesNotExist($processedFilePath, 'File should not exist after unlinking');
 
         $this->prepareMockSetupForReprocessingException($model);
 
