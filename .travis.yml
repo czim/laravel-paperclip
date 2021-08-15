@@ -1,18 +1,15 @@
 language: php
 
 php:
-  - 7.2
-  - 7.3
   - 7.4
+  - 8.0
+  - 8.1
 
 install: travis_wait composer install
 
 script:
   - mkdir -p build/logs
   - vendor/bin/phpunit --coverage-clover build/logs/clover.xml
-
-after_script:
-  - vendor/bin/coveralls -v
 
 notifications:
   email:
