@@ -24,9 +24,8 @@ use Czim\Paperclip\Path\InterpolatingTarget;
 use Exception;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Arr;
-use Serializable;
 
-class Attachment implements AttachmentInterface, Serializable
+class Attachment implements AttachmentInterface
 {
     const NULL_ATTACHMENT = '44e1ec68e2a43f32741cbd4cb4d77c79e28d6a5c';
 
@@ -479,9 +478,9 @@ class Attachment implements AttachmentInterface, Serializable
     /**
      * Return a JSON representation of this class.
      *
-     * @return array
+     * @return mixed
      */
-    public function jsonSerialize()
+    public function jsonSerialize(): mixed
     {
         // @codeCoverageIgnoreStart
         if ( ! $this->originalFilename()) {
@@ -1139,14 +1138,10 @@ class Attachment implements AttachmentInterface, Serializable
         return app('events');
     }
 
-
-    /**
-     * @return string
-     */
-    public function serialize()
+    public function __serialize(): array
     {
         // Serialize everything that is unlikely to involve closures
-        return serialize([
+        return [
             'instance'         => $this->instance,
             'storage'          => $this->storage,
             'name'             => $this->name,
@@ -1158,16 +1153,14 @@ class Attachment implements AttachmentInterface, Serializable
             'queuedForWrite'   => $this->queuedForWrite,
             'target'           => $this->target,
             'deleteTarget'     => $this->deleteTarget,
-        ]);
+        ];
     }
 
     /**
-     * @param string $serialized
+     * @param array<string, mixed> $data
      */
-    public function unserialize($serialized)
+    public function __unserialize(array $data): void
     {
-        $data = unserialize($serialized);
-
         $this->instance         = $data['instance'];
         $this->name             = $data['name'];
         $this->interpolator     = $data['interpolator'];
