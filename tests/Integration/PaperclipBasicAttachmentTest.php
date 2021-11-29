@@ -85,7 +85,7 @@ class PaperclipBasicAttachmentTest extends ProvisionedTestCase
         static::assertNull($model->attachment_file_size);
         static::assertNull($model->attachment_content_type);
         static::assertNull($model->attachment_updated_at);
-        static::assertFileNotExists($processedFilePath, 'File was not removed');
+        static::assertFileDoesNotExist($processedFilePath, 'File was not removed');
     }
 
     /**
@@ -134,7 +134,7 @@ class PaperclipBasicAttachmentTest extends ProvisionedTestCase
         $model->attachment = new SplFileInfo($this->getTestFilePath('empty.gif'));
         $model->save();
 
-        static::assertFileNotExists($processedFilePath, 'Previous file was not removed');
+        static::assertFileDoesNotExist($processedFilePath, 'Previous file was not removed');
 
         $processedFilePath = $this->getUploadedAttachmentPath($model, 'empty.gif');
         static::assertFileExists($processedFilePath, 'New file was not stored');
@@ -228,9 +228,9 @@ class PaperclipBasicAttachmentTest extends ProvisionedTestCase
 
         $model->delete();
 
-        static::assertFileNotExists($processedFilePathOne, 'File 1 was not deleted');
-        static::assertFileNotExists($processedFilePathTwo, 'File 2 was not deleted');
-        static::assertFileNotExists($processedFilePathVariant, 'File 2 variant was not deleted');
+        static::assertFileDoesNotExist($processedFilePathOne, 'File 1 was not deleted');
+        static::assertFileDoesNotExist($processedFilePathTwo, 'File 2 was not deleted');
+        static::assertFileDoesNotExist($processedFilePathVariant, 'File 2 variant was not deleted');
     }
 
     /**
@@ -344,16 +344,16 @@ class PaperclipBasicAttachmentTest extends ProvisionedTestCase
 
         $model->attachment->destroy();
 
-        static::assertFileNotExists($processedFilePathOne);
+        static::assertFileDoesNotExist($processedFilePathOne);
 
         $model->image->destroy(['medium']);
 
-        static::assertFileNotExists($processedFilePathVariant, 'Destroyed variant file not deleted');
+        static::assertFileDoesNotExist($processedFilePathVariant, 'Destroyed variant file not deleted');
         static::assertFileExists($processedFilePathTwo, 'Unlisted original file should not have been deleted');
 
         $model->image->destroy();
 
-        static::assertFileNotExists($processedFilePathTwo);
+        static::assertFileDoesNotExist($processedFilePathTwo);
     }
 
 
