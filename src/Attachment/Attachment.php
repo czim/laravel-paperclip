@@ -1133,6 +1133,9 @@ class Attachment implements AttachmentInterface
         return app('events');
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function __serialize(): array
     {
         // Serialize everything that is unlikely to involve closures
