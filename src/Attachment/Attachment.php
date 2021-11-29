@@ -475,11 +475,6 @@ class Attachment implements AttachmentInterface
         return $this->contentType();
     }
 
-    /**
-     * Return a JSON representation of this class.
-     *
-     * @return mixed
-     */
     public function jsonSerialize(): mixed
     {
         // @codeCoverageIgnoreStart
