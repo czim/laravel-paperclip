@@ -1,6 +1,12 @@
 # Changelog
 
-## Laravel 7 and up
+## Laravel 8 and up
+
+### [4.0.0] - 2021-11-30
+
+Added PHP 8.0 and 8.1 support (thanks Miljoen!).
+
+## Laravel 7
 
 ### [3.2.2] - 2020-12-19
 
