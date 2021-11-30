@@ -4,7 +4,7 @@
     "keywords": [ "file", "attachment", "laravel", "upload" ],
     "homepage": "https://github.com/czim",
     "require": {
-        "php": "^7.4|^8.0",
+        "php": "^8.0.0",
         "czim/file-handling": "^2.0",
         "ext-json": "*"
     },
