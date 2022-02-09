@@ -1,24 +1,38 @@
 <?php
+
 namespace Czim\Paperclip\Test;
 
 use Czim\Paperclip\Providers\PaperclipServiceProvider;
 use Czim\Paperclip\Test\Helpers\Model\TestModel;
+use Illuminate\Contracts\Config\Repository;
+use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 abstract class TestCase extends \Orchestra\Testbench\TestCase
 {
+
+    public function setUp(): void
+    {
+        parent::setUp();
+
+        $this->setUpDatabase();
+    }
+
 
     /**
      * {@inheritdoc}
      */
     protected function getEnvironmentSetUp($app)
     {
-        $app['config']->set('paperclip', include(realpath(dirname(__DIR__) . '/config/paperclip.php')));
+        /** @var Repository $config */
+        $config = $app['config'];
 
-        $app['config']->set('database.default', 'testbench');
-        $app['config']->set('database.connections.testbench', $this->getDatabaseConfigForSqlite());
+        $config->set('paperclip', include(realpath(dirname(__DIR__) . '/config/paperclip.php')));
 
-        $app['config']->set('filesystems.disks.paperclip', [
+        $config->set('database.default', 'testbench');
+        $config->set('database.connections.testbench', $this->getDatabaseConfigForSqlite());
+
+        $config->set('filesystems.disks.paperclip', [
             'driver'     => 'local',
             'root'       => $this->getBasePath() . '/public/paperclip',
             'visibility' => 'public',
@@ -28,7 +42,7 @@ abstract class TestCase extends \Orchestra\Testbench\TestCase
     /**
      * {@inheritdoc}
      */
-    protected function getPackageProviders($app)
+    protected function getPackageProviders($app): array
     {
         return [
             PaperclipServiceProvider::class,
@@ -36,23 +50,11 @@ abstract class TestCase extends \Orchestra\Testbench\TestCase
     }
 
     /**
-     * Setup the test environment.
-     *
-     * @return void
-     */
-    public function setUp()
-    {
-        parent::setUp();
-
-        $this->setUpDatabase();
-    }
-
-    /**
      * Returns the testing config for a (shared) SQLite connection.
      *
      * @return array
      */
-    protected function getDatabaseConfigForSqlite()
+    protected function getDatabaseConfigForSqlite(): array
     {
         return [
             'driver'   => 'sqlite',
@@ -64,9 +66,9 @@ abstract class TestCase extends \Orchestra\Testbench\TestCase
     /**
      * Sets up the database for testing. This includes migration and standard seeding.
      */
-    protected function setUpDatabase()
+    protected function setUpDatabase(): void
     {
-        Schema::create('test_models', function($table) {
+        Schema::create('test_models', function (Blueprint $table) {
             $table->increments('id');
             $table->string('name', 255)->nullable();
             $table->string('attachment_file_name', 255)->nullable();
@@ -82,24 +84,16 @@ abstract class TestCase extends \Orchestra\Testbench\TestCase
         });
     }
 
-    /**
-     * @return TestModel
-     */
-    protected function getTestModel()
+    protected function getTestModel(): TestModel
     {
         return TestModel::create(['name' => 'Testing']);
     }
 
-    /**
-     * @param array $config     attachment configuration
-     * @return TestModel
-     */
-    protected function getTestModelWithAttachmentConfig(array $config)
+    protected function getTestModelWithAttachmentConfig(array $attachmentConfig): TestModel
     {
-        $model = new TestModel([], $config);
+        $model = new TestModel([], $attachmentConfig);
         $model->save();
 
         return $model;
     }
-
 }

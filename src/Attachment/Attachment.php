@@ -1,18 +1,29 @@
 <?php
+
 namespace Czim\Paperclip\Attachment;
 
 use Carbon\Carbon;
 use Czim\FileHandling\Contracts\Handler\FileHandlerInterface;
-use Czim\FileHandling\Contracts\Storage\PathHelperInterface;
+use Czim\FileHandling\Contracts\Handler\ProcessResultInterface;
 use Czim\FileHandling\Contracts\Storage\StorableFileFactoryInterface;
 use Czim\FileHandling\Contracts\Storage\StorableFileInterface;
+use Czim\FileHandling\Contracts\Storage\TargetInterface;
 use Czim\FileHandling\Handler\FileHandler;
+use Czim\FileHandling\Handler\ProcessResult;
+use Czim\Paperclip\Config\PaperclipConfig;
 use Czim\Paperclip\Contracts\AttachableInterface;
 use Czim\Paperclip\Contracts\AttachmentInterface;
+use Czim\Paperclip\Contracts\Config\ConfigInterface;
+use Czim\Paperclip\Contracts\FileHandlerFactoryInterface;
 use Czim\Paperclip\Contracts\Path\InterpolatorInterface;
+use Czim\Paperclip\Events\AttachmentSavedEvent;
+use Czim\Paperclip\Events\ProcessingExceptionEvent;
+use Czim\Paperclip\Events\TemporaryFileFailedToBeDeletedEvent;
 use Czim\Paperclip\Exceptions\VariantProcessFailureException;
+use Czim\Paperclip\Path\InterpolatingTarget;
 use Exception;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Arr;
 
 class Attachment implements AttachmentInterface
 {
@@ -34,19 +45,19 @@ class Attachment implements AttachmentInterface
     protected $handler;
 
     /**
+     * @var string|null
+     */
+    protected $storage;
+
+    /**
      * @var InterpolatorInterface
      */
     protected $interpolator;
 
     /**
-     * @var PathHelperInterface
+     * @var ConfigInterface
      */
-    protected $pathHelper;
-
-    /**
-     * @var array
-     */
-    protected $config = [];
+    protected $config;
 
     /**
      * Contents of the config file normalized to be used
@@ -74,6 +85,26 @@ class Attachment implements AttachmentInterface
      */
     protected $queuedForWrite = false;
 
+    /**
+     * The target definition for file handling.
+     *
+     * @var null|TargetInterface
+     */
+    protected $target;
+
+    /**
+     * The target instance to be used for queued deletions.
+     *
+     * @var null|TargetInterface
+     */
+    protected $deleteTarget;
+
+
+    public function __construct()
+    {
+        $this->config = new PaperclipConfig([]);
+    }
+
 
     /**
      * Sets the underlying instance object.
@@ -84,6 +115,8 @@ class Attachment implements AttachmentInterface
     public function setInstance(AttachableInterface $instance)
     {
         $this->instance = $instance;
+
+        $this->clearTarget();
 
         return $this;
     }
@@ -96,6 +129,16 @@ class Attachment implements AttachmentInterface
     public function getInstance()
     {
         return $this->instance;
+    }
+
+    /**
+     * Returns the key for the underlying object instance.
+     *
+     * @return mixed
+     */
+    public function getInstanceKey()
+    {
+        return $this->instance->getKey();
     }
 
     /**
@@ -118,6 +161,8 @@ class Attachment implements AttachmentInterface
     {
         $this->name = $name;
 
+        $this->clearTarget();
+
         return $this;
     }
 
@@ -139,16 +184,7 @@ class Attachment implements AttachmentInterface
     {
         $this->interpolator = $interpolator;
 
-        return $this;
-    }
-
-    /**
-     * @param PathHelperInterface $helper
-     * @return $this
-     */
-    public function setPathHelper(PathHelperInterface $helper)
-    {
-        $this->pathHelper = $helper;
+        $this->clearTarget();
 
         return $this;
     }
@@ -156,14 +192,14 @@ class Attachment implements AttachmentInterface
     /**
      * Sets the configuration.
      *
-     * @param array $config
+     * @param ConfigInterface $config
      * @return $this
      */
-    public function setConfig(array $config)
+    public function setConfig(ConfigInterface $config)
     {
         $this->config = $config;
 
-        $this->normalizedConfig = $this->normalizeConfig();
+        $this->clearTarget();
 
         return $this;
     }
@@ -175,7 +211,7 @@ class Attachment implements AttachmentInterface
      */
     public function getConfig()
     {
-        return $this->config;
+        return $this->config->getOriginalConfig();
     }
 
     /**
@@ -185,18 +221,35 @@ class Attachment implements AttachmentInterface
      */
     public function getNormalizedConfig()
     {
-        return $this->normalizedConfig;
+        return $this->config->toArray();
     }
 
     /**
-     * @param FileHandlerInterface $handler
+     * Sets the storage disk identifier.
+     *
+     * @param string $storage   disk identifier
      * @return $this
      */
-    public function setHandler(FileHandlerInterface $handler)
+    public function setStorage($storage)
     {
-        $this->handler = $handler;
+        if ($this->storage !== $storage || ! $this->handler) {
+
+            $this->storage = $storage;
+
+            $this->handler = $this->getFileHandlerFactory()->create($storage);
+        }
 
         return $this;
+    }
+
+    /**
+     * Returns the storage disk used by the attachment.
+     *
+     * @return null|string
+     */
+    public function getStorage()
+    {
+        return $this->storage;
     }
 
     /**
@@ -218,9 +271,11 @@ class Attachment implements AttachmentInterface
     {
         $this->instance->markAttachmentUpdated();
 
-        if ( ! $this->getConfigValue('keep-old-files')) {
+        if ( ! $this->config->keepOldFiles()) {
             $this->clear();
         }
+
+        $this->clearTarget();
 
         $this->uploadedFile = $file;
 
@@ -244,7 +299,7 @@ class Attachment implements AttachmentInterface
     {
         $this->instance->markAttachmentUpdated();
 
-        if ( ! $this->getConfigValue('keep-old-files')) {
+        if ( ! $this->config->keepOldFiles()) {
             $this->clear();
         }
 
@@ -255,6 +310,7 @@ class Attachment implements AttachmentInterface
      * Reprocesses variants from the currently set original file.
      *
      * @param array $variants   ['*'] for all
+     * @throws VariantProcessFailureException
      */
     public function reprocess($variants = ['*'])
     {
@@ -277,9 +333,19 @@ class Attachment implements AttachmentInterface
         // Collect information about variants to update the variant information with after processing.
         $variantInformation = [];
 
+        $temporaryFiles = [];
+
         foreach ($variants as $variant) {
-            $this->processSingleVariant($source, $variant, $variantInformation);
+
+            $result = $this->processSingleVariant($source, $variant, $variantInformation);
+
+            foreach ($result->temporaryFiles() as $temporaryFile) {
+                $temporaryFiles[] = $temporaryFile;
+            }
         }
+
+        $this->cleanUpTemporaryFiles($temporaryFiles);
+
 
         if ($this->shouldVariantInformationBeStored()) {
             $this->instanceWrite('variants', json_encode($variantInformation));
@@ -295,7 +361,7 @@ class Attachment implements AttachmentInterface
      */
     public function variants($withOriginal = false)
     {
-        $variants = array_keys($this->getConfigValue('variants', []));
+        $variants = array_keys($this->config->variantConfigs());
 
         if ($withOriginal && ! in_array(FileHandler::ORIGINAL, $variants)) {
             array_unshift($variants, FileHandler::ORIGINAL);
@@ -314,8 +380,15 @@ class Attachment implements AttachmentInterface
     {
         $variant = $variant ?: FileHandler::ORIGINAL;
 
-        return array_get(
-            $this->handler->variantUrlsForBasePath($this->path(), $this->variantFilename($variant), [ $variant ]),
+        // If no attached file exists, we may return null or give a fallback URL.
+        if ( ! $this->exists()) {
+            return $this->config->defaultVariantUrl($variant);
+        }
+
+        $target = $this->getOrMakeTargetInstance();
+
+        return Arr::get(
+            $this->handler->variantUrlsForTarget($target, [ $variant ]),
             $variant
         );
     }
@@ -327,7 +400,7 @@ class Attachment implements AttachmentInterface
      */
     public function path()
     {
-        return $this->interpolator->interpolate($this->getConfigValue('path'), $this);
+        return $this->getOrMakeTargetInstance()->original();
     }
 
     /**
@@ -340,8 +413,13 @@ class Attachment implements AttachmentInterface
     {
         $variant = $variant ?: FileHandler::ORIGINAL;
 
-        return $this->pathHelper->addVariantToBasePath($this->path(), $variant)
-             . '/' . $this->variantFilename($variant);
+        $target = $this->getOrMakeTargetInstance();
+
+        if ($variant == FileHandler::ORIGINAL) {
+            return $target->original();
+        }
+
+        return $target->variant($variant);
     }
 
     /**
@@ -370,10 +448,10 @@ class Attachment implements AttachmentInterface
         $variants = $this->variantsAttribute();
 
         if ( ! empty($variants)) {
-            return array_get($variants, "{$variant}.ext") ?: false;
+            return Arr::get($variants, "{$variant}.ext") ?: false;
         }
 
-        return $this->getConfigValue("extensions.{$variant}", false);
+        return $this->config->variantExtension($variant);
     }
 
     /**
@@ -387,22 +465,17 @@ class Attachment implements AttachmentInterface
         $variants = $this->variantsAttribute();
 
         if ( ! empty($variants)) {
-            return array_get($variants, "{$variant}.type") ?: false;
+            return Arr::get($variants, "{$variant}.type") ?: false;
         }
 
-        if (false !== ($type = $this->getConfigValue("types.{$variant}", false))) {
+        if (false !== ($type = $this->config->variantMimeType($variant))) {
             return $type;
         }
 
         return $this->contentType();
     }
 
-    /**
-     * Return a JSON representation of this class.
-     *
-     * @return array
-     */
-    public function jsonSerialize()
+    public function jsonSerialize(): mixed
     {
         // @codeCoverageIgnoreStart
         if ( ! $this->originalFilename()) {
@@ -420,6 +493,101 @@ class Attachment implements AttachmentInterface
         }
 
         return $data;
+    }
+
+    /**
+     * Returns the target instance to be passed to the file handler.
+     *
+     * @return TargetInterface
+     */
+    protected function getOrMakeTargetInstance()
+    {
+        if ($this->target) {
+            return $this->target;
+        }
+
+        $this->target = new InterpolatingTarget(
+            $this->interpolator,
+            $this,
+            $this->config->path(),
+            $this->config->variantPath()
+        );
+
+        $this->target->setVariantFilenames($this->variantFilenames());
+        $this->target->setVariantExtensions($this->variantExtensions());
+
+        return $this->target;
+    }
+
+    /**
+     * Returns a target instance with fixed historical data for the current state.
+     *
+     * @return TargetInterface
+     */
+    protected function makeTargetInstanceWithCurrentData()
+    {
+        $this->target = new InterpolatingTarget(
+            $this->interpolator,
+            $this->getCurrentAttachmentData(),
+            $this->config->path(),
+            $this->config->variantPath()
+        );
+
+        $this->target->setVariantFilenames($this->variantFilenames());
+        $this->target->setVariantExtensions($this->variantExtensions());
+
+        return $this->target;
+    }
+
+    /**
+     * Clears the currently cached target instance.
+     */
+    protected function clearTarget()
+    {
+        $this->target = null;
+    }
+
+    /**
+     * Returns filenames keyed by variant.
+     *
+     * @return string[]
+     */
+    protected function variantFilenames()
+    {
+        $names = [];
+
+        foreach ($this->variants() as $variant) {
+            $names[ $variant ] = $this->variantFilename($variant);
+        }
+
+        return $names;
+    }
+
+    /**
+     * Returns alternative extensions keyed by variant.
+     *
+     * @return string[]
+     */
+    protected function variantExtensions()
+    {
+        $extensions = $this->config->variantExtensions();
+
+        $variants = $this->variantsAttribute();
+
+        if ( ! empty($variants)) {
+
+            foreach ($this->variants() as $variant) {
+
+                $extension = Arr::get($variants, "{$variant}.ext");
+
+                if ($extension) {
+                    $extensions[ $variant ] = $extension;
+                    continue;
+                }
+            }
+        }
+
+        return $extensions;
     }
 
 
@@ -449,7 +617,7 @@ class Attachment implements AttachmentInterface
     {
         $this->instance = $instance;
 
-        if ( ! $this->getConfigValue('preserve-files')) {
+        if ( ! $this->config->preserveFiles()) {
             $this->clear();
         }
     }
@@ -516,7 +684,11 @@ class Attachment implements AttachmentInterface
             return;
         }
 
-        $storedFiles = $this->handler->process($this->uploadedFile, $this->path(), $this->normalizedConfig);
+        $target = $this->getOrMakeTargetInstance();
+
+        $result = $this->handler->process($this->uploadedFile, $target, $this->config->toArray());
+
+        $storedFiles = $result->storedFiles();
 
         if ($this->shouldVariantInformationBeStored()) {
 
@@ -541,7 +713,36 @@ class Attachment implements AttachmentInterface
             $this->instance->save();
         }
 
+
+        $this->cleanUpTemporaryFiles($result->temporaryFiles());
+
         $this->queuedForWrite = false;
+
+        $event = new AttachmentSavedEvent($this, $this->uploadedFile);
+        $this->getEventDispatcher()->dispatch($event);
+    }
+
+    /**
+     * @param StorableFileInterface[] $temporaryFiles
+     */
+    protected function cleanUpTemporaryFiles(array $temporaryFiles)
+    {
+        foreach ($temporaryFiles as $temporaryFile) {
+
+            try {
+                $temporaryFile->delete();
+
+            } catch (Exception $e) {
+
+                // Paperclip itself ignores problems while deleting temporary files.
+                // If you want to handle these errors yourself, you can set up a
+                // listener for the event fired here.
+
+                $this->getEventDispatcher()->dispatch(
+                    new TemporaryFileFailedToBeDeletedEvent($temporaryFile, $e)
+                );
+            }
+        }
     }
 
     /**
@@ -549,8 +750,12 @@ class Attachment implements AttachmentInterface
      */
     protected function flushDeletes()
     {
-        foreach ($this->queuedForDelete as $path) {
-            $this->handler->deleteVariant($path);
+        if ( ! $this->deleteTarget) {
+            return;
+        }
+
+        foreach ($this->queuedForDelete as $variant) {
+            $this->handler->deleteVariant($this->deleteTarget, $variant);
         }
 
         $this->queuedForDelete = [];
@@ -560,18 +765,30 @@ class Attachment implements AttachmentInterface
      * @param StorableFileInterface $source
      * @param string                $variant
      * @param array                 $information
+     * @return ProcessResultInterface
      * @throws VariantProcessFailureException
      */
     protected function processSingleVariant(StorableFileInterface $source, $variant, array &$information = [])
     {
+        $target = $this->getOrMakeTargetInstance();
+
         try {
-            $storedFile = $this->handler->processVariant(
+            $result = $this->handler->processVariant(
                 $source,
-                $this->path(),
+                $target,
                 $variant,
-                array_get($this->normalizedConfig, FileHandler::CONFIG_VARIANTS . '.' . $variant, [])
+                $this->config->variantConfig($variant)
             );
         } catch (Exception $e) {
+
+            if ($this->shouldFireEventsForExceptions()) {
+
+                $this->getEventDispatcher()->dispatch(
+                    new ProcessingExceptionEvent($e, $source, $variant, $information)
+                );
+
+                return new ProcessResult([], []);
+            }
 
             throw new VariantProcessFailureException(
                 "Failed to process variant '{$variant}': {$e->getMessage()}",
@@ -580,23 +797,28 @@ class Attachment implements AttachmentInterface
             );
         }
 
+        /** @var StorableFileInterface $storedFile */
+        $storedFile = array_values($result->storedFiles())[0];
+
         if ( ! $this->shouldVariantInformationBeStored()) {
-            return;
+            return $result;
         }
 
-        $originalExtension  = pathinfo($this->originalFilename(), PATHINFO_EXTENSION);
-        $originalMimeType   = $this->contentType();
+        $originalExtension = pathinfo($this->originalFilename(), PATHINFO_EXTENSION);
+        $originalMimeType  = $this->contentType();
 
         if (    $storedFile->extension() == $originalExtension
             &&  $storedFile->mimeType() == $originalMimeType
         ) {
-            return;
+            return $result;
         }
 
         $information[ $variant ] = [
             'ext'  => $storedFile->extension(),
             'type' => $storedFile->mimeType(),
         ];
+
+        return $result;
     }
 
     /**
@@ -608,21 +830,15 @@ class Attachment implements AttachmentInterface
     }
 
     /**
-     * Add a subset (filtered via style) of the uploaded files for this attachment
-     * to the queuedForDeletion queue.
+     * Add a subset (filtered by variant name) of the uploaded files
+     * for this attachment to the queuedForDeletion queue.
      *
      * @param array $variants
      */
     protected function queueSomeForDeletion(array $variants)
     {
-        $paths = array_map(
-            function ($variant) {
-                return $this->variantPath($variant);
-            },
-            $variants
-        );
-
-        $this->queuedForDelete = array_unique(array_merge($this->queuedForDelete, $paths));
+        $this->deleteTarget    = $this->makeTargetInstanceWithCurrentData();
+        $this->queuedForDelete = array_unique(array_merge($this->queuedForDelete, $variants));
     }
 
     /**
@@ -635,33 +851,51 @@ class Attachment implements AttachmentInterface
             return;
         }
 
-        $paths = array_map(
-            function ($variant) {
-                return $this->pathHelper->addVariantToBasePath($this->path(), $variant)
-                     . '/' . $this->originalFilename();
-            },
-            array_merge($this->variants(), [ FileHandler::ORIGINAL ])
-        );
+        $this->deleteTarget    = $this->makeTargetInstanceWithCurrentData();
+        $this->queuedForDelete = array_unique(array_merge($this->queuedForDelete, $this->variants(true)));
+    }
 
-        $this->queuedForDelete = array_unique(array_merge($this->queuedForDelete, $paths));
+    /**
+     * Returns the current attachment state data.
+     *
+     * @return AttachmentData
+     */
+    protected function getCurrentAttachmentData()
+    {
+        $attributes = [
+            'file_name'    => $this->originalFilename(),
+            'file_size'    => $this->size(),
+            'content_type' => $this->contentType(),
+            'updated_at'   => $this->updatedAt(),
+            'created_at'   => $this->createdAt(),
+            'variants'     => $this->variantsAttribute(),
+        ];
+
+        $variants = [];
+
+        foreach ($this->variants() as $variant) {
+
+            $variants[ $variant ] = [
+                'file_name'    => $this->variantFilename($variant),
+                'content_type' => $this->variantContentType($variant),
+                'extension'    => $this->variantExtension($variant),
+            ];
+        }
+
+        return new AttachmentData(
+            $this->name,
+            $this->getConfig(),
+            $attributes,
+            $variants,
+            $this->getInstanceKey(),
+            $this->getInstanceClass()
+        );
     }
 
 
     // ------------------------------------------------------------------------------
     //      Uploaded File Properties
     // ------------------------------------------------------------------------------
-
-    /**
-     * Returns whether this attachment actually has a file currently stored.
-     *
-     * @deprecated Use exists() instead
-     * @see exists
-     * @return bool
-     */
-    public function isFilled()
-    {
-        return $this->exists();
-    }
 
     /**
      * Returns whether this attachment actually has a file currently stored.
@@ -748,7 +982,6 @@ class Attachment implements AttachmentInterface
         return json_decode($this->instance->getAttribute("{$this->name}_variants"), true) ?: [];
     }
 
-
     /**
      * Clears all attachment related model attributes.
      */
@@ -770,12 +1003,13 @@ class Attachment implements AttachmentInterface
     public function instanceWrite($property, $value)
     {
         // Ignore properties that should not be settable
-        if ($property !== 'file_name' && ! $this->getConfigValue("attributes.{$property}", true)) {
+        if ($property !== 'file_name' && ! $this->config->attributeProperty($property)) {
             return;
         }
 
         $this->instance->setAttribute("{$this->name}_{$property}", $value);
     }
+
 
     // ------------------------------------------------------------------------------
     //      Hooks
@@ -802,12 +1036,24 @@ class Attachment implements AttachmentInterface
     }
 
     /**
-     * @param string $type
+     * @param string $type  'before', 'after'
      * @return bool
      */
     protected function performCallableHook($type)
     {
-        $hook = $this->getConfigValue($type);
+        switch ($type) {
+
+            case 'before':
+                $hook = $this->config->beforeCallable();
+                break;
+
+            case 'after':
+                $hook = $this->config->afterCallable();
+                break;
+
+            default:
+                throw new \UnexpectedValueException("Unknown callable type '{$type}'");
+        }
 
         if ( ! $hook) {
             return true;
@@ -844,79 +1090,6 @@ class Attachment implements AttachmentInterface
     }
 
 
-    // ------------------------------------------------------------------------------
-    //      Configuration
-    // ------------------------------------------------------------------------------
-
-    /**
-     * Takes the set config and creates a normalized version.
-     *
-     * This can also take stapler configs and normalize them for paperclip.
-     *
-     * @return array
-     */
-    protected function normalizeConfig()
-    {
-        $config = $this->config;
-
-        if ( ! array_has($config, 'variants') && array_has($config, 'styles')) {
-            $config['variants'] = array_get($config, 'styles', []);
-        }
-        array_forget($config, 'styles');
-
-        if ( ! array_has($config, 'variants')) {
-            $config['variants'] = config('paperclip.variants.default');
-        }
-
-        // Normalize variant definitions
-        foreach (array_get($config, 'variants', []) as $variant => $options) {
-            // Assume dimensions if not an array
-            if ( ! is_array($options)) {
-                $options = ['resize' => ['dimensions' => $options]];
-                array_set($config, "variants.{$variant}", $options);
-            }
-
-            if (array_key_exists('dimensions', $options)) {
-                $options = ['resize' => $options];
-                array_set($config, "variants.{$variant}", $options);
-            }
-
-            // If auto-orient is set, extract it to its own step
-            if (    (   array_get($options, 'resize.auto-orient')
-                    ||  array_get($options, 'resize.auto_orient')
-                    )
-                && ! array_has($options, 'auto-orient')
-            ) {
-                $options = array_merge(['auto-orient' => []], $options);
-                array_set($config, "variants.{$variant}", $options);
-                array_forget($config, [
-                    "variants.{$variant}.resize.auto-orient",
-                    "variants.{$variant}.resize.auto_orient",
-                ]);
-            }
-        }
-
-        // Simple renames of stapler config keys
-        $renames = [
-            'url'            => 'path',
-            'keep_old_files' => 'keep-old-files',
-            'preserve_files' => 'preserve-files',
-        ];
-
-        foreach ($renames as $old => $new) {
-            if ( ! array_has($config, $old)) {
-                continue;
-            }
-
-            if ( ! array_has($config, $new)) {
-                $config[ $new ] = array_get($config, $old);
-            }
-            array_forget($config, $old);
-        }
-
-        return $config;
-    }
-
     /**
      * If we're writing variants, log information about the variants,
      * if the model is set up and configured to use the variants attribute.
@@ -925,39 +1098,15 @@ class Attachment implements AttachmentInterface
      */
     protected function shouldVariantInformationBeStored()
     {
-        return (bool) $this->getConfigValue('attributes.variants');
+        return (bool) $this->config->variantsAttribute();
     }
 
     /**
-     * @param string      $key
-     * @param string|null $default
-     * @return mixed
+     * @return bool
      */
-    protected function getConfigValue($key, $default = null)
+    protected function shouldFireEventsForExceptions()
     {
-        if (array_has($this->normalizedConfig, $key)) {
-            return array_get($this->normalizedConfig, $key);
-        }
-
-        // Fall back to default configured values
-        $map = [
-            'keep-old-files' => 'keep-old-files',
-            'preserve-files' => 'preserve-files',
-            'storage'        => 'storage.disk',
-            'path'           => 'path.base-path',
-
-            'attributes.size'         => 'model.attributes.size',
-            'attributes.content_type' => 'model.attributes.content_type',
-            'attributes.updated_at'   => 'model.attributes.updated_at',
-            'attributes.created_at'   => 'model.attributes.created_at',
-            'attributes.variants'     => 'model.attributes.variants',
-        ];
-
-        if ( ! in_array($key, array_keys($map))) {
-            return $default;
-        }
-
-        return config('paperclip.' . $map[ $key ], $default);
+        return (bool) config('paperclip.processing.errors.events', true);
     }
 
     /**
@@ -968,4 +1117,59 @@ class Attachment implements AttachmentInterface
         return app(StorableFileFactoryInterface::class);
     }
 
+    /**
+     * @return FileHandlerFactoryInterface
+     */
+    protected function getFileHandlerFactory()
+    {
+        return app(FileHandlerFactoryInterface::class);
+    }
+
+    /**
+     * @return \Illuminate\Contracts\Events\Dispatcher
+     */
+    protected function getEventDispatcher()
+    {
+        return app('events');
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function __serialize(): array
+    {
+        // Serialize everything that is unlikely to involve closures
+        return [
+            'instance'         => $this->instance,
+            'storage'          => $this->storage,
+            'name'             => $this->name,
+            'interpolator'     => $this->interpolator,
+            'config'           => $this->config,
+            'normalizedConfig' => $this->normalizedConfig,
+            'uploadedFile'     => $this->uploadedFile,
+            'queuedForDelete'  => $this->queuedForDelete,
+            'queuedForWrite'   => $this->queuedForWrite,
+            'target'           => $this->target,
+            'deleteTarget'     => $this->deleteTarget,
+        ];
+    }
+
+    /**
+     * @param array<string, mixed> $data
+     */
+    public function __unserialize(array $data): void
+    {
+        $this->instance         = $data['instance'];
+        $this->name             = $data['name'];
+        $this->interpolator     = $data['interpolator'];
+        $this->config           = $data['config'];
+        $this->normalizedConfig = $data['normalizedConfig'];
+        $this->uploadedFile     = $data['uploadedFile'];
+        $this->queuedForDelete  = $data['queuedForDelete'];
+        $this->queuedForWrite   = $data['queuedForWrite'];
+        $this->target           = $data['target'];
+        $this->deleteTarget     = $data['deleteTarget'];
+
+        $this->setStorage($data['storage']);
+    }
 }

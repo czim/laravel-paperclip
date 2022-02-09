@@ -1,4 +1,5 @@
 <?php
+
 namespace Czim\Paperclip\Contracts;
 
 use Czim\FileHandling\Contracts\Handler\FileHandlerInterface;
@@ -13,5 +14,4 @@ interface FileHandlerFactoryInterface
      * @return FileHandlerInterface
      */
     public function create($storage = null);
-
 }

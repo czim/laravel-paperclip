@@ -1,11 +1,17 @@
 <?php
+/** @noinspection ReturnTypeCanBeDeclaredInspection */
+/** @noinspection AccessModifierPresentedInspection */
+
 namespace Czim\Paperclip\Test\Attachment;
 
 use Czim\FileHandling\Contracts\Handler\FileHandlerInterface;
-use Czim\FileHandling\Contracts\Storage\PathHelperInterface;
+use Czim\FileHandling\Contracts\Storage\TargetInterface;
 use Czim\Paperclip\Attachment\Attachment;
+use Czim\Paperclip\Config\PaperclipConfig;
+use Czim\Paperclip\Contracts\FileHandlerFactoryInterface;
 use Czim\Paperclip\Contracts\Path\InterpolatorInterface;
 use Czim\Paperclip\Test\TestCase;
+use Hamcrest\Matchers;
 use Mockery;
 
 class AttachmentTest extends TestCase
@@ -51,22 +57,12 @@ class AttachmentTest extends TestCase
     /**
      * @test
      */
-    function it_takes_a_path_helper()
-    {
-        /** @var PathHelperInterface $helper */
-        $helper = Mockery::mock(PathHelperInterface::class);
-
-        $attachment = new Attachment;
-        static::assertSame($attachment, $attachment->setPathHelper($helper));
-    }
-
-    /**
-     * @test
-     */
     function it_takes_and_returns_a_configuration()
     {
         $attachment = new Attachment;
-        static::assertSame($attachment, $attachment->setConfig(['test' => true]));
+        static::assertSame($attachment, $attachment->setConfig(
+            new PaperclipConfig(['test' => true]))
+        );
 
         static::assertEquals(['test' => true], $attachment->getConfig());
     }
@@ -74,13 +70,15 @@ class AttachmentTest extends TestCase
     /**
      * @test
      */
-    function it_takes_and_returns_a_file_handler()
+    function it_takes_and_returns_a_storage_identifier_and_handler()
     {
         $handler = $this->getMockHandler();
+        $this->app->instance(FileHandlerFactoryInterface::class, $this->getMockHandlerFactory($handler));
 
         $attachment = new Attachment;
-        static::assertSame($attachment, $attachment->setHandler($handler));
+        static::assertSame($attachment, $attachment->setStorage('test'));
 
+        static::assertSame('test', $attachment->getStorage());
         static::assertSame($handler, $attachment->getHandler());
     }
 
@@ -90,13 +88,13 @@ class AttachmentTest extends TestCase
     function it_returns_variant_keys_as_configured()
     {
         $attachment = new Attachment;
-        $attachment->setConfig([
+        $attachment->setConfig(new PaperclipConfig([
             'variants' => [
                 'some'    => [],
                 'variant' => [],
                 'keys'    => [],
             ],
-        ]);
+        ]));
 
         static::assertEquals(['some', 'variant', 'keys'], $attachment->variants());
     }
@@ -110,23 +108,42 @@ class AttachmentTest extends TestCase
         $handler      = $this->getMockHandler();
         $interpolator = $this->getMockInterpolator();
 
+        $this->app->instance(FileHandlerFactoryInterface::class, $this->getMockHandlerFactory($handler));
+
         $attachment = new Attachment;
         $attachment->setInstance($model);
-        $attachment->setHandler($handler);
+        $attachment->setStorage('paperclip');
         $attachment->setInterpolator($interpolator);
         $attachment->setName('image');
 
         $model->setAttribute('image_file_name', 'test.png');
 
-        $interpolator->shouldReceive('interpolate')->once()
-            ->with(':class/:id_partition/:attribute', $attachment)
-            ->andReturn('file/');
-
-        $handler->shouldReceive('variantUrlsForBasePath')->once()
-            ->with('file/', 'test.png', ['variantkey'])
+        $handler->shouldReceive('variantUrlsForTarget')->once()
+            ->with(Matchers::any(TargetInterface::class), ['variantkey'])
             ->andReturn(['variantkey' => 'http://fake.url/file/variantkey']);
 
         static::assertEquals('http://fake.url/file/variantkey', $attachment->url('variantkey'));
+    }
+
+    /**
+     * @test
+     */
+    function it_returns_the_original_path()
+    {
+        $interpolator = $this->getMockInterpolator();
+
+        $attachment = new Attachment;
+        $attachment->setInterpolator($interpolator);
+
+        $interpolator->shouldReceive('interpolate')
+            ->once()
+            ->with(
+                ':class/:id_partition/:attribute/:variant/:filename',
+                $attachment
+            )
+            ->andReturn('file/test.png');
+
+        static::assertEquals('file/test.png', $attachment->path());
     }
 
     /**
@@ -137,24 +154,20 @@ class AttachmentTest extends TestCase
         $model        = $this->getTestModel();
         $handler      = $this->getMockHandler();
         $interpolator = $this->getMockInterpolator();
-        $helper       = $this->getMockPathHelper();
+
+        $this->app->instance(FileHandlerFactoryInterface::class, $this->getMockHandlerFactory($handler));
 
         $attachment = new Attachment;
         $attachment->setInstance($model);
-        $attachment->setHandler($handler);
-        $attachment->setPathHelper($helper);
+        $attachment->setStorage('paperclip');
         $attachment->setInterpolator($interpolator);
         $attachment->setName('image');
 
         $model->setAttribute('image_file_name', 'test.png');
 
         $interpolator->shouldReceive('interpolate')->once()
-            ->with(':class/:id_partition/:attribute', $attachment)
-            ->andReturn('file/');
-
-        $helper->shouldReceive('addVariantToBasePath')->once()
-            ->with('file/', 'variantkey')
-            ->andReturn('file/variantkey');
+            ->with(':class/:id_partition/:attribute/:variant/:filename', $attachment, 'variantkey')
+            ->andReturn('file/variantkey/test.png');
 
         static::assertEquals('file/variantkey/test.png', $attachment->variantPath('variantkey'));
     }
@@ -185,11 +198,11 @@ class AttachmentTest extends TestCase
         $attachment = new Attachment;
         $attachment->setInstance($model);
         $attachment->setName('image');
-        $attachment->setConfig([
+        $attachment->setConfig(new PaperclipConfig([
             'extensions' => [
                 'variantkey' => 'txt',
             ],
-        ]);
+        ]));
 
         $model->setAttribute('image_file_name', 'test.png');
 
@@ -205,11 +218,11 @@ class AttachmentTest extends TestCase
 
         $attachment = new Attachment;
         $attachment->setInstance($model);
-        $attachment->setConfig([
+        $attachment->setConfig(new PaperclipConfig([
             'extensions' => [
                 'variantkey' => 'txt',
             ],
-        ]);
+        ]));
         $attachment->setName('image');
 
         $model->setAttribute('image_file_name', 'test.png');
@@ -226,11 +239,11 @@ class AttachmentTest extends TestCase
 
         $attachment = new Attachment;
         $attachment->setInstance($model);
-        $attachment->setConfig([
+        $attachment->setConfig(new PaperclipConfig([
             'attributes' => [
                 'variants' => true,
             ],
-        ]);
+        ]));
         $attachment->setName('image');
 
         $model->setAttribute('image_file_name', 'test.png');
@@ -265,11 +278,11 @@ class AttachmentTest extends TestCase
 
         $attachment = new Attachment;
         $attachment->setInstance($model);
-        $attachment->setConfig([
+        $attachment->setConfig(new PaperclipConfig([
             'types' => [
                 'variantkey' => 'text/plain',
             ],
-        ]);
+        ]));
         $attachment->setName('image');
 
         $model->setAttribute('image_file_name', 'test.png');
@@ -287,11 +300,11 @@ class AttachmentTest extends TestCase
 
         $attachment = new Attachment;
         $attachment->setInstance($model);
-        $attachment->setConfig([
+        $attachment->setConfig(new PaperclipConfig([
             'attributes' => [
                 'variants' => true,
             ],
-        ]);
+        ]));
         $attachment->setName('image');
 
         $model->setAttribute('image_file_name', 'test.png');
@@ -335,11 +348,11 @@ class AttachmentTest extends TestCase
         $attachment = new Attachment;
         $attachment->setInstance($model);
         $attachment->setName('image');
-        $attachment->setConfig([
+        $attachment->setConfig(new PaperclipConfig([
             'attributes' => [
                 'created_at' => true,
             ],
-        ]);
+        ]));
 
         static::assertEquals('2017-01-01 00:00:00', $attachment->createdAt());
     }
@@ -404,47 +417,37 @@ class AttachmentTest extends TestCase
         static::assertEquals('test.png', $attachment->originalFilename());
     }
 
-    
-    // ------------------------------------------------------------------------------
-    //      Stapler Compatibility
-    // ------------------------------------------------------------------------------
-    
     /**
      * @test
      */
-    function it_uses_stapler_styles_key_for_variants()
+    function it_returns_a_configured_fallback_url_when_no_attachment_is_stored()
     {
-        $attachment = new Attachment;
-        $attachment->setConfig([
-            'styles' => [
-                'some'    => '100x100',
-                'variant' => '50x30',
-                'keys'    => '40x',
+        $model = $this->getTestModelWithAttachmentConfig([
+            'url'  => 'http://fallback-test-url',
+            'urls' => [
+                'variant' => 'http://variant-fallback-test-url',
             ],
         ]);
 
-        static::assertEquals(['some', 'variant', 'keys'], $attachment->variants());
+        static::assertEquals('http://fallback-test-url', $model->attachment->url());
     }
-    
+
     /**
      * @test
      */
-    function it_converts_stapler_dimensions_to_resize_steps()
+    function it_returns_a_configured_fallback_url_for_a_variant_when_no_attachment_is_stored()
     {
-        // todo
-        // should test in integration
+        $model = $this->getTestModelWithAttachmentConfig([
+            'url'  => 'http://fallback-test-url',
+            'urls' => [
+                'variant' => 'http://variant-fallback-test-url',
+            ],
+        ]);
+
+        static::assertEquals('http://variant-fallback-test-url', $model->attachment->url('variant'));
     }
+
     
-    /**
-     * @test
-     */
-    function it_extracts_a_stapler_auto_orient_flag_to_its_own_variant_step()
-    {
-        // todo
-        // should test in integration
-    }
-
-
     /**
      * @return Mockery\MockInterface|Mockery\Mock|FileHandlerInterface
      */
@@ -454,19 +457,24 @@ class AttachmentTest extends TestCase
     }
 
     /**
+     * @param FileHandlerInterface $handler
+     * @return Mockery\MockInterface|Mockery\Mock|FileHandlerFactoryInterface
+     */
+    protected function getMockHandlerFactory(FileHandlerInterface $handler)
+    {
+        $mock = Mockery::mock(FileHandlerFactoryInterface::class);
+
+        $mock->shouldReceive('create')->andReturn($handler);
+
+        return $mock;
+    }
+
+    /**
      * @return Mockery\MockInterface|Mockery\Mock|InterpolatorInterface
      */
     protected function getMockInterpolator()
     {
         return Mockery::mock(InterpolatorInterface::class);
-    }
-
-    /**
-     * @return Mockery\MockInterface|Mockery\Mock|PathHelperInterface
-     */
-    protected function getMockPathHelper()
-    {
-        return Mockery::mock(PathHelperInterface::class);
     }
 
 }

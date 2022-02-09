@@ -1,12 +1,13 @@
 <?php
+
 namespace Czim\Paperclip\Attachment;
 
-use Czim\FileHandling\Contracts\Handler\FileHandlerInterface;
-use Czim\FileHandling\Contracts\Storage\PathHelperInterface;
+use Czim\Paperclip\Config\PaperclipConfig;
+use Czim\Paperclip\Config\StaplerConfig;
 use Czim\Paperclip\Contracts\AttachableInterface;
 use Czim\Paperclip\Contracts\AttachmentFactoryInterface;
 use Czim\Paperclip\Contracts\AttachmentInterface;
-use Czim\Paperclip\Contracts\FileHandlerFactoryInterface;
+use Czim\Paperclip\Contracts\Config\ConfigInterface;
 use Czim\Paperclip\Contracts\Path\InterpolatorInterface;
 
 class AttachmentFactory implements AttachmentFactoryInterface
@@ -22,28 +23,28 @@ class AttachmentFactory implements AttachmentFactoryInterface
     {
         $attachment = new Attachment;
 
+        $configObject = $this->makeConfigObject($config);
+
         $attachment->setInstance($instance);
         $attachment->setName($name);
-        $attachment->setConfig($config);
+        $attachment->setConfig($configObject);
         $attachment->setInterpolator($this->getInterpolator());
-        $attachment->setPathHelper($this->getPathHelper());
-
-        $disk = array_get($config, 'storage');
-        $attachment->setHandler($this->getHandler($disk));
+        $attachment->setStorage($configObject->storageDisk());
 
         return $attachment;
     }
 
     /**
-     * @param string|null $disk
-     * @return FileHandlerInterface
+     * @param array $config
+     * @return ConfigInterface
      */
-    protected function getHandler($disk = null)
+    protected function makeConfigObject(array $config)
     {
-        /** @var FileHandlerFactoryInterface $factory */
-        $factory = app(FileHandlerFactoryInterface::class);
+        if (config('paperclip.config.mode') === 'stapler') {
+            return new StaplerConfig($config);
+        }
 
-        return $factory->create($disk);
+        return new PaperclipConfig($config);
     }
 
     /**
@@ -51,15 +52,8 @@ class AttachmentFactory implements AttachmentFactoryInterface
      */
     protected function getInterpolator()
     {
-        return app(InterpolatorInterface::class);
-    }
+        $interpolatorClass = config('paperclip.path.interpolator', InterpolatorInterface::class);
 
-    /**
-     * @return PathHelperInterface
-     */
-    protected function getPathHelper()
-    {
-        return app(PathHelperInterface::class);
+        return app($interpolatorClass);
     }
-
 }

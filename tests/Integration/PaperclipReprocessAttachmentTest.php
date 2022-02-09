@@ -1,8 +1,14 @@
 <?php
+/** @noinspection ReturnTypeCanBeDeclaredInspection */
+/** @noinspection AccessModifierPresentedInspection */
+
 namespace Czim\Paperclip\Test\Integration;
 
 use Czim\FileHandling\Contracts\Storage\StorableFileFactoryInterface;
 use Czim\FileHandling\Storage\File\SplFileInfoStorableFile;
+use Czim\Paperclip\Events\ProcessingExceptionEvent;
+use Czim\Paperclip\Exceptions\VariantProcessFailureException;
+use Czim\Paperclip\Test\Helpers\VariantStrategies\TestNoChangesStrategy;
 use Czim\Paperclip\Test\Helpers\VariantStrategies\TestTextToHtmlStrategy;
 use Czim\Paperclip\Test\ProvisionedTestCase;
 use Illuminate\Database\Eloquent\Model;
@@ -27,7 +33,7 @@ class PaperclipReprocessAttachmentTest extends ProvisionedTestCase
     /**
      * @test
      */
-    function it_reprocesses_variant()
+    function it_reprocesses_variants()
     {
         $model = $this->getTestModel();
 
@@ -44,7 +50,7 @@ class PaperclipReprocessAttachmentTest extends ProvisionedTestCase
 
         // Delete the uploaded file, so we can see if it gets rewritten on reprocessing
         unlink($processedFilePath);
-        static::assertFileNotExists($processedFilePath, 'Variant file should not exist after unlinking');
+        static::assertFileDoesNotExist($processedFilePath, 'Variant file should not exist after unlinking');
 
 
         $this->prepareMockSetupForReprocessingSource($model);
@@ -97,14 +103,55 @@ class PaperclipReprocessAttachmentTest extends ProvisionedTestCase
             'Variant information not rewritten after reprocessing'
         );
     }
-    
+
     /**
      * @test
-     * @expectedException \Czim\Paperclip\Exceptions\VariantProcessFailureException
-     * @expectedExceptionMessageRegExp #failed to process variant 'medium'#i
      */
-    function it_throws_an_exception_when_something_goes_wrong_while_reprocessing_a_variant()
+    function it_reprocesses_a_variant_that_does_not_change_the_file_with_variants_attribute_enabled()
     {
+        $this->app['config']->set('paperclip.variants.aliases.test-same', TestNoChangesStrategy::class);
+
+        $model = $this->getTestModelWithAttachmentConfig([
+            'attributes' => [
+                'variants' => true,
+            ],
+            'variants' => [
+                'test' => [
+                    'test-same' => [],
+                ],
+            ],
+        ]);
+
+        $model->attachment = new SplFileInfo($this->getTestFilePath('empty.gif'));
+        $model->save();
+
+        static::assertEquals([], $model->attachment->variantsAttribute());
+
+        $model->attachment_variants = null;
+        $model->save();
+
+        static::assertEmpty($model->attachment->variantsAttribute(), 'Variants should be empty for test');
+
+        $this->prepareMockSetupForReprocessingSource($model, 'attachment');
+
+        // Test
+        $model->attachment->reprocess();
+
+        static::assertEquals(
+            [],
+            $model->attachment->variantsAttribute(),
+            'Variant information not rewritten after reprocessing'
+        );
+    }
+
+    /**
+     * @test
+     */
+    function it_fires_an_even_when_something_goes_wrong_while_reprocessing_a_variant()
+    {
+        $this->withoutEvents();
+        $this->expectsEvents(ProcessingExceptionEvent::class);
+
         $model = $this->getTestModel();
 
         $model->image = new SplFileInfo($this->getTestFilePath('empty.gif'));
@@ -116,7 +163,36 @@ class PaperclipReprocessAttachmentTest extends ProvisionedTestCase
 
         // Delete the original file, so reprocessing fails
         unlink($processedFilePath);
-        static::assertFileNotExists($processedFilePath, 'File should not exist after unlinking');
+        static::assertFileDoesNotExist($processedFilePath, 'File should not exist after unlinking');
+
+        $this->prepareMockSetupForReprocessingException($model);
+
+        $model->image->reprocess();
+    }
+
+    /**
+     * @test
+     */
+    function it_throws_an_exception_when_something_goes_wrong_while_reprocessing_a_variant_when_configured_to()
+    {
+        // Disable event firing so the exception is thrown.
+        $this->app['config']->set('paperclip.processing.errors.events', false);
+
+        $this->expectException(VariantProcessFailureException::class);
+        $this->expectExceptionMessageMatches("#failed to process variant 'medium'#i");
+
+        $model = $this->getTestModel();
+
+        $model->image = new SplFileInfo($this->getTestFilePath('empty.gif'));
+        $model->save();
+
+        $processedFilePath = $this->getUploadedAttachmentPath($model, 'empty.gif', 'image');
+
+        static::assertFileExists($processedFilePath, 'Original file does not exist');
+
+        // Delete the original file, so reprocessing fails
+        unlink($processedFilePath);
+        static::assertFileDoesNotExist($processedFilePath, 'File should not exist after unlinking');
 
         $this->prepareMockSetupForReprocessingException($model);
 
@@ -170,13 +246,15 @@ class PaperclipReprocessAttachmentTest extends ProvisionedTestCase
     /**
      * @param string $path
      * @param string $name
+     * @param string $type
      * @return SplFileInfoStorableFile
      */
-    protected function getSourceForReprocessing($path, $name = 'empty.gif')
+    protected function getSourceForReprocessing($path, $name = 'empty.gif', $type = 'image/gif')
     {
         $source = new SplFileInfoStorableFile();
         $source->setData(new SplFileInfo($path));
         $source->setName($name);
+        $source->setMimeType($type);
 
         return $source;
     }

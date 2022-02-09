@@ -1,4 +1,5 @@
 <?php
+
 namespace Czim\Paperclip\Contracts;
 
 interface AttachableInterface
@@ -18,5 +19,4 @@ interface AttachableInterface
      * Marks that at least one attachment on the model has been updated and should be processed.
      */
     public function markAttachmentUpdated();
-
 }

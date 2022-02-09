@@ -1,4 +1,5 @@
 <?php
+
 namespace Czim\Paperclip\Model;
 
 use Czim\FileHandling\Contracts\Storage\StorableFileFactoryInterface;
@@ -7,6 +8,7 @@ use Czim\Paperclip\Contracts\AttachableInterface;
 use Czim\Paperclip\Contracts\AttachmentFactoryInterface;
 use Czim\Paperclip\Contracts\AttachmentInterface;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Arr;
 
 trait PaperclipTrait
 {
@@ -69,7 +71,24 @@ trait PaperclipTrait
                 foreach ($model->getAttachedFiles() as $attachedFile) {
                     $attachedFile->afterSave($model);
                 }
+
+                $model->mergeFileAttributes();
             }
+        });
+
+        static::saving(function ($model) {
+            /** @var Model|AttachableInterface $model */
+            $model->removeFileAttributes();
+        });
+
+        static::updating(function ($model) {
+            /** @var Model|AttachableInterface $model */
+            $model->removeFileAttributes();
+        });
+
+        static::retrieved(function ($model) {
+            /** @var Model|AttachableInterface $model */
+            $model->mergeFileAttributes();
         });
 
         static::deleting(function ($model) {
@@ -116,7 +135,7 @@ trait PaperclipTrait
             if ($value) {
                 $attachedFile = $this->attachedFiles[ $key ];
 
-                if ($value === Attachment::NULL_ATTACHMENT) {
+                if ($value === $this->getDeleteAttachmentString()) {
                     $attachedFile->setToBeDeleted();
                     return;
                 }
@@ -138,29 +157,19 @@ trait PaperclipTrait
     }
 
     /**
-     * Get all of the current attributes and attached files on the model.
-     *
-     * @return mixed
-     */
-    public function getAttributes()
-    {
-        return array_merge($this->attachedFiles, parent::getAttributes());
-    }
-
-    /**
      * Overridden to prevent attempts to persist attachment attributes directly.
      *
      * Reason this is required: Laravel 5.5 changed the getDirty() behavior.
      *
      * {@inheritdoc}
      */
-    protected function originalIsEquivalent($key, $current)
+    public function originalIsEquivalent($key)
     {
         if (array_key_exists($key, $this->attachedFiles)) {
             return true;
         }
 
-        return parent::originalIsEquivalent($key, $current);
+        return parent::originalIsEquivalent($key);
     }
 
     /**
@@ -213,4 +222,31 @@ trait PaperclipTrait
         $this->attachedUpdated = true;
     }
 
+    /**
+     * Add the attached files to the model's attributes.
+     */
+    public function mergeFileAttributes()
+    {
+        $this->attributes = $this->attributes + $this->getAttachedFiles();
+    }
+
+    /**
+     * Remove any attached file attributes so they aren't sent to the database.
+     */
+    public function removeFileAttributes()
+    {
+        foreach ($this->getAttachedFiles() as $key => $file) {
+            unset($this->attributes[$key]);
+        }
+    }
+
+    /**
+     * Returns the string with which an attachment can be deleted.
+     *
+     * @return string
+     */
+    protected function getDeleteAttachmentString()
+    {
+        return config('paperclip.delete-hash', Attachment::NULL_ATTACHMENT);
+    }
 }

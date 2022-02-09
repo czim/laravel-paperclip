@@ -1,7 +1,7 @@
 <?php
+
 namespace Czim\Paperclip\Providers;
 
-use Czim\FileHandling\Contracts\Storage\PathHelperInterface;
 use Czim\FileHandling\Contracts\Storage\StorableFileFactoryInterface;
 use Czim\FileHandling\Contracts\Support\ContentInterpreterInterface;
 use Czim\FileHandling\Contracts\Support\MimeTypeHelperInterface;
@@ -9,7 +9,6 @@ use Czim\FileHandling\Contracts\Support\UrlDownloaderInterface;
 use Czim\FileHandling\Contracts\Variant\VariantProcessorInterface;
 use Czim\FileHandling\Contracts\Variant\VariantStrategyFactoryInterface;
 use Czim\FileHandling\Storage\File\StorableFileFactory;
-use Czim\FileHandling\Storage\PathHelper;
 use Czim\FileHandling\Support\Container\LaravelContainerDecorator;
 use Czim\FileHandling\Support\Content\MimeTypeHelper;
 use Czim\FileHandling\Support\Content\UploadedContentInterpreter;
@@ -90,7 +89,6 @@ class PaperclipServiceProvider extends ServiceProvider
         $this->app->singleton(MimeTypeHelperInterface::class, MimeTypeHelper::class);
         $this->app->singleton(ContentInterpreterInterface::class, UploadedContentInterpreter::class);
         $this->app->singleton(UrlDownloaderInterface::class, UrlDownloader::class);
-        $this->app->singleton(PathHelperInterface::class, PathHelper::class);
         $this->app->singleton(InterpolatorInterface::class, Interpolator::class);
 
         return $this;
@@ -121,5 +119,4 @@ class PaperclipServiceProvider extends ServiceProvider
 
         return $this;
     }
-
 }

@@ -1,11 +1,15 @@
 <?php
+/** @noinspection ReturnTypeCanBeDeclaredInspection */
+/** @noinspection AccessModifierPresentedInspection */
+
 namespace Czim\Paperclip\Test\Path;
 
-use Czim\Paperclip\Contracts\AttachmentInterface;
+use Czim\Paperclip\Contracts\AttachmentDataInterface;
 use Czim\Paperclip\Path\Interpolator;
 use Czim\Paperclip\Test\TestCase;
-use Illuminate\Database\Eloquent\Model;
 use Mockery;
+use Mockery\Mock;
+use Mockery\MockInterface;
 
 class InterpolatorTest extends TestCase
 {
@@ -17,12 +21,9 @@ class InterpolatorTest extends TestCase
     {
         $interpolator = new Interpolator;
 
-        $model = $this->getMockModel();
-        $model->shouldReceive('getKey')->andReturn(13);
-
-        $attachment = $this->getMockAttachment();
+        $attachment = $this->getMockAttachmentData();
         $attachment->shouldReceive('name')->once()->andReturn('attributename');
-        $attachment->shouldReceive('getInstance')->andReturn($model);
+        $attachment->shouldReceive('getInstanceKey')->andReturn(13);
         $attachment->shouldReceive('getInstanceClass')->once()->andReturn('App\\Models\\Test');
 
         $result = $interpolator->interpolate(':class/:id_partition/:attribute', $attachment, 'variant');
@@ -37,8 +38,9 @@ class InterpolatorTest extends TestCase
     {
         $interpolator = new Interpolator;
 
-        $attachment = $this->getMockAttachment();
-        $attachment->shouldReceive('originalFilename')->once()->andReturn('testing.gif');
+        $attachment = $this->getMockAttachmentData();
+        $attachment->shouldReceive('variantFilename')->once()->with('variant')
+            ->andReturn('testing.gif');
 
         $result = $interpolator->interpolate('test/:filename', $attachment, 'variant');
 
@@ -48,26 +50,11 @@ class InterpolatorTest extends TestCase
     /**
      * @test
      */
-    function it_interpolates_url()
-    {
-        $interpolator = new Interpolator;
-
-        $attachment = $this->getMockAttachment();
-        $attachment->shouldReceive('url')->once()->andReturn('http://testing/url');
-
-        $result = $interpolator->interpolate(':url', $attachment, 'variant');
-
-        static::assertEquals('http://testing/url', $result);
-    }
-
-    /**
-     * @test
-     */
     function it_interpolates_app_root()
     {
         $interpolator = new Interpolator;
 
-        $attachment = $this->getMockAttachment();
+        $attachment = $this->getMockAttachmentData();
 
         $result = $interpolator->interpolate(':app_root', $attachment, 'variant');
 
@@ -81,7 +68,7 @@ class InterpolatorTest extends TestCase
     {
         $interpolator = new Interpolator;
 
-        $attachment = $this->getMockAttachment();
+        $attachment = $this->getMockAttachmentData();
         $attachment->shouldReceive('getInstanceClass')->twice()->andReturn('App\\TestClass\\Name');
 
         $result = $interpolator->interpolate(':class/:class_name', $attachment, 'variant');
@@ -96,7 +83,7 @@ class InterpolatorTest extends TestCase
     {
         $interpolator = new Interpolator;
 
-        $attachment = $this->getMockAttachment();
+        $attachment = $this->getMockAttachmentData();
         $attachment->shouldReceive('getInstanceClass')->once()->andReturn('App\\TestClass\\Name');
 
         $result = $interpolator->interpolate(':namespace', $attachment, 'variant');
@@ -111,7 +98,7 @@ class InterpolatorTest extends TestCase
     {
         $interpolator = new Interpolator;
 
-        $attachment = $this->getMockAttachment();
+        $attachment = $this->getMockAttachmentData();
         $attachment->shouldReceive('name')->once()->andReturn('attribute');
 
         $result = $interpolator->interpolate(':name/test', $attachment, 'variant');
@@ -126,8 +113,9 @@ class InterpolatorTest extends TestCase
     {
         $interpolator = new Interpolator;
 
-        $attachment = $this->getMockAttachment();
-        $attachment->shouldReceive('originalFilename')->once()->andReturn('testing.txt');
+        $attachment = $this->getMockAttachmentData();
+        $attachment->shouldReceive('variantFilename')->once()->with('variant')
+            ->andReturn('testing.txt');
 
         $result = $interpolator->interpolate(':basename/test', $attachment, 'variant');
 
@@ -141,8 +129,9 @@ class InterpolatorTest extends TestCase
     {
         $interpolator = new Interpolator;
 
-        $attachment = $this->getMockAttachment();
-        $attachment->shouldReceive('originalFilename')->once()->andReturn('testing.txt');
+        $attachment = $this->getMockAttachmentData();
+        $attachment->shouldReceive('variantFilename')->once()->with('variant')
+            ->andReturn('testing.txt');
 
         $result = $interpolator->interpolate(':extension/test', $attachment, 'variant');
 
@@ -156,13 +145,11 @@ class InterpolatorTest extends TestCase
     {
         $interpolator = new Interpolator;
 
-        $model = $this->getMockModel();
-        $model->shouldReceive('getKey')->andReturn(13);
-
-        $attachment = $this->getMockAttachment();
-        $attachment->shouldReceive('getInstance')->andReturn($model);
+        $attachment = $this->getMockAttachmentData();
+        $attachment->shouldReceive('getInstanceKey')->andReturn(13);
         $attachment->shouldReceive('size')->once()->andReturn(333);
-        $attachment->shouldReceive('originalFilename')->once()->andReturn('testing.txt');
+        $attachment->shouldReceive('variantFilename')->once()->with('variant')
+            ->andReturn('testing.txt');
 
         $result = $interpolator->interpolate(':secure_hash', $attachment, 'variant');
 
@@ -176,11 +163,8 @@ class InterpolatorTest extends TestCase
     {
         $interpolator = new Interpolator;
 
-        $model = $this->getMockModel();
-        $model->shouldReceive('getKey')->andReturn(13);
-
-        $attachment = $this->getMockAttachment();
-        $attachment->shouldReceive('getInstance')->andReturn($model);
+        $attachment = $this->getMockAttachmentData();
+        $attachment->shouldReceive('getInstanceKey')->andReturn(13);
 
         $result = $interpolator->interpolate(':hash', $attachment, 'variant');
 
@@ -194,11 +178,8 @@ class InterpolatorTest extends TestCase
     {
         $interpolator = new Interpolator;
 
-        $model = $this->getMockModel();
-        $model->shouldReceive('getKey')->andReturn('astring');
-
-        $attachment = $this->getMockAttachment();
-        $attachment->shouldReceive('getInstance')->andReturn($model);
+        $attachment = $this->getMockAttachmentData();
+        $attachment->shouldReceive('getInstanceKey')->andReturn('astring');
 
         $result = $interpolator->interpolate(':id_partition', $attachment, 'variant');
 
@@ -212,11 +193,8 @@ class InterpolatorTest extends TestCase
     {
         $interpolator = new Interpolator;
 
-        $model = $this->getMockModel();
-        $model->shouldReceive('getKey')->andReturn("astring\n\t");
-
-        $attachment = $this->getMockAttachment();
-        $attachment->shouldReceive('getInstance')->andReturn($model);
+        $attachment = $this->getMockAttachmentData();
+        $attachment->shouldReceive('getInstanceKey')->andReturn("astring\n\t");
 
         $result = $interpolator->interpolate(':id_partition', $attachment, 'variant');
 
@@ -230,7 +208,7 @@ class InterpolatorTest extends TestCase
     {
         $interpolator = new Interpolator;
 
-        $attachment = $this->getMockAttachment();
+        $attachment = $this->getMockAttachmentData();
         $attachment->shouldReceive('name')->andReturn('image');
 
         $result = $interpolator->interpolate(':attachment', $attachment, 'variant');
@@ -245,7 +223,7 @@ class InterpolatorTest extends TestCase
     {
         $interpolator = new Interpolator;
 
-        $attachment = $this->getMockAttachment();
+        $attachment = $this->getMockAttachmentData();
 
         $result = $interpolator->interpolate(':style', $attachment, 'variant');
 
@@ -259,7 +237,7 @@ class InterpolatorTest extends TestCase
     {
         $interpolator = new Interpolator;
 
-        $attachment = $this->getMockAttachment();
+        $attachment = $this->getMockAttachmentData();
         $attachment->shouldReceive('getConfig')->once()->andReturn(['default-variant' => 'original']);
 
         $result = $interpolator->interpolate(':style', $attachment);
@@ -269,19 +247,11 @@ class InterpolatorTest extends TestCase
 
 
     /**
-     * @return \Mockery\MockInterface|AttachmentInterface
+     * @return Mock|MockInterface|AttachmentDataInterface
      */
-    protected function getMockAttachment()
+    protected function getMockAttachmentData()
     {
-        return Mockery::mock(AttachmentInterface::class);
-    }
-
-    /**
-     * @return \Mockery\MockInterface|Model
-     */
-    protected function getMockModel()
-    {
-        return Mockery::mock(Model::class);
+        return Mockery::mock(AttachmentDataInterface::class);
     }
 
 }

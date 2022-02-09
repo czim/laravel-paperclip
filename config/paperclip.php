@@ -4,6 +4,22 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Configuration
+    |--------------------------------------------------------------------------
+    |
+    | Configure how attachment configuration should be interpreted.
+    | This allows for enabling legacy interpretation of Stapler configuration
+    | for hasAttachedFile() calls.
+    |
+    */
+
+    'config' => [
+        // Available modes: 'paperclip' (default), 'stapler'
+        'mode' => 'paperclip',
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
     | Model
     |--------------------------------------------------------------------------
     |
@@ -40,7 +56,7 @@ return [
         // The Laravel storage disk to use.
         'disk' => 'paperclip',
 
-        // Per disk, the base URL where attachments are stored at
+        // Per disk, the base URL where attachments are stored at. If 'url' is set for the disk, this is not required.
         'base-urls' => [
             'paperclip' => config('app.url') . '/paperclip',
         ],
@@ -60,8 +76,13 @@ return [
         // The class that generates the paths
         'interpolator' => \Czim\Paperclip\Path\Interpolator::class,
 
-        // The base path that the interpolator should use
-        'base-path' => ':class/:id_partition/:attribute',
+        // The path to the original file to be interpolated. This will also\
+        // be used for variant paths if the variant key is unset.
+        'original' => ':class/:id_partition/:attribute/:variant/:filename',
+
+        // If the structure for variant filenames should differ from the
+        // original, it may be defined here.
+        'variant'  => null,
     ],
 
     /*
@@ -85,10 +106,22 @@ return [
             'resize'      => \Czim\FileHandling\Variant\Strategies\ImageResizeStrategy::class,
         ],
 
+        // Set this to true to always merge in the default variants into any attachment configuration.
+        // False only sets defaults if no variants are configured for an attachment;
+        // true always merges them in (not overriding specifics by variant name).
+        //
+        // When this is enabled, it is possible to 'disable' the default variants by setting
+        // the attachment configuration to `false` (instead of an array with steps).
+        'merge-default' => false,
+
         // If no specific variants are set for a clipped file on a Model, these
         // variant definitions will be used.
         'default' => [
 
+            // Fluent object format is allowed:
+            // \Czim\Paperclip\Config\Steps\ResizeStep::make('variant-name')->square(50)->crop(),
+
+            // Classic array format is allowed:
             // 'variantname' => [
             //     'strategy-alias' => [ 'strategy' => 'configuration' ],
             // ],
@@ -109,6 +142,9 @@ return [
 
     // Set this to true in order to prevent file uploads from being deleted as attachments are destroyed.
     'preserve-files' => false,
+
+    // A string value that, when set on an attachment property, will delete the attachment.
+    'delete-hash' => Czim\Paperclip\Attachment\Attachment::NULL_ATTACHMENT,
 
     /*
     |--------------------------------------------------------------------------
@@ -132,6 +168,13 @@ return [
 
     'processing' => [
         'chunk-size' => 500,
+
+        // Handling of errors during processing.
+        'errors' => [
+            // Whether to fire exception events, rather than throw exceptions
+            // This prevents processing from halting on
+            'event' => true,
+        ],
     ],
 
 ];

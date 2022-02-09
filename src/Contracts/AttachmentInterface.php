@@ -1,11 +1,13 @@
 <?php
+
 namespace Czim\Paperclip\Contracts;
 
 use Czim\FileHandling\Contracts\Storage\StorableFileInterface;
+use Czim\Paperclip\Contracts\Config\ConfigInterface;
 use Czim\Paperclip\Contracts\Path\InterpolatorInterface;
 use JsonSerializable;
 
-interface AttachmentInterface extends JsonSerializable
+interface AttachmentInterface extends AttachmentDataInterface, JsonSerializable
 {
 
     /**
@@ -26,17 +28,10 @@ interface AttachmentInterface extends JsonSerializable
     /**
      * Sets the configuration.
      *
-     * @param array $config
+     * @param ConfigInterface $config
      * @return $this
      */
-    public function setConfig(array $config);
-
-    /**
-     * Returns the configuration.
-     *
-     * @return array
-     */
-    public function getConfig();
+    public function setConfig(ConfigInterface $config);
 
     /**
      * Returns the configuration after normalization.
@@ -46,19 +41,27 @@ interface AttachmentInterface extends JsonSerializable
     public function getNormalizedConfig();
 
     /**
+     * Sets the storage disk identifier.
+     *
+     * @param string $storage   disk identifier
+     * @return $this
+     */
+    public function setStorage($storage);
+
+    /**
+     * Returns the storage disk used by the attachment.
+     *
+     * @return null|string
+     */
+    public function getStorage();
+
+    /**
      * Sets the name (the attribute on the model) for the attachment.
      *
      * @param string $name
      * @return $this
      */
     public function setName($name);
-
-    /**
-     * Returns the name (the attribute on the model) for the attachment.
-     *
-     * @return string
-     */
-    public function name();
 
     /**
      * @param InterpolatorInterface $interpolator
@@ -116,89 +119,9 @@ interface AttachmentInterface extends JsonSerializable
     /**
      * Returns whether this attachment actually has a file currently stored.
      *
-     * @deprecated Use exists() instead
-     * @see exists
-     * @return bool
-     */
-    public function isFilled();
-
-    /**
-     * Returns whether this attachment actually has a file currently stored.
-     *
      * @return bool
      */
     public function exists();
-
-    /**
-     * Returns the creation time of the file as originally assigned to this attachment's model.
-     * Lives in the <attachment>_created_at attribute of the model.
-     * This attribute may conditionally exist on the model, it is not one of the four required fields.
-     *
-     * @return string
-     */
-    public function createdAt();
-
-    /**
-     * Returns the last modified time of the file as originally assigned to this attachment's model.
-     * Lives in the <attachment>_updated_at attribute of the model.
-     *
-     * @return string
-     */
-    public function updatedAt();
-
-    /**
-     * Returns the content type of the file as originally assigned to this attachment's model.
-     * Lives in the <attachment>_content_type attribute of the model.
-     *
-     * @return string
-     */
-    public function contentType();
-
-    /**
-     * Returns the size of the file as originally assigned to this attachment's model.
-     * Lives in the <attachment>_file_size attribute of the model.
-     *
-     * @return int
-     */
-    public function size();
-
-    /**
-     * Returns the name of the file as originally assigned to this attachment's model.
-     * Lives in the <attachment>_file_name attribute of the model.
-     *
-     * @return string
-     */
-    public function originalFilename();
-
-    /**
-     * Returns the filename for a given variant.
-     *
-     * @param string|null $variant
-     * @return string
-     */
-    public function variantFilename($variant);
-
-    /**
-     * Returns the extension for a given variant.
-     *
-     * @param string $variant
-     * @return string|false
-     */
-    public function variantExtension($variant);
-
-    /**
-     * Returns the JSON information stored on the model about variants as an associative array.
-     *
-     * @return array
-     */
-    public function variantsAttribute();
-
-    /**
-     * Returns the class type of the attachment's underlying object instance.
-     *
-     * @return string
-     */
-    public function getInstanceClass();
 
     /**
      * Removes all uploaded files (from storage) for this attachment.
@@ -229,5 +152,4 @@ interface AttachmentInterface extends JsonSerializable
      * @param AttachableInterface $instance
      */
     public function afterDelete(AttachableInterface $instance);
-
 }

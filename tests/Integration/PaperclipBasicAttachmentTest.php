@@ -1,11 +1,20 @@
 <?php
+/** @noinspection PhpUnhandledExceptionInspection */
+/** @noinspection PhpDocMissingThrowsInspection */
+/** @noinspection ReturnTypeCanBeDeclaredInspection */
+/** @noinspection AccessModifierPresentedInspection */
+
 namespace Czim\Paperclip\Test\Integration;
 
 use Czim\Paperclip\Attachment\Attachment;
+use Czim\Paperclip\Events\AttachmentSavedEvent;
 use Czim\Paperclip\Test\Helpers\Hooks\SpyCallableHook;
+use Czim\Paperclip\Test\Helpers\VariantStrategies\TestNoChangesStrategy;
 use Czim\Paperclip\Test\Helpers\VariantStrategies\TestTextToHtmlStrategy;
 use Czim\Paperclip\Test\ProvisionedTestCase;
+use Illuminate\Support\Facades\Event;
 use SplFileInfo;
+use UnexpectedValueException;
 
 class PaperclipBasicAttachmentTest extends ProvisionedTestCase
 {
@@ -15,6 +24,10 @@ class PaperclipBasicAttachmentTest extends ProvisionedTestCase
      */
     function it_processes_and_stores_a_new_file()
     {
+        Event::fake([
+            AttachmentSavedEvent::class,
+        ]);
+
         $model = $this->getTestModel();
 
         $model->attachment = new SplFileInfo($this->getTestFilePath());
@@ -24,7 +37,7 @@ class PaperclipBasicAttachmentTest extends ProvisionedTestCase
 
         static::assertInstanceOf(Attachment::class, $model->attachment);
         static::assertEquals('source.txt', $model->attachment_file_name);
-        static::assertFileExists($processedFilePath, "File was not stored");
+        static::assertFileExists($processedFilePath, 'File was not stored');
 
         static::assertEquals('source.txt', $model->attachment_file_name);
         static::assertEquals(29, $model->attachment_file_size);
@@ -33,6 +46,14 @@ class PaperclipBasicAttachmentTest extends ProvisionedTestCase
         static::assertEquals(
             'http://localhost/paperclip/Czim/Paperclip/Test/Helpers/Model/TestModel/000/000/001/attachment/original/source.txt',
             $model->attachment->url()
+        );
+
+        Event::assertDispatched(
+            AttachmentSavedEvent::class,
+            function (AttachmentSavedEvent $event) use ($model) {
+                return $model->is($event->getAttachment()->getInstance()) &&
+                    $event->getUploadedFile()->name() === 'source.txt';
+            }
         );
 
         if (file_exists($processedFilePath)) {
@@ -54,7 +75,7 @@ class PaperclipBasicAttachmentTest extends ProvisionedTestCase
         $processedFilePath = $this->getUploadedAttachmentPath($model);
 
         static::assertEquals('source.txt', $model->attachment_file_name);
-        static::assertFileExists($processedFilePath, "File was not stored");
+        static::assertFileExists($processedFilePath, 'File was not stored');
 
         // Remove it
         $model->attachment = Attachment::NULL_ATTACHMENT;
@@ -64,7 +85,7 @@ class PaperclipBasicAttachmentTest extends ProvisionedTestCase
         static::assertNull($model->attachment_file_size);
         static::assertNull($model->attachment_content_type);
         static::assertNull($model->attachment_updated_at);
-        static::assertFileNotExists($processedFilePath, "File was not removed");
+        static::assertFileDoesNotExist($processedFilePath, 'File was not removed');
     }
 
     /**
@@ -107,16 +128,16 @@ class PaperclipBasicAttachmentTest extends ProvisionedTestCase
         $processedFilePath = $this->getUploadedAttachmentPath($model);
 
         static::assertEquals('source.txt', $model->attachment_file_name);
-        static::assertFileExists($processedFilePath, "File was not stored");
+        static::assertFileExists($processedFilePath, 'File was not stored');
 
         // Overwrite with a new file
         $model->attachment = new SplFileInfo($this->getTestFilePath('empty.gif'));
         $model->save();
 
-        static::assertFileNotExists($processedFilePath, "Previous file was not removed");
+        static::assertFileDoesNotExist($processedFilePath, 'Previous file was not removed');
 
         $processedFilePath = $this->getUploadedAttachmentPath($model, 'empty.gif');
-        static::assertFileExists($processedFilePath, "New file was not stored");
+        static::assertFileExists($processedFilePath, 'New file was not stored');
 
         static::assertEquals('empty.gif', $model->attachment_file_name);
         static::assertEquals(42, $model->attachment_file_size);
@@ -153,9 +174,9 @@ class PaperclipBasicAttachmentTest extends ProvisionedTestCase
         static::assertEquals('source.txt', $model->attachment_file_name);
         static::assertEquals('empty.gif', $model->image_file_name);
 
-        static::assertFileExists($processedFilePathOne, "File 1 was not stored");
-        static::assertFileExists($processedFilePathTwo, "File 2 was not stored");
-        static::assertFileExists($processedFilePathVariant, "File 2 variant was not stored");
+        static::assertFileExists($processedFilePathOne, 'File 1 was not stored');
+        static::assertFileExists($processedFilePathTwo, 'File 2 was not stored');
+        static::assertFileExists($processedFilePathVariant, 'File 2 variant was not stored');
 
         static::assertEquals('source.txt', $model->attachment_file_name);
         static::assertEquals(29, $model->attachment_file_size);
@@ -207,9 +228,9 @@ class PaperclipBasicAttachmentTest extends ProvisionedTestCase
 
         $model->delete();
 
-        static::assertFileNotExists($processedFilePathOne, "File 1 was not deleted");
-        static::assertFileNotExists($processedFilePathTwo, "File 2 was not deleted");
-        static::assertFileNotExists($processedFilePathVariant, "File 2 variant was not deleted");
+        static::assertFileDoesNotExist($processedFilePathOne, 'File 1 was not deleted');
+        static::assertFileDoesNotExist($processedFilePathTwo, 'File 2 was not deleted');
+        static::assertFileDoesNotExist($processedFilePathVariant, 'File 2 variant was not deleted');
     }
 
     /**
@@ -323,16 +344,16 @@ class PaperclipBasicAttachmentTest extends ProvisionedTestCase
 
         $model->attachment->destroy();
 
-        static::assertFileNotExists($processedFilePathOne);
+        static::assertFileDoesNotExist($processedFilePathOne);
 
         $model->image->destroy(['medium']);
 
-        static::assertFileNotExists($processedFilePathVariant, 'Destroyed variant file not deleted');
+        static::assertFileDoesNotExist($processedFilePathVariant, 'Destroyed variant file not deleted');
         static::assertFileExists($processedFilePathTwo, 'Unlisted original file should not have been deleted');
 
         $model->image->destroy();
 
-        static::assertFileNotExists($processedFilePathTwo);
+        static::assertFileDoesNotExist($processedFilePathTwo);
     }
 
 
@@ -368,7 +389,36 @@ class PaperclipBasicAttachmentTest extends ProvisionedTestCase
             ],
         ], $model->attachment->variantsAttribute());
 
+        static::assertEquals('source.htm', $model->attachment->variantFilename('test'));
         static::assertEquals('htm', $model->attachment->variantExtension('test'));
+    }
+
+    /**
+     * @test
+     */
+    function it_does_not_store_variants_data_if_not_different_from_original()
+    {
+        $this->app['config']->set('paperclip.variants.aliases.test-html', TestNoChangesStrategy::class);
+
+        $model = $this->getTestModelWithAttachmentConfig([
+            'attributes' => [
+                'variants' => true,
+            ],
+            'variants' => [
+                'test' => [
+                    'test-html' => [],
+                ],
+            ],
+        ]);
+
+        $model->attachment = new SplFileInfo($this->getTestFilePath());
+        $model->save();
+
+        static::assertEquals([
+        ], $model->attachment->variantsAttribute());
+
+        static::assertEquals('source.txt', $model->attachment->variantFilename('test'));
+        static::assertFalse($model->attachment->variantExtension('test'));
     }
 
 
@@ -401,10 +451,11 @@ class PaperclipBasicAttachmentTest extends ProvisionedTestCase
 
     /**
      * @test
-     * @expectedException \UnexpectedValueException
      */
     function it_throws_an_exception_if_a_string_callable_hook_is_not_formatted_correctly()
     {
+        $this->expectException(UnexpectedValueException::class);
+
         $model = $this->getTestModelWithAttachmentConfig([
             'before' => 'incorrectly-formatted::string',
         ]);

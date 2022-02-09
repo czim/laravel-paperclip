@@ -1,4 +1,5 @@
 <?php
+
 namespace Czim\Paperclip\Console\Commands;
 
 use Czim\Paperclip\Contracts\AttachableInterface;
@@ -15,9 +16,10 @@ class RefreshAttachmentCommand extends Command
 {
     const DEFAULT_CHUNK_SIZE = 500;
 
-    protected $signature = 'paperclip:refresh 
+    protected $signature = 'paperclip:refresh
         { class : The model class to refresh attachments on }
         { --attachments= : A list of specific attachments to refresh, comma-separated }
+        { --variants= : A list of specific variants to refresh, comma-separated }
         { --dont-order= : If set, disabled ascending sort on the model\'s key column }
         { --start= : Optional ID to start processing at }
         { --stop= : Optional ID to stop processing after }';
@@ -43,7 +45,7 @@ class RefreshAttachmentCommand extends Command
         $count = $query->count();
 
         $this->progressStart($count);
-        
+
         foreach ($this->generateModelInstances($query, $count) as $instances) {
             /** @var \Illuminate\Support\Collection|Model[]|AttachableInterface[] $instances */
             foreach ($instances as $instance) {
@@ -73,8 +75,27 @@ class RefreshAttachmentCommand extends Command
      */
     protected function processAttachmentOnModelInstance(Model $model, AttachmentInterface $attachment)
     {
+        $specificVariants   = $this->getVariantsToProcess();
+        $matchedVariants    = array_intersect($specificVariants, $attachment->variants());
+        $processAllVariants = in_array('*', $specificVariants);
+
+
+        if ( ! $processAllVariants && ! count($matchedVariants)) {
+
+            throw new UnexpectedValueException(
+                "Attachment '{$attachment->name()}' on " .  get_class($model)
+                . ' does not have any of the indicated variants '
+                . '(' . implode(', ', $specificVariants) . ')'
+            );
+        }
+
+
         try {
-            $attachment->reprocess();
+            if ($processAllVariants) {
+                $attachment->reprocess();
+            } else {
+                $attachment->reprocess($specificVariants);
+            }
 
         } catch (Exception $e) {
 
@@ -135,6 +156,20 @@ class RefreshAttachmentCommand extends Command
         }
 
         return array_intersect($availableAttachmentNames, $attachmentNames);
+    }
+
+    /**
+     * @return string[]
+     */
+    protected function getVariantsToProcess()
+    {
+        $variants = $this->option('variants');
+
+        if ( ! $variants) {
+            return ['*'];
+        }
+
+        return explode(',', str_replace(', ', ',', $variants));
     }
 
     /**
@@ -239,5 +274,4 @@ class RefreshAttachmentCommand extends Command
     {
         $this->output->progressFinish();
     }
-
 }
