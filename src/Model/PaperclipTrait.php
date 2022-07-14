@@ -127,6 +127,7 @@ trait PaperclipTrait
      *
      * @param string $key
      * @param mixed  $value
+     * @return mixed
      */
     public function setAttribute($key, $value)
     {
@@ -137,7 +138,7 @@ trait PaperclipTrait
 
                 if ($value === $this->getDeleteAttachmentString()) {
                     $attachedFile->setToBeDeleted();
-                    return;
+                    return $this;
                 }
 
                 /** @var StorableFileFactoryInterface $factory */
@@ -150,10 +151,10 @@ trait PaperclipTrait
 
             $this->attachedUpdated = true;
 
-            return;
+            return $this;
         }
 
-        parent::setAttribute($key, $value);
+        return parent::setAttribute($key, $value);
     }
 
     /**
