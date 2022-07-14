@@ -16,15 +16,14 @@ This uses [czim/file-handling](https://github.com/czim/file-handling) under the 
 
 ## Version Compatibility
 
- Laravel             | Package   | PHP Version
-:--------------------|:----------|:-----------
- 5.4 and below       | 1.0, 2.1  | 7.4 and below
- 5.5                 | 1.5, 2.5  | 7.4 and below
- 5.6, 5.7            | 2.6       | 7.4 and below
- 5.8, 6              | 2.7       | 7.4 and below
- 7, 8                | 3.2       | 7.4 and below
- 7, 8                | 4.0       | 8.0 and up
-
+| Laravel       | Package  | PHP Version   |
+|:--------------|:---------|:--------------|
+| 5.4 and below | 1.0, 2.1 | 7.4 and below |
+| 5.5           | 1.5, 2.5 | 7.4 and below |
+| 5.6, 5.7      | 2.6      | 7.4 and below |
+| 5.8, 6        | 2.7      | 7.4 and below |
+| 7, 8          | 3.2      | 7.4 and below |
+| 7, 8, 9       | 4.0      | 8.0 and up    |
 
 ## Change log
 
