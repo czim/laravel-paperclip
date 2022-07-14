@@ -2,6 +2,10 @@
 
 ## Laravel 8 and up
 
+### [4.0.1] - 2022-07-14
+
+Fixed return value for setAttribute not matching Eloquent internals (wimski).
+
 ### [4.0.0] - 2021-11-30
 
 Added PHP 8.0 and 8.1 support (thanks Miljoen!).
@@ -178,6 +182,9 @@ See 2.5.2.
 ### [2.0.0] - 2018-05-13
 
 This merges the changes for 2.5.0 and 2.5.1 in a new major version for Laravel 5.4 and earlier.
+
+[4.0.1]: https://github.com/czim/laravel-paperclip/compare/4.0.0...4.0.1
+[4.0.0]: https://github.com/czim/laravel-paperclip/compare/3.2.1...4.0.0
 
 [3.2.1]: https://github.com/czim/laravel-paperclip/compare/3.2.0...3.2.1
 [3.2.0]: https://github.com/czim/laravel-paperclip/compare/3.1.0...3.2.0
