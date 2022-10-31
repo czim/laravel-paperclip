@@ -15,7 +15,7 @@ class VariantTest extends TestCase
     public function it_takes_fluent_information(): void
     {
         $config = Variant::make('thumb')
-            ->steps(['auto-orient' => [],])
+            ->steps(['auto-orient' => []])
             ->extension('txt');
 
         static::assertEquals('thumb', $config->getName());

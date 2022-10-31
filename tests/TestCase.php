@@ -90,6 +90,10 @@ abstract class TestCase extends \Orchestra\Testbench\TestCase
         return TestModel::create(['name' => 'Testing']);
     }
 
+    /**
+     * @param array<string, mixed> $attachmentConfig
+     * @return TestModel
+     */
     protected function getTestModelWithAttachmentConfig(array $attachmentConfig): TestModel
     {
         $model = new TestModel([], $attachmentConfig);

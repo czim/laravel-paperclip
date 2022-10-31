@@ -18,7 +18,7 @@ class AttachmentData implements AttachmentDataInterface
      * @param string                                  $name
      * @param array<string, mixed>                    $config
      * @param array<string, mixed>                    $attributes
-     * @param array                                   $variants
+     * @param array<string, array<string, mixed>>     $variants
      * @param mixed                                   $instanceKey
      * @param class-string<AttachableInterface&Model> $instanceClass
      */

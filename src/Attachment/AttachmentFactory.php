@@ -11,13 +11,14 @@ use Czim\Paperclip\Contracts\AttachmentFactoryInterface;
 use Czim\Paperclip\Contracts\AttachmentInterface;
 use Czim\Paperclip\Contracts\Config\ConfigInterface;
 use Czim\Paperclip\Contracts\Path\InterpolatorInterface;
+use Illuminate\Database\Eloquent\Model;
 
 class AttachmentFactory implements AttachmentFactoryInterface
 {
     /**
-     * @param AttachableInterface  $instance
-     * @param string               $name
-     * @param array<string, mixed> $config
+     * @param Model&AttachableInterface $instance
+     * @param string                    $name
+     * @param array<string, mixed>      $config
      * @return AttachmentInterface
      */
     public function create(AttachableInterface $instance, string $name, array $config = []): AttachmentInterface

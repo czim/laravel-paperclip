@@ -12,7 +12,7 @@ class Variant
     /**
      * Variant processing steps.
      *
-     * @var array<int, mixed>
+     * @var array<int|string, mixed>
      */
     protected array $steps = [];
 
@@ -43,7 +43,7 @@ class Variant
     /**
      * Sets variant processing steps.
      *
-     * @param array<string, mixed>|string $steps
+     * @param array<int|string, mixed>|string $steps
      * @return $this
      */
     public function steps(array|string $steps): static
@@ -93,7 +93,7 @@ class Variant
     }
 
     /**
-     * @return array<int, mixed>
+     * @return array<int|string, mixed>
      */
     public function getSteps(): array
     {

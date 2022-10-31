@@ -294,7 +294,7 @@ class PaperclipBasicAttachmentTest extends ProvisionedTestCase
      * @test
      * @depends it_deletes_processed_attachments_when_deleting_a_model
      */
-    function its_attachments_can_be_serialized_for_json()
+    public function its_attachments_can_be_serialized_for_json(): void
     {
         $model = $this->getTestModel();
 
@@ -326,7 +326,7 @@ class PaperclipBasicAttachmentTest extends ProvisionedTestCase
     /**
      * @test
      */
-    function its_attachments_can_be_told_to_destroy_stored_variant_files()
+    public function its_attachments_can_be_told_to_destroy_stored_variant_files(): void
     {
         $model = $this->getTestModel();
 

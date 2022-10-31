@@ -13,14 +13,14 @@ interface AttachmentInterface extends AttachmentDataInterface, JsonSerializable
     /**
      * Sets the underlying instance object.
      *
-     * @param AttachableInterface $instance
+     * @param AttachableInterface&Model $instance
      */
     public function setInstance(AttachableInterface $instance): void;
 
     /**
      * Returns the underlying instance (model) object for this attachment.
      *
-     * @return AttachableInterface
+     * @return AttachableInterface&Model
      */
     public function getInstance(): AttachableInterface;
 
@@ -65,9 +65,9 @@ interface AttachmentInterface extends AttachmentDataInterface, JsonSerializable
     /**
      * Reprocesses variants from the currently set original file.
      *
-     * @param string[] $variants   ['*'] for all
+     * @param string[] $variants ['*'] for all
      */
-    public function reprocess(array $variants = ['*']);
+    public function reprocess(array $variants = ['*']): void;
 
     /**
      * Returns list of keys for defined variants.

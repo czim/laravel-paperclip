@@ -4,6 +4,9 @@ namespace Czim\Paperclip\Contracts\Config;
 
 use Illuminate\Contracts\Support\Arrayable;
 
+/**
+ * @extends Arrayable<string, mixed>
+ */
 interface ConfigInterface extends Arrayable
 {
     public function keepOldFiles(): bool;

@@ -8,6 +8,7 @@ use Illuminate\Contracts\Support\Arrayable;
 
 /**
  * @phpstan-consistent-constructor
+ * @implements Arrayable<string, mixed>
  */
 class VariantStep implements Arrayable
 {

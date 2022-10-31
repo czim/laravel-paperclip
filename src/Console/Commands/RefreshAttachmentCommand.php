@@ -179,7 +179,7 @@ class RefreshAttachmentCommand extends Command
      * Returns base query for returning all model instances.
      *
      * @param Model $model
-     * @return EloquentBuilder
+     * @return EloquentBuilder<Model>
      */
     protected function getModelInstanceQuery(Model $model): EloquentBuilder
     {
@@ -196,8 +196,8 @@ class RefreshAttachmentCommand extends Command
      *
      * This also starts the progress bar, given the total count of matched
      *
-     * @param EloquentBuilder $query
-     * @param int             $totalCount
+     * @param EloquentBuilder<Model> $query
+     * @param int                    $totalCount
      * @return Generator<int, Collection<int, Model&AttachableInterface>>
      */
     protected function generateModelInstances(EloquentBuilder $query, int $totalCount): Generator
@@ -216,6 +216,9 @@ class RefreshAttachmentCommand extends Command
         }
     }
 
+    /**
+     * @param EloquentBuilder<Model> $query
+     */
     protected function applyOrderingToModelInstanceQuery(EloquentBuilder $query): void
     {
         if ($this->option('dont-order')) {
@@ -225,6 +228,9 @@ class RefreshAttachmentCommand extends Command
         $query->orderBy('id');
     }
 
+    /**
+     * @param EloquentBuilder<Model> $query
+     */
     protected function applyStartAndStopLimitsToQuery(EloquentBuilder $query): void
     {
         $startAt   = $this->option('start');

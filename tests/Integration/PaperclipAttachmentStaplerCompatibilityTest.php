@@ -88,7 +88,7 @@ class PaperclipAttachmentStaplerCompatibilityTest extends ProvisionedTestCase
     /**
      * @test
      */
-    function its_attachments_return_normalized_config()
+    public function its_attachments_return_normalized_config(): void
     {
         $model = $this->getTestModelWithAttachmentConfig([
             'url'            => 'test/path/for-model',

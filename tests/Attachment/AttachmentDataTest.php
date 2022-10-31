@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Czim\Paperclip\Test\Attachment;
 
 use Czim\Paperclip\Attachment\AttachmentData;
+use Czim\Paperclip\Test\Helpers\Model\TestModel;
 use Czim\Paperclip\Test\TestCase;
 
 class AttachmentDataTest extends TestCase
@@ -91,7 +92,7 @@ class AttachmentDataTest extends TestCase
         $data = $this->getAttachmentData();
 
         static::assertEquals(13, $data->getInstanceKey());
-        static::assertEquals('Some\\TestNamespace', $data->getInstanceClass());
+        static::assertEquals(TestModel::class, $data->getInstanceClass());
     }
 
     protected function getAttachmentData(): AttachmentData
@@ -119,7 +120,7 @@ class AttachmentDataTest extends TestCase
                 ],
             ],
             13,
-            'Some\\TestNamespace',
+            TestModel::class,
         );
     }
 
@@ -131,7 +132,7 @@ class AttachmentDataTest extends TestCase
             [],
             [],
             null,
-            'Some\\TestNamespace',
+            TestModel::class,
         );
     }
 }

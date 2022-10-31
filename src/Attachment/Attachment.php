@@ -755,7 +755,7 @@ class Attachment implements AttachmentInterface
      *
      * @param string[] $variants
      */
-    protected function queueSomeForDeletion(array $variants)
+    protected function queueSomeForDeletion(array $variants): void
     {
         $this->deleteTarget    = $this->makeTargetInstanceWithCurrentData();
         $this->queuedForDelete = array_unique(array_merge($this->queuedForDelete, $variants));
@@ -764,7 +764,7 @@ class Attachment implements AttachmentInterface
     /**
      * Add all uploaded files (across all image styles) to the queuedForDeletion queue.
      */
-    protected function queueAllForDeletion()
+    protected function queueAllForDeletion(): void
     {
         // If no file is currently stored, don't delete anything.
         if (! $this->originalFilename()) {
