@@ -10,6 +10,7 @@ use Czim\Paperclip\Exceptions\ReprocessingFailureException;
 use Generator;
 use Illuminate\Console\Command;
 use Illuminate\Database\Eloquent\Builder as EloquentBuilder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use RuntimeException;
 use Throwable;
@@ -197,7 +198,7 @@ class RefreshAttachmentCommand extends Command
      *
      * @param EloquentBuilder $query
      * @param int             $totalCount
-     * @return Generator<int, Model&AttachableInterface>
+     * @return Generator<int, Collection<int, Model&AttachableInterface>>
      */
     protected function generateModelInstances(EloquentBuilder $query, int $totalCount): Generator
     {

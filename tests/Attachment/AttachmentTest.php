@@ -326,7 +326,7 @@ class AttachmentTest extends TestCase
 
         static::assertFalse($attachment->exists());
 
-        $model->attachment = 'testing';
+        $model->setAttribute('attachment', 'testing');
 
         static::assertTrue($attachment->exists());
     }

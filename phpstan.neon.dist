@@ -10,3 +10,7 @@ parameters:
     excludePaths:
         - tests\Helpers\*
         - tests\resources\*
+    ignoreErrors:
+        -
+            message: '#Generator expects value type Illuminate\\Database\\Eloquent\\Collection#'
+            path: src/Console/Commands/RefreshAttachmentCommand.php

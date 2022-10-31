@@ -17,7 +17,6 @@ use SplFileInfo;
  */
 class PaperclipFluentConfigurationTest extends ProvisionedTestCase
 {
-
     /**
      * @test
      */
@@ -34,7 +33,7 @@ class PaperclipFluentConfigurationTest extends ProvisionedTestCase
             ],
         ]);
 
-        $model->attachment = new SplFileInfo($this->getTestFilePath('rotated.jpg'));
+        $model->setAttribute('attachment', new SplFileInfo($this->getTestFilePath('rotated.jpg')));
         $model->save();
 
         $processedFilePath = $this->getUploadedAttachmentPath($model, 'rotated.jpg');
@@ -83,7 +82,7 @@ class PaperclipFluentConfigurationTest extends ProvisionedTestCase
             ],
         ]);
 
-        $model->attachment = new SplFileInfo($this->getTestFilePath('picture.png'));
+        $model->setAttribute('attachment', new SplFileInfo($this->getTestFilePath('picture.png')));
         $model->save();
 
         $processedFilePath = $this->getUploadedAttachmentPath($model, 'picture.png');
@@ -135,7 +134,7 @@ class PaperclipFluentConfigurationTest extends ProvisionedTestCase
             ],
         ]);
 
-        $model->attachment = new SplFileInfo($this->getTestFilePath('rotated.jpg'));
+        $model->setAttribute('attachment', new SplFileInfo($this->getTestFilePath('rotated.jpg')));
         $model->save();
 
         $processedFilePath = $this->getUploadedAttachmentPath($model, 'rotated.jpg');
@@ -185,7 +184,7 @@ class PaperclipFluentConfigurationTest extends ProvisionedTestCase
             ],
         ]);
 
-        $model->attachment = new SplFileInfo($this->getTestFilePath('rotated.jpg'));
+        $model->setAttribute('attachment', new SplFileInfo($this->getTestFilePath('rotated.jpg')));
         $model->save();
 
         $processedFilePath = $this->getUploadedAttachmentPath($model, 'rotated.jpg');

@@ -158,7 +158,7 @@ class PaperclipBasicAttachmentTest extends ProvisionedTestCase
         $model = $this->getTestModel();
 
         $model->setAttribute('attachment', new SplFileInfo($this->getTestFilePath()));
-        $model->image      = new SplFileInfo($this->getTestFilePath('empty.gif'));
+        $model->setAttribute('image', new SplFileInfo($this->getTestFilePath('empty.gif')));
         $model->save();
 
         $processedFilePathOne     = $this->getUploadedAttachmentPath($model);
@@ -216,7 +216,7 @@ class PaperclipBasicAttachmentTest extends ProvisionedTestCase
         $model = $this->getTestModel();
 
         $model->setAttribute('attachment', new SplFileInfo($this->getTestFilePath()));
-        $model->image      = new SplFileInfo($this->getTestFilePath('empty.gif'));
+        $model->setAttribute('image', new SplFileInfo($this->getTestFilePath('empty.gif')));
         $model->save();
 
         $processedFilePathOne     = $this->getUploadedAttachmentPath($model);
@@ -239,7 +239,7 @@ class PaperclipBasicAttachmentTest extends ProvisionedTestCase
         $model = $this->getTestModel();
 
         $model->setAttribute('attachment', new SplFileInfo($this->getTestFilePath()));
-        $model->image      = new SplFileInfo($this->getTestFilePath('empty.gif'));
+        $model->setAttribute('image', new SplFileInfo($this->getTestFilePath('empty.gif')));
         $model->save();
 
         $paths = $model->pathsForAttachment('image');
@@ -269,7 +269,7 @@ class PaperclipBasicAttachmentTest extends ProvisionedTestCase
         $model = $this->getTestModel();
 
         $model->setAttribute('attachment', new SplFileInfo($this->getTestFilePath()));
-        $model->image      = new SplFileInfo($this->getTestFilePath('empty.gif'));
+        $model->setAttribute('image', new SplFileInfo($this->getTestFilePath('empty.gif')));
         $model->save();
 
         $paths = $model->urlsForAttachment('image');

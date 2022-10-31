@@ -57,7 +57,7 @@ class PaperclipAttachmentStaplerCompatibilityTest extends ProvisionedTestCase
             ],
         ]);
 
-        $model->attachment = new SplFileInfo($this->getTestFilePath('empty.gif'));
+        $model->setAttribute('attachment', new SplFileInfo($this->getTestFilePath('empty.gif')));
         $model->save();
 
         $processedFilePath         = $this->getUploadedAttachmentPath($model, 'empty.gif');

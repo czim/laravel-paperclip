@@ -89,7 +89,9 @@ class Attachment implements AttachmentInterface
         $this->config = new PaperclipConfig([]);
     }
 
-
+    /**
+     * @param AttachableInterface&Model $instance
+     */
     public function setInstance(AttachableInterface $instance): void
     {
         $this->instance = $instance;
@@ -100,7 +102,7 @@ class Attachment implements AttachmentInterface
     /**
      * Returns the underlying instance (model) object for this attachment.
      *
-     * @return AttachableInterface
+     * @return AttachableInterface&Model
      */
     public function getInstance(): AttachableInterface
     {
@@ -480,12 +482,15 @@ class Attachment implements AttachmentInterface
      */
     protected function variantFilenames(): array
     {
-        return array_combine(
-            $this->variants(),
-            array_map(
-                fn (string $variant): ?string => $this->variantFilename($variant),
+        return array_filter(
+            array_combine(
                 $this->variants(),
-            )
+                array_map(
+                    fn (string $variant): string|false => $this->variantFilename($variant),
+                    $this->variants(),
+                )
+            ),
+            fn (string|false $name): bool => $name !== false
         );
     }
 
@@ -961,6 +966,7 @@ class Attachment implements AttachmentInterface
      */
     protected function performCallableHook(string $type): bool
     {
+        /** @var string|callable-string|callable|null $hook */
         $hook = match ($type) {
             'before' => $this->config->beforeCallable(),
             'after'  => $this->config->afterCallable(),

@@ -5,6 +5,7 @@ namespace Czim\Paperclip\Contracts;
 use Czim\FileHandling\Contracts\Storage\StorableFileInterface;
 use Czim\Paperclip\Contracts\Config\ConfigInterface;
 use Czim\Paperclip\Contracts\Path\InterpolatorInterface;
+use Illuminate\Database\Eloquent\Model;
 use JsonSerializable;
 
 interface AttachmentInterface extends AttachmentDataInterface, JsonSerializable
@@ -111,21 +112,21 @@ interface AttachmentInterface extends AttachmentDataInterface, JsonSerializable
     /**
      * Processes the write queue.
      *
-     * @param AttachableInterface $instance
+     * @param AttachableInterface&Model $instance
      */
     public function afterSave(AttachableInterface $instance): void;
 
     /**
      * Queues up this attachments files for deletion.
      *
-     * @param AttachableInterface $instance
+     * @param AttachableInterface&Model $instance
      */
     public function beforeDelete(AttachableInterface $instance): void;
 
     /**
      * Processes the delete queue.
      *
-     * @param AttachableInterface $instance
+     * @param AttachableInterface&Model $instance
      */
     public function afterDelete(AttachableInterface $instance): void;
 }
