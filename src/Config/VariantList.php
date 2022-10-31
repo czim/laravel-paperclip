@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Czim\Paperclip\Config;
 
 use Illuminate\Contracts\Support\Arrayable;
@@ -7,32 +9,33 @@ use Illuminate\Support\Arr;
 
 class VariantList
 {
-
     /**
      * Normalized array configurations.
      *
-     * @var array       associative, by variant name
+     * @var array<string, array<string, mixed>> by variant name
      */
-    protected $variants = [];
+    protected array $variants = [];
 
     /**
-     * @var string[]    associative, by variant name
+     * @var array<string, string|null> by variant name
      */
-    protected $extensions = [];
+    protected array $extensions = [];
 
     /**
-     * @var string[]    associative, by variant name
+     * @var array<string, string|null> by variant name
      */
-    protected $urls = [];
+    protected array $urls = [];
 
     /**
      * List of variants to exclude for further merges.
      *
-     * @var array       associative, by variant name
+     * @var array<string, bool> by variant name
      */
-    protected $exclude = [];
+    protected array $exclude = [];
 
-
+    /**
+     * @param array<string, mixed> $variants
+     */
     public function __construct(array $variants)
     {
         $this->extractToArray($variants);
@@ -40,47 +43,45 @@ class VariantList
 
 
     /**
-     * @param array $variants
-     * @return $this
+     * @param array<string, mixed> $variants
      */
-    public function mergeDefault(array $variants)
+    public function mergeDefault(array $variants): void
     {
         $this->extractToArray($variants);
-
-        return $this;
     }
 
     /**
-     * @return array
+     * @return array<string, array<string, mixed>> by variant name
      */
-    public function variants()
+    public function variants(): array
     {
         return $this->variants;
     }
 
     /**
-     * @return string[]
+     * @return array<string, string|null> by variant name
      */
-    public function extensions()
+    public function extensions(): array
     {
         return $this->extensions;
     }
 
     /**
-     * @return string[]
+     * @return array<string, string|null> by variant name
      */
-    public function urls()
+    public function urls(): array
     {
         return $this->urls;
     }
 
 
-    protected function extractToArray(array $variants)
+    /**
+     * @param array<string, mixed> $variants
+     */
+    protected function extractToArray(array $variants): void
     {
         foreach ($variants as $variantName => $options) {
-
-            // If a variant is configured specifically to be excluded,
-            // this should override any defaults
+            // If a variant is configured specifically to be excluded, this should override any defaults.
             if ($options === false) {
                 $this->markExcluded($variantName);
                 continue;
@@ -90,13 +91,12 @@ class VariantList
                 $variantName = $options->getName();
             }
 
-            // If the variant name is already set, don't overwrite anything
-            if ( ! $this->shouldMerge($variantName)) {
+            // If the variant name is already set, don't overwrite anything.
+            if (! $this->shouldMerge($variantName)) {
                 continue;
             }
 
             if ($options instanceof Variant) {
-
                 if ($options->getExtension()) {
                     $this->extensions[ $variantName ] = $options->getExtension();
                 }
@@ -114,11 +114,11 @@ class VariantList
 
     /**
      * @param mixed $options
-     * @return array
+     * @return array<string, mixed>
      */
-    protected function normalizeVariantConfigEntry($options)
+    protected function normalizeVariantConfigEntry(mixed $options): array
     {
-        // Assume dimensions if a string (with dimensions)
+        // Assume dimensions if a string (with dimensions).
         if (is_string($options)) {
             $options = [
                 'resize' => [
@@ -127,9 +127,9 @@ class VariantList
             ];
         }
 
-        // Convert objects to arrays for fluent syntax support
+        // Convert objects to arrays for fluent syntax support.
         if ($options instanceof Arrayable) {
-            $options = [ $options ];
+            $options = [$options];
         }
 
         if (array_key_exists('dimensions', $options)) {
@@ -138,11 +138,13 @@ class VariantList
             ];
         }
 
-        // If auto-orient is set, extract it to its own step
-        if (    (   Arr::get($options, 'resize.auto-orient')
-                ||  Arr::get($options, 'resize.auto_orient')
+        // If auto-orient is set, extract it to its own step.
+        if (
+            (
+                Arr::get($options, 'resize.auto-orient')
+                || Arr::get($options, 'resize.auto_orient')
             )
-            &&  ! Arr::has($options, 'auto-orient')
+            && ! Arr::has($options, 'auto-orient')
         ) {
             $options = array_merge(['auto-orient' => []], $options);
 
@@ -152,13 +154,13 @@ class VariantList
             ]);
         }
 
-        // Convert to array for fluent syntax support
+        // Convert to array for fluent syntax support.
         $converted = [];
 
         foreach ($options as $key => $value) {
             if ($value instanceof Arrayable) {
                 foreach ($value->toArray() as $nestedKey => $nestedValue) {
-                    $converted[$nestedKey] = $nestedValue;
+                    $converted[ $nestedKey ] = $nestedValue;
                 }
                 continue;
             }
@@ -175,10 +177,10 @@ class VariantList
      * @param string $variantName
      * @return bool
      */
-    protected function shouldMerge($variantName)
+    protected function shouldMerge(string $variantName): bool
     {
-        return  ! Arr::has($this->variants, $variantName)
-            &&  ! Arr::get($this->exclude, $variantName);
+        return ! Arr::has($this->variants, $variantName)
+            && ! Arr::get($this->exclude, $variantName);
     }
 
     /**
@@ -186,7 +188,7 @@ class VariantList
      *
      * @param string $variantName
      */
-    protected function markExcluded($variantName)
+    protected function markExcluded(string $variantName): void
     {
         $this->exclude[ $variantName ] = true;
     }

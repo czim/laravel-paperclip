@@ -1,51 +1,38 @@
 <?php
 
-namespace Czim\Paperclip\Config;
+declare(strict_types=1);
 
-use Illuminate\Contracts\Support\Arrayable;
+namespace Czim\Paperclip\Config;
 
 class Variant
 {
-
-    /**
-     * The name/identifier of the variant.
-     *
-     * @var string
-     */
-    protected $name;
-
     /**
      * Variant processing steps.
      *
-     * @var array
+     * @var array<int, mixed>
      */
-    protected $steps = [];
+    protected array $steps = [];
 
     /**
      * The extension that the variant's file is expected to be stored with.
      *
      * @var string|null
      */
-    protected $extension;
+    protected ?string $extension = null;
 
     /**
      * Fallback-URL to use when no attachment is stored.
      *
      * @var string|null
      */
-    protected $url;
+    protected ?string $url = null;
 
 
-    public function __construct($name)
+    public function __construct(protected readonly string $name)
     {
-        $this->name = $name;
     }
 
-    /**
-     * @param string $name
-     * @return $this|static
-     */
-    public static function make($name)
+    public static function make(string $name): static
     {
         return new static($name);
     }
@@ -53,12 +40,12 @@ class Variant
     /**
      * Sets variant processing steps.
      *
-     * @param array|string|Arrayable $steps
+     * @param array<string, mixed>|string $steps
      * @return $this
      */
-    public function steps($steps)
+    public function steps(array|string $steps): static
     {
-        if ( ! is_array($steps)) {
+        if (! is_array($steps)) {
             $steps = [ $steps ];
         }
 
@@ -73,7 +60,7 @@ class Variant
      * @param string|null $extension
      * @return $this
      */
-    public function extension($extension)
+    public function extension(?string $extension): static
     {
         if (is_string($extension)) {
             $this->extension = ltrim($extension, '.');
@@ -90,41 +77,32 @@ class Variant
      * @param string $url
      * @return $this
      */
-    public function url($url)
+    public function url(string $url): static
     {
         $this->url = $url;
 
         return $this;
     }
 
-    /**
-     * @return string
-     */
-    public function getName()
+    public function getName(): string
     {
         return $this->name;
     }
 
     /**
-     * @return array
+     * @return array<int, mixed>
      */
-    public function getSteps()
+    public function getSteps(): array
     {
         return $this->steps;
     }
 
-    /**
-     * @return null|string
-     */
-    public function getExtension()
+    public function getExtension(): ?string
     {
         return $this->extension;
     }
 
-    /**
-     * @return null|string
-     */
-    public function getUrl()
+    public function getUrl(): ?string
     {
         return $this->url;
     }

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Czim\Paperclip\Attachment;
 
 use Czim\Paperclip\Config\PaperclipConfig;
@@ -12,14 +14,13 @@ use Czim\Paperclip\Contracts\Path\InterpolatorInterface;
 
 class AttachmentFactory implements AttachmentFactoryInterface
 {
-
     /**
-     * @param AttachableInterface $instance
-     * @param string              $name
-     * @param array               $config
+     * @param AttachableInterface  $instance
+     * @param string               $name
+     * @param array<string, mixed> $config
      * @return AttachmentInterface
      */
-    public function create(AttachableInterface $instance, $name, array $config = [])
+    public function create(AttachableInterface $instance, string $name, array $config = []): AttachmentInterface
     {
         $attachment = new Attachment;
 
@@ -35,22 +36,24 @@ class AttachmentFactory implements AttachmentFactoryInterface
     }
 
     /**
-     * @param array $config
+     * @param array<string, mixed> $config
      * @return ConfigInterface
      */
-    protected function makeConfigObject(array $config)
+    protected function makeConfigObject(array $config): ConfigInterface
     {
-        if (config('paperclip.config.mode') === 'stapler') {
+        if ($this->isStaplerConfigMode()) {
             return new StaplerConfig($config);
         }
 
         return new PaperclipConfig($config);
     }
 
-    /**
-     * @return InterpolatorInterface
-     */
-    protected function getInterpolator()
+    protected function isStaplerConfigMode(): bool
+    {
+        return strtolower(config('paperclip.config.mode') ?: '') === 'stapler';
+    }
+
+    protected function getInterpolator(): InterpolatorInterface
     {
         $interpolatorClass = config('paperclip.path.interpolator', InterpolatorInterface::class);
 

@@ -1,25 +1,19 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Czim\Paperclip\Config\Steps;
 
 class AutoOrientStep extends VariantStep
 {
-
-    /**
-     * @var string
-     */
-    protected $defaultName = 'auto-orient';
-
-    /**
-     * @var bool
-     */
-    protected $quiet = false;
+    protected string $defaultName = 'auto-orient';
+    protected bool $quiet = false;
 
 
     /**
      * @return $this
      */
-    public function quiet()
+    public function quiet(): static
     {
         $this->quiet = true;
 
@@ -27,9 +21,9 @@ class AutoOrientStep extends VariantStep
     }
 
     /**
-     * @return array
+     * @return array<string, mixed>
      */
-    protected function getStepOptionArray()
+    protected function getStepOptionArray(): array
     {
         return [
             'quiet' => $this->quiet,

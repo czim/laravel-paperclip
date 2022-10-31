@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Czim\Paperclip\Providers;
 
 use Czim\FileHandling\Contracts\Storage\StorableFileFactoryInterface;
@@ -24,65 +26,49 @@ use Czim\Paperclip\Handler\FileHandlerFactory;
 use Czim\Paperclip\Path\Interpolator;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\ServiceProvider;
+use Imagine\Gd\Imagine;
 use Imagine\Image\ImagineInterface;
 
 class PaperclipServiceProvider extends ServiceProvider
 {
-
-    public function boot()
+    public function boot(): void
     {
         $this->bootConfig();
     }
 
-    public function register()
+    public function register(): void
     {
-        $this->registerConfig()
-             ->registerCommands()
-             ->registerInterfaceBindings();
+        $this->registerConfig();
+        $this->registerCommands();
+        $this->registerInterfaceBindings();
     }
 
-    /**
-     * @return $this
-     */
-    protected function registerConfig()
+    protected function bootConfig(): void
+    {
+        $this->publishes([
+            realpath(dirname(__DIR__) . '/../config/paperclip.php') => config_path('paperclip.php'),
+        ]);
+    }
+
+    protected function registerConfig(): void
     {
         $this->mergeConfigFrom(
             realpath(dirname(__DIR__) . '/../config/paperclip.php'),
             'paperclip'
         );
-
-        return $this;
     }
 
-    /**
-     * @return $this
-     */
-    protected function registerInterfaceBindings()
+    protected function registerInterfaceBindings(): void
     {
         $this->registerFileHandlerInterfaceBindings();
+        $this->registerVariantStrategyFactory();
 
         $this->app->singleton(FileHandlerFactoryInterface::class, FileHandlerFactory::class);
         $this->app->singleton(AttachmentFactoryInterface::class, AttachmentFactory::class);
-
-        $this->app->singleton(VariantStrategyFactoryInterface::class, function ($app) {
-            /** @var Application $app */
-            return (new VariantStrategyFactory(
-                new LaravelContainerDecorator($app)
-            ))->setConfig([
-                'aliases' => config('paperclip.variants.aliases', [])
-            ]);
-        });
-
-        // Image library
-        $this->app->singleton(ImagineInterface::class, config('paperclip.imagine', \Imagine\Gd\Imagine::class));
-
-        return $this;
+        $this->app->singleton(ImagineInterface::class, $this->getImagineImplementationClass());
     }
 
-    /**
-     * @return $this
-     */
-    protected function registerFileHandlerInterfaceBindings()
+    protected function registerFileHandlerInterfaceBindings(): void
     {
         $this->app->singleton(VariantProcessorInterface::class, VariantProcessor::class);
         $this->app->singleton(StorableFileFactoryInterface::class, StorableFileFactory::class);
@@ -90,33 +76,33 @@ class PaperclipServiceProvider extends ServiceProvider
         $this->app->singleton(ContentInterpreterInterface::class, UploadedContentInterpreter::class);
         $this->app->singleton(UrlDownloaderInterface::class, UrlDownloader::class);
         $this->app->singleton(InterpolatorInterface::class, Interpolator::class);
-
-        return $this;
     }
 
-    /**
-     * @return $this
-     */
-    protected function bootConfig()
+    protected function registerVariantStrategyFactory(): void
     {
-        $this->publishes([
-            realpath(dirname(__DIR__) . '/../config/paperclip.php') => config_path('paperclip.php'),
-        ]);
-
-        return $this;
+        $this->app->singleton(
+            VariantStrategyFactoryInterface::class,
+            fn (Application $app) => (new VariantStrategyFactory(new LaravelContainerDecorator($app)))
+                ->setConfig([
+                    'aliases' => config('paperclip.variants.aliases', []),
+                ])
+        );
     }
 
-    /**
-     * @return $this
-     */
-    protected function registerCommands()
+    protected function registerCommands(): void
     {
         $this->app->singleton('paperclip.commands.refresh', RefreshAttachmentCommand::class);
 
         $this->commands([
             'paperclip.commands.refresh',
         ]);
+    }
 
-        return $this;
+    /**
+     * @return class-string<ImagineInterface>
+     */
+    protected function getImagineImplementationClass(): string
+    {
+        return config('paperclip.imagine', Imagine::class);
     }
 }

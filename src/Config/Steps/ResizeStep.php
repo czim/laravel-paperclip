@@ -1,58 +1,38 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Czim\Paperclip\Config\Steps;
 
 use BadMethodCallException;
 
 class ResizeStep extends VariantStep
 {
+    protected string $defaultName = 'resize';
+
+    protected ?int $width = null;
+    protected ?int $height = null;
+    protected bool $crop = false;
+    protected bool $ignoreRatio = false;
 
     /**
-     * @var string
+     * @var array<string, mixed>
      */
-    protected $defaultName = 'resize';
-
-    /**
-     * @var null|int
-     */
-    protected $width;
-
-    /**
-     * @var null|int
-     */
-    protected $height;
-
-    /**
-     * @var bool
-     */
-    protected $crop = false;
-
-    /**
-     * @var bool
-     */
-    protected $ignoreRatio = false;
-
-    /**
-     * @var array
-     */
-    protected $convertOptions = [];
+    protected array $convertOptions = [];
 
 
     /**
      * @param int $pixels
      * @return $this
      */
-    public function width($pixels)
+    public function width(int $pixels): static
     {
         $this->width = $pixels;
 
         return $this;
     }
 
-    /**
-     * @return int
-     */
-    public function getWidth()
+    public function getWidth(): ?int
     {
         return $this->width;
     }
@@ -61,17 +41,14 @@ class ResizeStep extends VariantStep
      * @param int $pixels
      * @return $this
      */
-    public function height($pixels)
+    public function height(int $pixels): static
     {
         $this->height = $pixels;
 
         return $this;
     }
 
-    /**
-     * @return int
-     */
-    public function getHeight()
+    public function getHeight(): ?int
     {
         return $this->height;
     }
@@ -80,7 +57,7 @@ class ResizeStep extends VariantStep
      * @param int $pixels
      * @return $this
      */
-    public function square($pixels)
+    public function square(int $pixels): static
     {
         $this->width = $this->height = $pixels;
 
@@ -90,7 +67,7 @@ class ResizeStep extends VariantStep
     /**
      * @return $this
      */
-    public function crop()
+    public function crop(): static
     {
         $this->crop = true;
 
@@ -100,7 +77,7 @@ class ResizeStep extends VariantStep
     /**
      * @return $this
      */
-    public function ignoreRatio()
+    public function ignoreRatio(): static
     {
         $this->ignoreRatio = true;
 
@@ -108,10 +85,10 @@ class ResizeStep extends VariantStep
     }
 
     /**
-     * @param array $options
+     * @param array<string, mixed> $options
      * @return $this
      */
-    public function convertOptions(array $options)
+    public function convertOptions(array $options): static
     {
         $this->convertOptions = $options;
 
@@ -119,9 +96,9 @@ class ResizeStep extends VariantStep
     }
 
     /**
-     * @return array
+     * {@inheritDoc}
      */
-    protected function getStepOptionArray()
+    protected function getStepOptionArray(): array
     {
         return [
             'dimensions'     => $this->compileDimensionsString(),
@@ -130,19 +107,17 @@ class ResizeStep extends VariantStep
     }
 
 
-    /**
-     * @return string
-     */
-    protected function compileDimensionsString()
+    protected function compileDimensionsString(): string
     {
         // If neither width nor height are set, the configuration is incomplete.
-        if ( ! $this->width && ! $this->height) {
+        if (! $this->width && ! $this->height) {
             throw new BadMethodCallException('Either width or height must be set');
         }
 
         // If width or height is not set, the crop or ignore-ratio option are not available.
-        if (    ! ($this->width && $this->height)
-            &&  ($this->crop || $this->ignoreRatio)
+        if (
+            ! ($this->width && $this->height)
+            && ($this->crop || $this->ignoreRatio)
         ) {
             throw new BadMethodCallException(
                 "Cannot use 'crop' or 'ignoreRatio' unless both width and height are set"
@@ -156,10 +131,10 @@ class ResizeStep extends VariantStep
             );
         }
 
-        return ($this->width ? $this->width : '')
-             . 'x'
-             . ($this->height ? $this->height : '')
-             . ($this->crop ? '#' : '')
-             . ($this->ignoreRatio ? '!' : '');
+        return ($this->width ?: '')
+            . 'x'
+            . ($this->height ?: '')
+            . ($this->crop ? '#' : '')
+            . ($this->ignoreRatio ? '!' : '');
     }
 }

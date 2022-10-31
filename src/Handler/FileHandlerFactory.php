@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Czim\Paperclip\Handler;
 
 use Czim\FileHandling\Contracts\Handler\FileHandlerInterface;
@@ -7,28 +9,23 @@ use Czim\FileHandling\Contracts\Variant\VariantProcessorInterface;
 use Czim\FileHandling\Handler\FileHandler;
 use Czim\FileHandling\Storage\Laravel\LaravelStorage;
 use Czim\Paperclip\Contracts\FileHandlerFactoryInterface;
-use Exception;
 use Illuminate\Contracts\Filesystem\Cloud as CloudFilesystemContract;
 use Illuminate\Contracts\Filesystem\Filesystem as FilesystemContract;
+use Illuminate\Support\Facades\Storage;
 use RuntimeException;
-use Storage;
+use Throwable;
 
 class FileHandlerFactory implements FileHandlerFactoryInterface
 {
+    protected const LOCAL_DRIVER = 'local';
 
-    /**
-     * Makes a file handler instance.
-     *
-     * @param string|null $storage
-     * @return FileHandlerInterface
-     */
-    public function create($storage = null)
+    public function create(?string $storage = null): FileHandlerInterface
     {
         $storage = $storage ?: $this->getStorageDisk();
 
         return new FileHandler(
-            $this->makeStorage($storage),
-            $this->makeProcessor()
+            $this->makeStorage($storage ?? ''),
+            $this->makeProcessor(),
         );
     }
 
@@ -36,15 +33,15 @@ class FileHandlerFactory implements FileHandlerFactoryInterface
      * @param string $disk
      * @return LaravelStorage
      */
-    protected function makeStorage($disk)
+    protected function makeStorage(string $disk): LaravelStorage
     {
-        if ( ! is_string($disk) || $disk === '') {
+        if (trim($disk) === '') {
             throw new RuntimeException(
                 "Paperclip storage disk invalid or null, check your paperclip and filesystems configuration"
             );
         }
 
-        if ( ! $this->isStorageDiskAvailable($disk)) {
+        if (! $this->isStorageDiskAvailable($disk)) {
             throw new RuntimeException(
                 "Paperclip storage disk '{$disk}' is not configured! "
                 . 'Add an entry for it under the filesystems.disks configuration key.'
@@ -57,10 +54,7 @@ class FileHandlerFactory implements FileHandlerFactoryInterface
         return new LaravelStorage($this->getLaravelStorageInstance($disk), $isLocal, $baseUrl);
     }
 
-    /**
-     * @return VariantProcessorInterface
-     */
-    protected function makeProcessor()
+    protected function makeProcessor(): VariantProcessorInterface
     {
         return app(VariantProcessorInterface::class);
     }
@@ -71,9 +65,9 @@ class FileHandlerFactory implements FileHandlerFactoryInterface
      * @param string $disk
      * @return bool
      */
-    protected function isDiskLocal($disk)
+    protected function isDiskLocal(string $disk): bool
     {
-        return 'local' === config("filesystems.disks.{$disk}.driver");
+        return config("filesystems.disks.{$disk}.driver") === static::LOCAL_DRIVER;
     }
 
     /**
@@ -81,10 +75,10 @@ class FileHandlerFactory implements FileHandlerFactoryInterface
      *
      * @return string|null
      */
-    protected function getStorageDisk()
+    protected function getStorageDisk(): ?string
     {
-        return  config('paperclip.storage.disk')
-            ?:  config('filesystems.default');
+        return config('paperclip.storage.disk')
+            ?: config('filesystems.default');
     }
 
     /**
@@ -93,7 +87,7 @@ class FileHandlerFactory implements FileHandlerFactoryInterface
      * @param string $driver
      * @return bool
      */
-    protected function isStorageDiskAvailable($driver)
+    protected function isStorageDiskAvailable(string $driver): bool
     {
         return array_key_exists($driver, config('filesystems.disks', []));
     }
@@ -104,7 +98,7 @@ class FileHandlerFactory implements FileHandlerFactoryInterface
      * @param string $disk
      * @return string
      */
-    protected function getBaseUrlForDisk($disk)
+    protected function getBaseUrlForDisk(string $disk): string
     {
         $url = config("paperclip.storage.base-urls.{$disk}") ?: config("filesystems.disks.{$disk}.url");
 
@@ -112,16 +106,14 @@ class FileHandlerFactory implements FileHandlerFactoryInterface
             return $url;
         }
 
-        // Attempt to get URL from cloud storage directly
+        // Attempt to get URL from cloud storage directly.
         try {
             $storage = $this->getLaravelStorageInstance($disk);
 
             if ($storage instanceof CloudFilesystemContract) {
-                $url =  $storage->url('.');
+                $url = $storage->url('.');
             }
-
-        } catch (Exception $e) {
-
+        } catch (Throwable) {
             throw new RuntimeException("Could not determine base URL through Storage::url() for '{$disk}'");
         }
 
@@ -132,10 +124,7 @@ class FileHandlerFactory implements FileHandlerFactoryInterface
         throw new RuntimeException("Could not determine base URL for storage disk '{$disk}'");
     }
 
-    /**
-     * @return FilesystemContract|CloudFilesystemContract
-     */
-    protected function getLaravelStorageInstance($disk)
+    protected function getLaravelStorageInstance(string $disk): FilesystemContract|CloudFilesystemContract
     {
         return Storage::disk($disk);
     }

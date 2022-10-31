@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Czim\Paperclip\Model;
 
 use Czim\FileHandling\Contracts\Storage\StorableFileFactoryInterface;
@@ -8,24 +10,26 @@ use Czim\Paperclip\Contracts\AttachableInterface;
 use Czim\Paperclip\Contracts\AttachmentFactoryInterface;
 use Czim\Paperclip\Contracts\AttachmentInterface;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Arr;
 
+/**
+ * @implements AttachableInterface
+ * @mixin Model
+ */
 trait PaperclipTrait
 {
-
     /**
      * All of the model's current attached files.
      *
      * @var AttachmentInterface[]
      */
-    protected $attachedFiles = [];
+    protected array $attachedFiles = [];
 
     /**
      * Whether an attachment has been updated and requires further processing.
      *
      * @var bool
      */
-    protected $attachedUpdated = false;
+    protected bool $attachedUpdated = false;
 
 
     /**
@@ -33,7 +37,7 @@ trait PaperclipTrait
      *
      * @return AttachmentInterface[]
      */
-    public function getAttachedFiles()
+    public function getAttachedFiles(): array
     {
         return $this->attachedFiles;
     }
@@ -41,31 +45,25 @@ trait PaperclipTrait
     /**
      * Add a new file attachment type to the list of available attachments.
      *
-     * @param string $name
-     * @param array  $options
+     * @param string               $name
+     * @param array<string, mixed> $options
      */
-    public function hasAttachedFile($name, array $options = [])
+    public function hasAttachedFile(string $name, array $options = []): void
     {
-        /** @var Model $this */
-
-        /** @var AttachmentFactoryInterface $factory */
-        $factory = app(AttachmentFactoryInterface::class);
+        $factory = $this->makeAttachmentFactory();
 
         $attachment = $factory->create($this, $name, $options);
 
         $this->attachedFiles[ $name ] = $attachment;
     }
 
-    /**
-     * Registers the observers.
-     */
-    public static function bootPaperclipTrait()
+    public static function bootPaperclipTrait(): void
     {
-        static::saved(function ($model) {
-            /** @var Model|AttachableInterface $model */
+        static::saved(function ($model): void {
+            /** @var static&AttachableInterface $model */
             if ($model->attachedUpdated) {
                 // Unmark attachment being updated, so the processing isn't fired twice
-                // when the attachedfile performs a model update for the variants column.
+                // when the attached file performs a model update for the `variants` column.
                 $model->attachedUpdated = false;
 
                 foreach ($model->getAttachedFiles() as $attachedFile) {
@@ -76,30 +74,30 @@ trait PaperclipTrait
             }
         });
 
-        static::saving(function ($model) {
-            /** @var Model|AttachableInterface $model */
+        static::saving(function ($model): void {
+            /** @var static $model */
             $model->removeFileAttributes();
         });
 
-        static::updating(function ($model) {
-            /** @var Model|AttachableInterface $model */
+        static::updating(function ($model): void {
+            /** @var static $model */
             $model->removeFileAttributes();
         });
 
-        static::retrieved(function ($model) {
-            /** @var Model|AttachableInterface $model */
+        static::retrieved(function ($model): void {
+            /** @var static $model */
             $model->mergeFileAttributes();
         });
 
-        static::deleting(function ($model) {
-            /** @var Model|AttachableInterface $model */
+        static::deleting(function ($model): void {
+            /** @var static&AttachableInterface $model */
             foreach ($model->getAttachedFiles() as $attachedFile) {
                 $attachedFile->beforeDelete($model);
             }
         });
 
-        static::deleted(function ($model) {
-            /** @var Model|AttachableInterface $model */
+        static::deleted(function ($model): void {
+            /** @var Model&AttachableInterface $model */
             foreach ($model->getAttachedFiles() as $attachedFile) {
                 $attachedFile->afterDelete($model);
             }
@@ -110,10 +108,9 @@ trait PaperclipTrait
      * Handle the dynamic retrieval of attachment objects.
      *
      * @param string $key
-     *
      * @return mixed
      */
-    public function getAttribute($key)
+    public function getAttribute(mixed $key): mixed
     {
         if (array_key_exists($key, $this->attachedFiles)) {
             return $this->attachedFiles[ $key ];
@@ -127,12 +124,11 @@ trait PaperclipTrait
      *
      * @param string $key
      * @param mixed  $value
-     * @return mixed
+     * @return mixed|$this
      */
-    public function setAttribute($key, $value)
+    public function setAttribute(mixed $key, mixed $value): mixed
     {
         if (array_key_exists($key, $this->attachedFiles)) {
-
             if ($value) {
                 $attachedFile = $this->attachedFiles[ $key ];
 
@@ -141,8 +137,7 @@ trait PaperclipTrait
                     return $this;
                 }
 
-                /** @var StorableFileFactoryInterface $factory */
-                $factory = app(StorableFileFactoryInterface::class);
+                $factory = $this->makeStorableFileFactory();
 
                 $attachedFile->setUploadedFile(
                     $factory->makeFromAny($value)
@@ -162,7 +157,7 @@ trait PaperclipTrait
      *
      * Reason this is required: Laravel 5.5 changed the getDirty() behavior.
      *
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     public function originalIsEquivalent($key)
     {
@@ -179,7 +174,7 @@ trait PaperclipTrait
      * @param string $attachmentName
      * @return string[]
      */
-    public function pathsForAttachment($attachmentName)
+    public function pathsForAttachment(string $attachmentName): array
     {
         $paths = [];
 
@@ -197,10 +192,10 @@ trait PaperclipTrait
     /**
      * Return the image urls for a given attachment.
      *
-     * @param  string $attachmentName
-     * @return array
+     * @param string $attachmentName
+     * @return string[]
      */
-    public function urlsForAttachment($attachmentName)
+    public function urlsForAttachment(string $attachmentName): array
     {
         $urls = [];
 
@@ -218,7 +213,7 @@ trait PaperclipTrait
     /**
      * Marks that at least one attachment on the model has been updated and should be processed.
      */
-    public function markAttachmentUpdated()
+    public function markAttachmentUpdated(): void
     {
         $this->attachedUpdated = true;
     }
@@ -226,17 +221,17 @@ trait PaperclipTrait
     /**
      * Add the attached files to the model's attributes.
      */
-    public function mergeFileAttributes()
+    public function mergeFileAttributes(): void
     {
         $this->attributes = $this->attributes + $this->getAttachedFiles();
     }
 
     /**
-     * Remove any attached file attributes so they aren't sent to the database.
+     * Remove any attached file attributes, so they aren't sent to the database.
      */
-    public function removeFileAttributes()
+    public function removeFileAttributes(): void
     {
-        foreach ($this->getAttachedFiles() as $key => $file) {
+        foreach (array_keys($this->getAttachedFiles()) as $key) {
             unset($this->attributes[$key]);
         }
     }
@@ -246,8 +241,18 @@ trait PaperclipTrait
      *
      * @return string
      */
-    protected function getDeleteAttachmentString()
+    protected function getDeleteAttachmentString(): string
     {
         return config('paperclip.delete-hash', Attachment::NULL_ATTACHMENT);
+    }
+
+    protected function makeAttachmentFactory(): AttachmentFactoryInterface
+    {
+        return app(AttachmentFactoryInterface::class);
+    }
+
+    protected function makeStorableFileFactory(): StorableFileFactoryInterface
+    {
+        return app(StorableFileFactoryInterface::class);
     }
 }

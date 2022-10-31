@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Czim\Paperclip\Path;
 
 use Czim\FileHandling\Storage\Path\Target;
@@ -13,16 +15,8 @@ use Czim\Paperclip\Contracts\Path\InterpolatorInterface;
  */
 class InterpolatingTarget extends Target
 {
-    /**
-     * @var InterpolatorInterface
-     */
-    protected $interpolator;
-
-    /**
-     * @var AttachmentDataInterface
-     */
-    protected $attachment;
-
+    protected readonly InterpolatorInterface $interpolator;
+    protected readonly AttachmentDataInterface $attachment;
 
     /**
      * @param InterpolatorInterface   $interpolator
@@ -33,8 +27,8 @@ class InterpolatingTarget extends Target
     public function __construct(
         InterpolatorInterface $interpolator,
         AttachmentDataInterface $attachment,
-        $path,
-        $variantPath = null
+        string $path,
+        ?string $variantPath = null,
     ) {
         $this->interpolator = $interpolator;
         $this->attachment   = $attachment;
@@ -61,10 +55,6 @@ class InterpolatingTarget extends Target
 
     protected function getVariantPath(): string
     {
-        if ($this->variantPath) {
-            return $this->variantPath;
-        }
-
-        return $this->originalPath;
+        return $this->variantPath ?: $this->originalPath;
     }
 }

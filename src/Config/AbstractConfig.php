@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Czim\Paperclip\Config;
 
 use Czim\FileHandling\Handler\FileHandler;
@@ -8,104 +10,67 @@ use Illuminate\Support\Arr;
 
 abstract class AbstractConfig implements ConfigInterface
 {
-
     /**
-     * @var array
+     * @var array<string, mixed>
      */
-    protected $config;
-
-    /**
-     * @var array
-     */
-    protected $normalizedConfig;
+    protected array $normalizedConfig;
 
 
     /**
-     * @param array $config
+     * @param array<string, mixed> $config
      */
-    public function __construct(array $config)
+    public function __construct(protected array $config)
     {
-        $this->config           = $config;
         $this->normalizedConfig = $this->normalizeConfig($config);
     }
 
 
-    /**
-     * @return bool
-     */
-    public function keepOldFiles()
+    public function keepOldFiles(): bool
     {
         return (bool) $this->getConfigValue('keep-old-files', false);
     }
 
-    /**
-     * @return bool
-     */
-    public function preserveFiles()
+    public function preserveFiles(): bool
     {
         return (bool) $this->getConfigValue('preserve-files', false);
     }
 
-    /**
-     * @return string
-     */
-    public function storageDisk()
+    public function storageDisk(): ?string
     {
         return $this->getConfigValue('storage');
     }
 
-    /**
-     * @return string
-     */
-    public function path()
+    public function path(): string
     {
         return $this->getConfigValue('path');
     }
 
-    /**
-     * @return string
-     */
-    public function variantPath()
+    public function variantPath(): ?string
     {
         return $this->getConfigValue('variant-path');
     }
 
-    /**
-     * @return string
-     */
-    public function sizeAttribute()
+    public function sizeAttribute(): string|bool
     {
         return $this->getConfigValue('attributes.size');
     }
 
-    /**
-     * @return string
-     */
-    public function contentTypeAttribute()
+    public function contentTypeAttribute(): string|bool
     {
         return $this->getConfigValue('attributes.content_type');
     }
 
-    /**
-     * @return string
-     */
-    public function updatedAtAttribute()
+    public function updatedAtAttribute(): string|bool
     {
         return $this->getConfigValue('attributes.updated_at');
     }
 
-    /**
-     * @return string
-     */
-    public function createdAtAttribute()
+    public function createdAtAttribute(): string|bool
     {
         return $this->getConfigValue('attributes.created_at');
     }
 
-    /**
-     * @return string
-     */
-    public function variantsAttribute()
+    public function variantsAttribute(): string|bool
     {
         return $this->getConfigValue('attributes.variants');
     }
@@ -116,7 +81,7 @@ abstract class AbstractConfig implements ConfigInterface
      * @param string $variant
      * @return bool
      */
-    public function hasVariantConfig($variant)
+    public function hasVariantConfig(string $variant): bool
     {
         return Arr::has($this->variantConfigs(), $variant);
     }
@@ -125,9 +90,9 @@ abstract class AbstractConfig implements ConfigInterface
      * Returns the configuration array for a specific variant.
      *
      * @param string $variant
-     * @return array
+     * @return array<string, mixed>
      */
-    public function variantConfig($variant)
+    public function variantConfig(string $variant): array
     {
         return Arr::get($this->variantConfigs(), $variant, []);
     }
@@ -135,9 +100,9 @@ abstract class AbstractConfig implements ConfigInterface
     /**
      * Returns an array with the variant configurations set.
      *
-     * @return array    associative, keyed by variant name
+     * @return array<string, array<string, mixed>> keyed by variant name
      */
-    public function variantConfigs()
+    public function variantConfigs(): array
     {
         return Arr::get($this->normalizedConfig, FileHandler::CONFIG_VARIANTS);
     }
@@ -146,9 +111,9 @@ abstract class AbstractConfig implements ConfigInterface
      * Returns the mimetype specifically configured for a given variant.
      *
      * @param string $variant
-     * @return false|string
+     * @return string|false
      */
-    public function variantMimeType($variant)
+    public function variantMimeType(string $variant): string|false
     {
         return $this->getConfigValue("types.{$variant}") ?: false;
     }
@@ -156,9 +121,9 @@ abstract class AbstractConfig implements ConfigInterface
     /**
      * Returns an array with extensions configured per variant.
      *
-     * @return string[]     associative, keyed by variant name
+     * @return array<string, string|null> keyed by variant name
      */
-    public function variantExtensions()
+    public function variantExtensions(): array
     {
         return $this->getConfigValue('extensions', []);
     }
@@ -170,9 +135,9 @@ abstract class AbstractConfig implements ConfigInterface
      * just what extension Paperclip should expect the created file to have.
      *
      * @param string $variant
-     * @return false|string
+     * @return string|false
      */
-    public function variantExtension($variant)
+    public function variantExtension(string $variant): string|false
     {
         return $this->getConfigValue("extensions.{$variant}") ?: false;
     }
@@ -182,7 +147,7 @@ abstract class AbstractConfig implements ConfigInterface
      *
      * @return string|null
      */
-    public function defaultUrl()
+    public function defaultUrl(): ?string
     {
         $defaultVariant = $this->getDefaultUrlVariantName();
 
@@ -195,13 +160,15 @@ abstract class AbstractConfig implements ConfigInterface
      * @param string $variant
      * @return string|null
      */
-    public function defaultVariantUrl($variant)
+    public function defaultVariantUrl(string $variant): ?string
     {
         $defaultVariant = $this->getDefaultUrlVariantName();
 
         return $this->getConfigValue(
             "urls.{$variant}",
-            $variant === $defaultVariant ? $this->getDefaultUrlWithoutVariantFallback() : null
+            $variant === $defaultVariant
+                ? $this->getDefaultUrlWithoutVariantFallback()
+                : null
         );
     }
 
@@ -213,17 +180,17 @@ abstract class AbstractConfig implements ConfigInterface
      * @param string $attribute
      * @return bool
      */
-    public function attributeProperty($attribute)
+    public function attributeProperty(string $attribute): bool
     {
-        return $this->getConfigValue("attributes.{$attribute}", true);
+        return (bool) $this->getConfigValue("attributes.{$attribute}", true);
     }
 
     /**
      * Returns the hook callable to run before storing an attachment.
      *
-     * @return callable|null
+     * @return callable|callable-string|null
      */
-    public function beforeCallable()
+    public function beforeCallable(): callable|string|null
     {
         return $this->getConfigValue('before');
     }
@@ -231,25 +198,25 @@ abstract class AbstractConfig implements ConfigInterface
     /**
      * Returns the hook callable to run after storing an attachment.
      *
-     * @return callable|null
+     * @return callable|callable-string|null
      */
-    public function afterCallable()
+    public function afterCallable(): callable|string|null
     {
         return $this->getConfigValue('after');
     }
 
     /**
-     * @return array
+     * @return array<string, mixed>
      */
-    public function getOriginalConfig()
+    public function getOriginalConfig(): array
     {
         return $this->config;
     }
 
     /**
-     * @return array
+     * @return array<string, mixed>
      */
-    public function toArray()
+    public function toArray(): array
     {
         return $this->normalizedConfig;
     }
@@ -258,20 +225,20 @@ abstract class AbstractConfig implements ConfigInterface
     /**
      * Takes the set config and creates a normalized version.
      *
-     * @param array $config
-     * @return array
+     * @param array<string, mixed> $config
+     * @return array<string, mixed>
      */
-    abstract protected function normalizeConfig(array $config);
+    abstract protected function normalizeConfig(array $config): array;
 
 
     /**
      * Returns the config value relevant for this attachment.
      *
-     * @param string     $key
-     * @param mixed|null $default
+     * @param string $key
+     * @param mixed  $default
      * @return mixed
      */
-    protected function getConfigValue($key, $default = null)
+    protected function getConfigValue(string $key, mixed $default = null): mixed
     {
         if (Arr::has($this->normalizedConfig, $key)) {
             return Arr::get($this->normalizedConfig, $key);
@@ -287,7 +254,7 @@ abstract class AbstractConfig implements ConfigInterface
      * @param mixed  $default
      * @return mixed
      */
-    protected function getFallbackConfigValue($key, $default = null)
+    protected function getFallbackConfigValue(string $key, mixed $default = null): mixed
     {
         $map = [
             'keep-old-files' => 'keep-old-files',
@@ -303,17 +270,14 @@ abstract class AbstractConfig implements ConfigInterface
             'attributes.variants'     => 'model.attributes.variants',
         ];
 
-        if ( ! in_array($key, array_keys($map))) {
+        if (! in_array($key, array_keys($map))) {
             return $default;
         }
 
         return config('paperclip.' . $map[ $key ], $default);
     }
 
-    /**
-     * @return string|null
-     */
-    protected function getDefaultUrlWithoutVariantFallback()
+    protected function getDefaultUrlWithoutVariantFallback(): ?string
     {
         return $this->getConfigValue('url');
     }
@@ -323,7 +287,7 @@ abstract class AbstractConfig implements ConfigInterface
      *
      * @return string
      */
-    protected function getDefaultUrlVariantName()
+    protected function getDefaultUrlVariantName(): string
     {
         return config('paperclip.default-variant', 'original');
     }

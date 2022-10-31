@@ -1,24 +1,25 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Czim\Paperclip\Config;
 
 use Illuminate\Support\Arr;
 
 class StaplerConfig extends PaperclipConfig
 {
-
     /**
      * Takes the set config and creates a normalized version.
      *
      * This can also take stapler configs and normalize them for paperclip.
      *
-     * @param array $config
-     * @return array
+     * @param array<string, mixed> $config
+     * @return array<string, mixed>
      */
-    protected function normalizeConfig(array $config)
+    protected function normalizeConfig(array $config): array
     {
         // In Stapler, variants were called 'styles'.
-        if ( ! Arr::has($config, 'variants') && Arr::has($config, 'styles')) {
+        if (! Arr::has($config, 'variants') && Arr::has($config, 'styles')) {
             $config['variants'] = Arr::get($config, 'styles', []);
         }
         Arr::forget($config, 'styles');
@@ -38,11 +39,11 @@ class StaplerConfig extends PaperclipConfig
         ];
 
         foreach ($renames as $old => $new) {
-            if ( ! Arr::has($config, $old)) {
+            if (! Arr::has($config, $old)) {
                 continue;
             }
 
-            if ( ! Arr::has($config, $new)) {
+            if (! Arr::has($config, $new)) {
                 $config[ $new ] = Arr::get($config, $old);
             }
             Arr::forget($config, $old);

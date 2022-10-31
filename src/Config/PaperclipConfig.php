@@ -1,21 +1,17 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Czim\Paperclip\Config;
 
 use Illuminate\Support\Arr;
 
 class PaperclipConfig extends AbstractConfig
 {
-
     /**
-     * Takes the set config and creates a normalized version.
-     *
-     * This can also take stapler configs and normalize them for paperclip.
-     *
-     * @param array $config
-     * @return array
+     * {@inheritDoc}
      */
-    protected function normalizeConfig(array $config)
+    protected function normalizeConfig(array $config): array
     {
         $hasVariantsConfigured = Arr::has($config, 'variants');
 
@@ -53,10 +49,10 @@ class PaperclipConfig extends AbstractConfig
     }
 
     /**
-     * @param array $variants
+     * @param array<string, mixed> $variants
      * @return VariantList
      */
-    protected function castVariantsToVariantList(array $variants)
+    protected function castVariantsToVariantList(array $variants): VariantList
     {
         return new VariantList($variants);
     }
@@ -66,7 +62,7 @@ class PaperclipConfig extends AbstractConfig
      *
      * @return bool
      */
-    protected function shouldMergeDefaultVariants()
+    protected function shouldMergeDefaultVariants(): bool
     {
         return (bool) config('paperclip.variants.merge-default');
     }

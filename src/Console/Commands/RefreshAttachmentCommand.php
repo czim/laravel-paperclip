@@ -1,21 +1,27 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Czim\Paperclip\Console\Commands;
 
 use Czim\Paperclip\Contracts\AttachableInterface;
 use Czim\Paperclip\Contracts\AttachmentInterface;
 use Czim\Paperclip\Exceptions\ReprocessingFailureException;
-use Exception;
+use Generator;
 use Illuminate\Console\Command;
-use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Builder as EloquentBuilder;
 use Illuminate\Database\Eloquent\Model;
 use RuntimeException;
+use Throwable;
 use UnexpectedValueException;
 
 class RefreshAttachmentCommand extends Command
 {
-    const DEFAULT_CHUNK_SIZE = 500;
+    protected const DEFAULT_CHUNK_SIZE = 500;
 
+    /**
+     * @var string
+     */
     protected $signature = 'paperclip:refresh
         { class : The model class to refresh attachments on }
         { --attachments= : A list of specific attachments to refresh, comma-separated }
@@ -24,13 +30,13 @@ class RefreshAttachmentCommand extends Command
         { --start= : Optional ID to start processing at }
         { --stop= : Optional ID to stop processing after }';
 
+    /**
+     * @var string
+     */
     protected $description = "Regenerate variants for a given model's attachments";
 
 
-    /**
-     * Execute the console command.
-     */
-    public function handle()
+    public function handle(): int
     {
         $model = $this->getAttachableModelInstanceForClass($this->argument('class'));
 
@@ -38,7 +44,8 @@ class RefreshAttachmentCommand extends Command
 
         if (empty($attachmentKeys)) {
             $this->warn('No attachments selected or available for this model, nothing to process.');
-            return;
+
+            return static::INVALID;
         }
 
         $query = $this->getModelInstanceQuery($model);
@@ -47,12 +54,10 @@ class RefreshAttachmentCommand extends Command
         $this->progressStart($count);
 
         foreach ($this->generateModelInstances($query, $count) as $instances) {
-            /** @var \Illuminate\Support\Collection|Model[]|AttachableInterface[] $instances */
+            /** @var \Illuminate\Support\Collection<int, Model&AttachableInterface> $instances */
             foreach ($instances as $instance) {
-
                 foreach ($instance->getAttachedFiles() as $attachmentKey => $attachment) {
-
-                    if ( ! in_array($attachmentKey, $attachmentKeys)) {
+                    if (! in_array($attachmentKey, $attachmentKeys)) {
                         continue;
                     }
 
@@ -66,6 +71,8 @@ class RefreshAttachmentCommand extends Command
         $this->progressFinish();
 
         $this->info('Done.');
+
+        return static::SUCCESS;
     }
 
     /**
@@ -73,19 +80,17 @@ class RefreshAttachmentCommand extends Command
      * @param AttachmentInterface $attachment
      * @throws ReprocessingFailureException
      */
-    protected function processAttachmentOnModelInstance(Model $model, AttachmentInterface $attachment)
+    protected function processAttachmentOnModelInstance(Model $model, AttachmentInterface $attachment): void
     {
         $specificVariants   = $this->getVariantsToProcess();
         $matchedVariants    = array_intersect($specificVariants, $attachment->variants());
         $processAllVariants = in_array('*', $specificVariants);
 
 
-        if ( ! $processAllVariants && ! count($matchedVariants)) {
-
+        if (! $processAllVariants && ! count($matchedVariants)) {
             throw new UnexpectedValueException(
-                "Attachment '{$attachment->name()}' on " .  get_class($model)
-                . ' does not have any of the indicated variants '
-                . '(' . implode(', ', $specificVariants) . ')'
+                "Attachment '{$attachment->name()}' on " . get_class($model)
+                . ' does not have any of the indicated variants (' . implode(', ', $specificVariants) . ')'
             );
         }
 
@@ -96,9 +101,7 @@ class RefreshAttachmentCommand extends Command
             } else {
                 $attachment->reprocess($specificVariants);
             }
-
-        } catch (Exception $e) {
-
+        } catch (Throwable $e) {
             throw new ReprocessingFailureException(
                 "Failed to reprocess attachment '{$attachment->name()}' of "
                 . get_class($model) . " #{$model->getKey()}: {$e->getMessage()}",
@@ -110,11 +113,11 @@ class RefreshAttachmentCommand extends Command
 
     /**
      * @param string $class
-     * @return Model|AttachableInterface
+     * @return AttachableInterface&Model
      */
-    protected function getAttachableModelInstanceForClass($class)
+    protected function getAttachableModelInstanceForClass(string $class): AttachableInterface
     {
-        if ( ! is_a($class, AttachableInterface::class, true)) {
+        if (! is_a($class, AttachableInterface::class, true)) {
             throw new RuntimeException("'{$class}' is not a valid attachable model class.");
         }
 
@@ -122,7 +125,7 @@ class RefreshAttachmentCommand extends Command
     }
 
     /**
-     * Returns the attachment names that should be procesed for a given model.
+     * Returns the attachment names that should be processed for a given model.
      *
      * This takes into account the given attachments listed as a command option,
      * and filters out any attachments that don't exist.
@@ -130,15 +133,13 @@ class RefreshAttachmentCommand extends Command
      * @param AttachableInterface $model
      * @return string[]
      */
-    protected function getAttachmentsToProcess(AttachableInterface $model)
+    protected function getAttachmentsToProcess(AttachableInterface $model): array
     {
         $attachments     = $model->getAttachedFiles();
         $attachmentNames = $this->option('attachments');
 
         $availableAttachmentNames = array_map(
-            function (AttachmentInterface $attachment) {
-                return $attachment->name();
-            },
+            fn (AttachmentInterface $attachment): string => $attachment->name(),
             $attachments
         );
 
@@ -149,6 +150,7 @@ class RefreshAttachmentCommand extends Command
         $attachmentNames = explode(',', str_replace(', ', ',', $attachmentNames));
 
         $unavailableNames = array_diff($attachmentNames, $availableAttachmentNames);
+
         if (count($unavailableNames)) {
             throw new UnexpectedValueException(
                 get_class($model) . ' does not have attachment(s): ' . implode(', ', $unavailableNames)
@@ -161,11 +163,11 @@ class RefreshAttachmentCommand extends Command
     /**
      * @return string[]
      */
-    protected function getVariantsToProcess()
+    protected function getVariantsToProcess(): array
     {
         $variants = $this->option('variants');
 
-        if ( ! $variants) {
+        if (! $variants) {
             return ['*'];
         }
 
@@ -176,9 +178,9 @@ class RefreshAttachmentCommand extends Command
      * Returns base query for returning all model instances.
      *
      * @param Model $model
-     * @return Builder
+     * @return EloquentBuilder
      */
-    protected function getModelInstanceQuery(Model $model)
+    protected function getModelInstanceQuery(Model $model): EloquentBuilder
     {
         $query = $model->query();
 
@@ -193,18 +195,17 @@ class RefreshAttachmentCommand extends Command
      *
      * This also starts the progress bar, given the total count of matched
      *
-     * @param Builder $query
-     * @param int     $totalCount
-     * @return \Generator
+     * @param EloquentBuilder $query
+     * @param int             $totalCount
+     * @return Generator<int, Model&AttachableInterface>
      */
-    protected function generateModelInstances($query, $totalCount)
+    protected function generateModelInstances(EloquentBuilder $query, int $totalCount): Generator
     {
         $chunkSize = $this->getChunkSize();
 
         $chunkCount = ceil($totalCount / $chunkSize);
 
         for ($x = 0; $x < $chunkCount; $x++) {
-
             $skip = $x * $chunkSize;
 
             yield $query
@@ -214,10 +215,7 @@ class RefreshAttachmentCommand extends Command
         }
     }
 
-    /**
-     * @param Builder $query
-     */
-    protected function applyOrderingToModelInstanceQuery($query)
+    protected function applyOrderingToModelInstanceQuery(EloquentBuilder $query): void
     {
         if ($this->option('dont-order')) {
             return;
@@ -226,51 +224,42 @@ class RefreshAttachmentCommand extends Command
         $query->orderBy('id');
     }
 
-    /**
-     * @param Builder $query
-     */
-    protected function applyStartAndStopLimitsToQuery($query)
+    protected function applyStartAndStopLimitsToQuery(EloquentBuilder $query): void
     {
         $startAt   = $this->option('start');
         $stopAfter = $this->option('stop');
 
-        if ( ! $startAt && ! $startAt) {
+        if (! $startAt && ! $stopAfter) {
             return;
         }
 
-        $model = $query->getModel();
+        $keyName = $query->getModel()->getKeyName();
 
         if ($startAt) {
-            $query->where($model->getKeyName(), '>=', $startAt);
+            $query->where($keyName, '>=', $startAt);
         }
 
         if ($stopAfter) {
-            $query->where($model->getKeyName(), '<=', $stopAfter);
+            $query->where($keyName, '<=', $stopAfter);
         }
     }
 
-    /**
-     * @return int
-     */
-    protected function getChunkSize()
+    protected function getChunkSize(): int
     {
-        return config('paperclip.processing.chunk-size', static::DEFAULT_CHUNK_SIZE);
+        return (int) config('paperclip.processing.chunk-size', static::DEFAULT_CHUNK_SIZE);
     }
 
-    /**
-     * @param int $count
-     */
-    protected function progressStart($count)
+    protected function progressStart(int $count): void
     {
         $this->output->progressStart($count);
     }
 
-    protected function progressAdvance()
+    protected function progressAdvance(): void
     {
         $this->output->progressAdvance();
     }
 
-    protected function progressFinish()
+    protected function progressFinish(): void
     {
         $this->output->progressFinish();
     }

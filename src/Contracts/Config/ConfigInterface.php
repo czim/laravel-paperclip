@@ -6,56 +6,16 @@ use Illuminate\Contracts\Support\Arrayable;
 
 interface ConfigInterface extends Arrayable
 {
-
-    /**
-     * @return bool
-     */
-    public function keepOldFiles();
-
-    /**
-     * @return bool
-     */
-    public function preserveFiles();
-
-    /**
-     * @return string
-     */
-    public function storageDisk();
-
-    /**
-     * @return string
-     */
-    public function path();
-
-    /**
-     * @return string
-     */
-    public function variantPath();
-
-    /**
-     * @return string
-     */
-    public function sizeAttribute();
-
-    /**
-     * @return string
-     */
-    public function contentTypeAttribute();
-
-    /**
-     * @return string
-     */
-    public function updatedAtAttribute();
-
-    /**
-     * @return string
-     */
-    public function createdAtAttribute();
-
-    /**
-     * @return string
-     */
-    public function variantsAttribute();
+    public function keepOldFiles(): bool;
+    public function preserveFiles(): bool;
+    public function storageDisk(): ?string;
+    public function path(): string;
+    public function variantPath(): ?string;
+    public function sizeAttribute(): string|bool;
+    public function contentTypeAttribute(): string|bool;
+    public function updatedAtAttribute(): string|bool;
+    public function createdAtAttribute(): string|bool;
+    public function variantsAttribute(): string|bool;
 
     /**
      * Returns whether a configuration for a specific variant has been set.
@@ -63,37 +23,37 @@ interface ConfigInterface extends Arrayable
      * @param string $variant
      * @return bool
      */
-    public function hasVariantConfig($variant);
+    public function hasVariantConfig(string $variant): bool;
 
     /**
      * Returns the configuration array for a specific variant.
      *
      * @param string $variant
-     * @return array
+     * @return array<string, mixed>
      */
-    public function variantConfig($variant);
+    public function variantConfig(string $variant): array;
 
     /**
      * Returns an array with the variant configurations set.
      *
-     * @return array    associative, keyed by variant name
+     * @return array<string, array<string, mixed>> keyed by variant name
      */
-    public function variantConfigs();
+    public function variantConfigs(): array;
 
     /**
      * Returns the mimetype specifically configured for a given variant.
      *
      * @param string $variant
-     * @return false|string
+     * @return string|false
      */
-    public function variantMimeType($variant);
+    public function variantMimeType(string $variant): string|false;
 
     /**
      * Returns an array with extensions configured per variant.
      *
-     * @return string[]     associative, keyed by variant name
+     * @return array<string, string|null> keyed by variant name
      */
-    public function variantExtensions();
+    public function variantExtensions(): array;
 
     /**
      * Returns the extension specifically configured for a given variant.
@@ -102,16 +62,16 @@ interface ConfigInterface extends Arrayable
      * just what extension Paperclip should expect the created file to have.
      *
      * @param string $variant
-     * @return false|string
+     * @return string|false
      */
-    public function variantExtension($variant);
+    public function variantExtension(string $variant): string|false;
 
     /**
      * Returns the default URL to use when no attachment is stored.
      *
      * @return string|null
      */
-    public function defaultUrl();
+    public function defaultUrl(): ?string;
 
     /**
      * Returns the default URL for a variant to use when no attachment is stored.
@@ -119,7 +79,7 @@ interface ConfigInterface extends Arrayable
      * @param string $variant
      * @return string|null
      */
-    public function defaultVariantUrl($variant);
+    public function defaultVariantUrl(string $variant): ?string;
 
     /**
      * Returns whether a given attribute property should be saved.
@@ -129,26 +89,26 @@ interface ConfigInterface extends Arrayable
      * @param string $attribute
      * @return bool
      */
-    public function attributeProperty($attribute);
+    public function attributeProperty(string $attribute): bool;
 
     /**
      * Returns the hook callable to run before storing an attachment.
      *
-     * @return callable|null
+     * @return callable|callable-string|null
      */
-    public function beforeCallable();
+    public function beforeCallable(): callable|string|null;
 
     /**
      * Returns the hook callable to run after storing an attachment.
      *
-     * @return callable|null
+     * @return callable|callable-string|null
      */
-    public function afterCallable();
+    public function afterCallable(): callable|string|null;
 
     /**
      * Returns the unedited, non-normalized input config array.
      *
-     * @return array
+     * @return array<string, mixed>
      */
-    public function getOriginalConfig();
+    public function getOriginalConfig(): array;
 }

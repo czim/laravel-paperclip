@@ -9,65 +9,41 @@ use JsonSerializable;
 
 interface AttachmentInterface extends AttachmentDataInterface, JsonSerializable
 {
-
     /**
      * Sets the underlying instance object.
      *
      * @param AttachableInterface $instance
-     * @return $this
      */
-    public function setInstance(AttachableInterface $instance);
+    public function setInstance(AttachableInterface $instance): void;
 
     /**
      * Returns the underlying instance (model) object for this attachment.
      *
      * @return AttachableInterface
      */
-    public function getInstance();
+    public function getInstance(): AttachableInterface;
 
-    /**
-     * Sets the configuration.
-     *
-     * @param ConfigInterface $config
-     * @return $this
-     */
-    public function setConfig(ConfigInterface $config);
+    public function setConfig(ConfigInterface $config): void;
 
     /**
      * Returns the configuration after normalization.
      *
-     * @return array
+     * @return array<string, mixed>
      */
-    public function getNormalizedConfig();
+    public function getNormalizedConfig(): array;
 
     /**
      * Sets the storage disk identifier.
      *
-     * @param string $storage   disk identifier
-     * @return $this
+     * @param string|null $storage
      */
-    public function setStorage($storage);
+    public function setStorage(?string $storage): void;
 
-    /**
-     * Returns the storage disk used by the attachment.
-     *
-     * @return null|string
-     */
-    public function getStorage();
+    public function getStorage(): ?string;
 
-    /**
-     * Sets the name (the attribute on the model) for the attachment.
-     *
-     * @param string $name
-     * @return $this
-     */
-    public function setName($name);
+    public function setName(string $name): void;
 
-    /**
-     * @param InterpolatorInterface $interpolator
-     * @return $this
-     */
-    public function setInterpolator(InterpolatorInterface $interpolator);
+    public function setInterpolator(InterpolatorInterface $interpolator): void;
 
     /**
      * Sets a file to be processed and stored.
@@ -76,21 +52,21 @@ interface AttachmentInterface extends AttachmentDataInterface, JsonSerializable
      *
      * @param StorableFileInterface $file
      */
-    public function setUploadedFile(StorableFileInterface $file);
+    public function setUploadedFile(StorableFileInterface $file): void;
 
     /**
      * Sets the attachment to be deleted.
      *
      * This does NOT override the preserve-files config option.
      */
-    public function setToBeDeleted();
+    public function setToBeDeleted(): void;
 
     /**
      * Reprocesses variants from the currently set original file.
      *
-     * @param array $variants   ['*'] for all
+     * @param string[] $variants   ['*'] for all
      */
-    public function reprocess($variants = ['*']);
+    public function reprocess(array $variants = ['*']);
 
     /**
      * Returns list of keys for defined variants.
@@ -98,58 +74,58 @@ interface AttachmentInterface extends AttachmentDataInterface, JsonSerializable
      * @param bool $withOriginal    whether to include the original 'variant' key
      * @return string[]
      */
-    public function variants($withOriginal = false);
+    public function variants(bool $withOriginal = false): array;
 
     /**
      * Generates the url to an uploaded file (or a variant).
      *
-     * @param string $variant
-     * @return string
+     * @param string|null $variant
+     * @return string|null
      */
-    public function url($variant = null);
+    public function url(?string $variant = null): ?string;
 
     /**
      * Returns the relative storage path for a variant.
      *
      * @param string|null $variant
-     * @return string
+     * @return string|null
      */
-    public function variantPath($variant = null);
+    public function variantPath(?string $variant = null): ?string;
 
     /**
      * Returns whether this attachment actually has a file currently stored.
      *
      * @return bool
      */
-    public function exists();
+    public function exists(): bool;
 
     /**
      * Removes all uploaded files (from storage) for this attachment.
      *
      * This method does not clear out attachment attributes on the model instance.
      *
-     * @param array $variants
+     * @param string[] $variants
      */
-    public function destroy(array $variants = []);
+    public function destroy(array $variants = []): void;
 
     /**
      * Processes the write queue.
      *
      * @param AttachableInterface $instance
      */
-    public function afterSave(AttachableInterface $instance);
+    public function afterSave(AttachableInterface $instance): void;
 
     /**
      * Queues up this attachments files for deletion.
      *
      * @param AttachableInterface $instance
      */
-    public function beforeDelete(AttachableInterface $instance);
+    public function beforeDelete(AttachableInterface $instance): void;
 
     /**
      * Processes the delete queue.
      *
      * @param AttachableInterface $instance
      */
-    public function afterDelete(AttachableInterface $instance);
+    public function afterDelete(AttachableInterface $instance): void;
 }

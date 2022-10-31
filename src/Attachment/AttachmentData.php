@@ -1,8 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Czim\Paperclip\Attachment;
 
+use Czim\Paperclip\Contracts\AttachableInterface;
 use Czim\Paperclip\Contracts\AttachmentDataInterface;
+use Illuminate\Database\Eloquent\Model;
 
 /**
  * Data object that reflects a previous state of the attachment.
@@ -10,94 +14,43 @@ use Czim\Paperclip\Contracts\AttachmentDataInterface;
  */
 class AttachmentData implements AttachmentDataInterface
 {
-
     /**
-     * @var string
-     */
-    protected $name;
-
-    /**
-     * @var array
-     */
-    protected $config;
-
-    /**
-     * @var array
-     */
-    protected $attributes;
-
-    /**
-     * @var array
-     */
-    protected $variants;
-
-    /**
-     * @var mixed
-     */
-    protected $instanceKey;
-
-    /**
-     * @var string
-     */
-    protected $instanceClass;
-
-
-
-    /**
-     * @param string $name
-     * @param array  $config
-     * @param array  $attributes
-     * @param array  $variants
-     * @param mixed  $instanceKey
-     * @param string $instanceClass
+     * @param string                                  $name
+     * @param array<string, mixed>                    $config
+     * @param array<string, mixed>                    $attributes
+     * @param array                                   $variants
+     * @param mixed                                   $instanceKey
+     * @param class-string<AttachableInterface&Model> $instanceClass
      */
     public function __construct(
-        $name,
-        array $config,
-        array $attributes,
-        array $variants,
-        $instanceKey,
-        $instanceClass
+        protected readonly string $name,
+        protected readonly array $config,
+        protected readonly array $attributes,
+        protected readonly array $variants,
+        protected readonly mixed $instanceKey,
+        protected readonly string $instanceClass,
     ) {
-        $this->name          = $name;
-        $this->config        = $config;
-        $this->attributes    = $attributes;
-        $this->variants      = $variants;
-        $this->instanceKey   = $instanceKey;
-        $this->instanceClass = $instanceClass;
     }
 
-
-    /**
-     * Returns the name (the attribute on the model) for the attachment.
-     *
-     * @return string
-     */
-    public function name()
+    public function name(): string
     {
         return $this->name;
     }
 
     /**
-     * Returns the configuration.
-     *
-     * @return array
+     * {@inheritDoc}
      */
-    public function getConfig()
+    public function getConfig(): array
     {
         return $this->config;
     }
 
     /**
-     * Returns the creation time of the file as originally assigned to this attachment's model.
-     * Lives in the <attachment>_created_at attribute of the model.
-     * This attribute may conditionally exist on the model, it is not one of the four required fields.
-     *
-     * @return string|null
+     * {@inheritDoc}
      */
-    public function createdAt()
+    public function createdAt(): ?string
     {
-        if ( ! array_key_exists('created_at', $this->attributes)) {
+        if (! array_key_exists('created_at', $this->attributes)) {
             return null;
         }
 
@@ -105,14 +58,11 @@ class AttachmentData implements AttachmentDataInterface
     }
 
     /**
-     * Returns the last modified time of the file as originally assigned to this attachment's model.
-     * Lives in the <attachment>_updated_at attribute of the model.
-     *
-     * @return string
+     * {@inheritDoc}
      */
-    public function updatedAt()
+    public function updatedAt(): ?string
     {
-        if ( ! array_key_exists('updated_at', $this->attributes)) {
+        if (! array_key_exists('updated_at', $this->attributes)) {
             return null;
         }
 
@@ -120,14 +70,11 @@ class AttachmentData implements AttachmentDataInterface
     }
 
     /**
-     * Returns the content type of the file as originally assigned to this attachment's model.
-     * Lives in the <attachment>_content_type attribute of the model.
-     *
-     * @return string
+     * {@inheritDoc}
      */
-    public function contentType()
+    public function contentType(): ?string
     {
-        if ( ! array_key_exists('content_type', $this->attributes)) {
+        if (! array_key_exists('content_type', $this->attributes)) {
             return null;
         }
 
@@ -135,14 +82,11 @@ class AttachmentData implements AttachmentDataInterface
     }
 
     /**
-     * Returns the size of the file as originally assigned to this attachment's model.
-     * Lives in the <attachment>_file_size attribute of the model.
-     *
-     * @return int
+     * {@inheritDoc}
      */
-    public function size()
+    public function size(): ?int
     {
-        if ( ! array_key_exists('file_size', $this->attributes)) {
+        if (! array_key_exists('file_size', $this->attributes)) {
             return null;
         }
 
@@ -150,14 +94,11 @@ class AttachmentData implements AttachmentDataInterface
     }
 
     /**
-     * Returns the name of the file as originally assigned to this attachment's model.
-     * Lives in the <attachment>_file_name attribute of the model.
-     *
-     * @return string
+     * {@inheritDoc}
      */
-    public function originalFilename()
+    public function originalFilename(): ?string
     {
-        if ( ! array_key_exists('file_name', $this->attributes)) {
+        if (! array_key_exists('file_name', $this->attributes)) {
             return null;
         }
 
@@ -165,13 +106,11 @@ class AttachmentData implements AttachmentDataInterface
     }
 
     /**
-     * Returns the JSON information stored on the model about variants as an associative array.
-     *
-     * @return array
+     * {@inheritDoc}
      */
-    public function variantsAttribute()
+    public function variantsAttribute(): array
     {
-        if ( ! array_key_exists('variants', $this->attributes)) {
+        if (! array_key_exists('variants', $this->attributes)) {
             return [];
         }
 
@@ -179,16 +118,14 @@ class AttachmentData implements AttachmentDataInterface
     }
 
     /**
-     * Returns the filename for a given variant.
-     *
-     * @param string|null $variant
-     * @return string
+     * {@inheritDoc}
      */
-    public function variantFilename($variant)
+    public function variantFilename(?string $variant): string|false
     {
-        if (    ! array_key_exists($variant, $this->variants)
-            ||  ! is_array($this->variants[ $variant ])
-            ||  ! array_key_exists('file_name', $this->variants[ $variant ])
+        if (
+            ! array_key_exists($variant, $this->variants)
+            || ! is_array($this->variants[ $variant ])
+            || ! array_key_exists('file_name', $this->variants[ $variant ])
         ) {
             return false;
         }
@@ -197,16 +134,14 @@ class AttachmentData implements AttachmentDataInterface
     }
 
     /**
-     * Returns the extension for a given variant.
-     *
-     * @param string $variant
-     * @return string|false
+     * {@inheritDoc}
      */
-    public function variantExtension($variant)
+    public function variantExtension(string $variant): string|false
     {
-        if (    ! array_key_exists($variant, $this->variants)
-            ||  ! is_array($this->variants[ $variant ])
-            ||  ! array_key_exists('extension', $this->variants[ $variant ])
+        if (
+            ! array_key_exists($variant, $this->variants)
+            || ! is_array($this->variants[ $variant ])
+            || ! array_key_exists('extension', $this->variants[ $variant ])
         ) {
             return false;
         }
@@ -215,16 +150,14 @@ class AttachmentData implements AttachmentDataInterface
     }
 
     /**
-     * Returns the mimeType for a given variant.
-     *
-     * @param string $variant
-     * @return string|false
+     * {@inheritDoc}
      */
-    public function variantContentType($variant)
+    public function variantContentType(string $variant): string|false
     {
-        if (    ! array_key_exists($variant, $this->variants)
-            ||  ! is_array($this->variants[ $variant ])
-            ||  ! array_key_exists('content_type', $this->variants[ $variant ])
+        if (
+            ! array_key_exists($variant, $this->variants)
+            || ! is_array($this->variants[ $variant ])
+            || ! array_key_exists('content_type', $this->variants[ $variant ])
         ) {
             return false;
         }
@@ -233,21 +166,17 @@ class AttachmentData implements AttachmentDataInterface
     }
 
     /**
-     * Returns the key for the underlying object instance.
-     *
-     * @return mixed
+     * {@inheritDoc}
      */
-    public function getInstanceKey()
+    public function getInstanceKey(): mixed
     {
         return $this->instanceKey;
     }
 
     /**
-     * Returns the class type of the attachment's underlying object instance.
-     *
-     * @return string
+     * {@inheritDoc}
      */
-    public function getInstanceClass()
+    public function getInstanceClass(): string
     {
         return $this->instanceClass;
     }
