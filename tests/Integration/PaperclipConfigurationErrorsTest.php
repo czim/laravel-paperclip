@@ -1,6 +1,6 @@
 <?php
-/** @noinspection ReturnTypeCanBeDeclaredInspection */
-/** @noinspection AccessModifierPresentedInspection */
+
+declare(strict_types=1);
 
 namespace Czim\Paperclip\Test\Integration;
 
@@ -9,11 +9,10 @@ use RuntimeException;
 
 class PaperclipConfigurationErrorsTest extends ProvisionedTestCase
 {
-
     /**
      * @test
      */
-    function it_throws_an_exception_if_the_filesystem_disk_configured_does_not_exist()
+    public function it_throws_an_exception_if_the_filesystem_disk_configured_does_not_exist(): void
     {
         $this->expectException(RuntimeException::class);
         $this->expectExceptionMessageMatches("/paperclip storage disk 'paperclip' is not configured/i");
@@ -26,16 +25,14 @@ class PaperclipConfigurationErrorsTest extends ProvisionedTestCase
     /**
      * @test
      */
-    function it_throws_an_exception_if_the_paperclip_storage_disk_is_not_set()
+    public function it_throws_an_exception_if_the_paperclip_storage_disk_is_not_set(): void
     {
         $this->expectException(RuntimeException::class);
         $this->expectExceptionMessageMatches('/paperclip storage disk invalid or null/i');
 
         $this->app['config']->set('filesystems.default', null);
-        //$this->app['config']->set('filesystems.disks', []);
         $this->app['config']->set('paperclip.storage.disk', null);
 
         $this->getTestModel();
     }
-
 }

@@ -1,6 +1,6 @@
 <?php
-/** @noinspection ReturnTypeCanBeDeclaredInspection */
-/** @noinspection AccessModifierPresentedInspection */
+
+declare(strict_types=1);
 
 namespace Czim\Paperclip\Test\Config;
 
@@ -8,15 +8,15 @@ use Czim\Paperclip\Config\PaperclipConfig;
 use Czim\Paperclip\Config\Steps\AutoOrientStep;
 use Czim\Paperclip\Config\Steps\ResizeStep;
 use Czim\Paperclip\Config\Variant;
+use Czim\Paperclip\Test\Helpers\CallableClass;
 use Czim\Paperclip\Test\TestCase;
 
 class PaperclipConfigTest extends TestCase
 {
-
     /**
      * @test
      */
-    function it_can_be_instantiated_with_empty_data()
+    public function it_can_be_instantiated_with_empty_data(): void
     {
         $config = new PaperclipConfig([]);
 
@@ -27,8 +27,10 @@ class PaperclipConfigTest extends TestCase
     /**
      * @test
      */
-    function it_takes_array_data_and_returns_configuration_values()
+    public function it_takes_array_data_and_returns_configuration_values(): void
     {
+        $callable = fn () => true;
+
         $config = new PaperclipConfig([
             'attributes'     => [
                 'size'         => false,
@@ -59,8 +61,8 @@ class PaperclipConfigTest extends TestCase
             'urls'           => [
                 'one' => 'default-url-variant',
             ],
-            'before'         => 'test@test',
-            'after'          => 'test@another',
+            'before'         => CallableClass::class . '@callMe',
+            'after'          => $callable,
         ]);
 
 
@@ -78,8 +80,8 @@ class PaperclipConfigTest extends TestCase
         static::assertEquals('png', $config->variantExtension('one'));
         static::assertEquals(['one' => 'png'], $config->variantExtensions());
 
-        static::assertEquals('test@test', $config->beforeCallable());
-        static::assertEquals('test@another', $config->afterCallable());
+        static::assertEquals(CallableClass::class . '@callMe', $config->beforeCallable());
+        static::assertSame($callable, $config->afterCallable());
 
         static::assertFalse($config->sizeAttribute());
         static::assertFalse($config->contentTypeAttribute());
@@ -95,7 +97,7 @@ class PaperclipConfigTest extends TestCase
     /**
      * @test
      */
-    function it_keeps_the_auto_orient_and_resize_steps_in_the_right_order()
+    public function it_keeps_the_auto_orient_and_resize_steps_in_the_right_order(): void
     {
         $config = new PaperclipConfig([
             'variants' => [
@@ -113,7 +115,7 @@ class PaperclipConfigTest extends TestCase
     /**
      * @test
      */
-    function it_uses_default_global_variants_if_no_variants_are_configured()
+    public function it_uses_default_global_variants_if_no_variants_are_configured(): void
     {
         $this->app['config']->set('paperclip.variants.default', [
             'one' => [
@@ -137,7 +139,7 @@ class PaperclipConfigTest extends TestCase
     /**
      * @test
      */
-    function it_merges_in_default_global_variants_that_are_not_configured_if_merge_default_enabled()
+    public function it_merges_in_default_global_variants_that_are_not_configured_if_merge_default_enabled(): void
     {
         $this->app['config']->set('paperclip.variants.merge-default', true);
         $this->app['config']->set('paperclip.variants.default', [
@@ -174,7 +176,7 @@ class PaperclipConfigTest extends TestCase
                 // test whether variant set by object config gets handled correctly
                 (new Variant('four'))->steps([
                     (new ResizeStep())->square(100),
-                ])
+                ]),
             ],
         ]);
 
@@ -198,11 +200,11 @@ class PaperclipConfigTest extends TestCase
     /**
      * @test
      */
-    function it_does_not_merge_in_default_global_variants_that_included_as_a_literal_false()
+    public function it_does_not_merge_in_default_global_variants_that_included_as_a_literal_false(): void
     {
         $this->app['config']->set('paperclip.variants.merge-default', true);
         $this->app['config']->set('paperclip.variants.default', [
-            'two'   => [
+            'two' => [
                 'resize' => [
                     'dimensions' => '50x50',
                 ],
@@ -217,7 +219,7 @@ class PaperclipConfigTest extends TestCase
                     ],
                 ],
                 // test whether a variant set globally is left out when set to literal false on attachment
-                'two' => false,
+                'two'   => false,
                 // test whether any old variant defined by literal false is ignored
                 'three' => false,
             ],
@@ -227,5 +229,4 @@ class PaperclipConfigTest extends TestCase
         static::assertFalse($config->hasVariantConfig('two'));
         static::assertFalse($config->hasVariantConfig('three'));
     }
-
 }

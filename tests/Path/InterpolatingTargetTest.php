@@ -1,6 +1,6 @@
 <?php
-/** @noinspection ReturnTypeCanBeDeclaredInspection */
-/** @noinspection AccessModifierPresentedInspection */
+
+declare(strict_types=1);
 
 namespace Czim\Paperclip\Test\Path;
 
@@ -10,14 +10,14 @@ use Czim\Paperclip\Path\InterpolatingTarget;
 use Czim\Paperclip\Test\TestCase;
 use Hamcrest\Matchers;
 use Mockery;
+use Mockery\MockInterface;
 
 class InterpolatingTargetTest extends TestCase
 {
-
     /**
      * @test
      */
-    function it_uses_a_different_path_for_variants_when_given()
+    public function it_uses_a_different_path_for_variants_when_given(): void
     {
         $interpolator = $this->getMockInterpolator();
 
@@ -43,19 +43,18 @@ class InterpolatingTargetTest extends TestCase
     }
 
     /**
-     * @return Mockery\MockInterface|Mockery\Mock|InterpolatorInterface
+     * @return InterpolatorInterface&MockInterface
      */
-    protected function getMockInterpolator()
+    protected function getMockInterpolator(): MockInterface
     {
         return Mockery::mock(InterpolatorInterface::class);
     }
 
     /**
-     * @return Mockery\MockInterface|Mockery\Mock|AttachmentDataInterface
+     * @return AttachmentDataInterface&MockInterface
      */
-    protected function getMockAttachmentData()
+    protected function getMockAttachmentData(): MockInterface
     {
         return Mockery::mock(AttachmentDataInterface::class);
     }
-
 }

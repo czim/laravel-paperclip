@@ -1,6 +1,6 @@
 <?php
-/** @noinspection ReturnTypeCanBeDeclaredInspection */
-/** @noinspection AccessModifierPresentedInspection */
+
+declare(strict_types=1);
 
 namespace Czim\Paperclip\Test\Attachment;
 
@@ -9,11 +9,10 @@ use Czim\Paperclip\Test\TestCase;
 
 class AttachmentDataTest extends TestCase
 {
-
     /**
      * @test
      */
-    function it_returns_the_name()
+    public function it_returns_the_name(): void
     {
         $data = $this->getAttachmentData();
 
@@ -23,7 +22,7 @@ class AttachmentDataTest extends TestCase
     /**
      * @test
      */
-    function it_returns_the_configuration()
+    public function it_returns_the_configuration(): void
     {
         $data = $this->getAttachmentData();
 
@@ -33,7 +32,7 @@ class AttachmentDataTest extends TestCase
     /**
      * @test
      */
-    function it_returns_basic_attributes()
+    public function it_returns_basic_attributes(): void
     {
         $data = $this->getAttachmentData();
 
@@ -48,7 +47,7 @@ class AttachmentDataTest extends TestCase
     /**
      * @test
      */
-    function it_returns_empty_values_if_basic_attributes_are_not_set()
+    public function it_returns_empty_values_if_basic_attributes_are_not_set(): void
     {
         $data = $this->getEmptyAttachmentData();
 
@@ -63,7 +62,7 @@ class AttachmentDataTest extends TestCase
     /**
      * @test
      */
-    function it_returns_variant_attributes()
+    public function it_returns_variant_attributes(): void
     {
         $data = $this->getAttachmentData();
 
@@ -75,7 +74,7 @@ class AttachmentDataTest extends TestCase
     /**
      * @test
      */
-    function it_returns_false_values_if_variant_attributes_are_unset()
+    public function it_returns_false_values_if_variant_attributes_are_unset(): void
     {
         $data = $this->getAttachmentData();
 
@@ -87,7 +86,7 @@ class AttachmentDataTest extends TestCase
     /**
      * @test
      */
-    function it_returns_instance_attributes()
+    public function it_returns_instance_attributes(): void
     {
         $data = $this->getAttachmentData();
 
@@ -95,10 +94,7 @@ class AttachmentDataTest extends TestCase
         static::assertEquals('Some\\TestNamespace', $data->getInstanceClass());
     }
 
-    /**
-     * @return AttachmentData
-     */
-    protected function getAttachmentData()
+    protected function getAttachmentData(): AttachmentData
     {
         return new AttachmentData(
             'attachment',
@@ -123,14 +119,11 @@ class AttachmentDataTest extends TestCase
                 ],
             ],
             13,
-            'Some\\TestNamespace'
+            'Some\\TestNamespace',
         );
     }
 
-    /**
-     * @return AttachmentData
-     */
-    protected function getEmptyAttachmentData()
+    protected function getEmptyAttachmentData(): AttachmentData
     {
         return new AttachmentData(
             'attachment',
@@ -138,7 +131,7 @@ class AttachmentDataTest extends TestCase
             [],
             [],
             null,
-            'Some\\TestNamespace'
+            'Some\\TestNamespace',
         );
     }
 }

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Czim\Paperclip\Test\Helpers\Model;
 
 use Czim\Paperclip\Contracts\AttachableInterface;
@@ -28,12 +30,19 @@ class TestModel extends Model implements AttachableInterface
 {
     use PaperclipTrait;
 
+    /**
+     * @var string[]
+     */
     protected $fillable = [
         'name',
         'attachment',
         'image',
     ];
 
+    /**
+     * @param array<string, mixed> $attributes
+     * @param array<string, mixed> $attachmentConfig
+     */
     public function __construct(array $attributes = [], array $attachmentConfig = [])
     {
         $this->hasAttachedFile('attachment', $attachmentConfig);

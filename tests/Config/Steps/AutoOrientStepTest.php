@@ -1,6 +1,6 @@
 <?php
-/** @noinspection ReturnTypeCanBeDeclaredInspection */
-/** @noinspection AccessModifierPresentedInspection */
+
+declare(strict_types=1);
 
 namespace Czim\Paperclip\Test\Config\Steps;
 
@@ -9,11 +9,10 @@ use Czim\Paperclip\Test\TestCase;
 
 class AutoOrientStepTest extends TestCase
 {
-
     /**
      * @test
      */
-    function it_allows_static_fluent_syntax_to_array_build()
+    public function it_allows_static_fluent_syntax_to_array_build(): void
     {
         // Default
         $array = AutoOrientStep::make()->toArray();
@@ -39,5 +38,4 @@ class AutoOrientStepTest extends TestCase
             ], $array
         );
     }
-
 }

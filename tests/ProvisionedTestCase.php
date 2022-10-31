@@ -1,12 +1,13 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Czim\Paperclip\Test;
 
 use Illuminate\Database\Eloquent\Model;
 
 abstract class ProvisionedTestCase extends TestCase
 {
-
     protected function getTestFilePath(string $file = 'source.txt'): string
     {
         return realpath(__DIR__ . '/resources/' . $file);
@@ -21,7 +22,7 @@ abstract class ProvisionedTestCase extends TestCase
         Model $model,
         string $file = 'source.txt',
         string $attachmentName = 'attachment',
-        string $variant = 'original'
+        string $variant = 'original',
     ): string {
         return $this->getBasePaperclipPath()
             . str_replace('\\', '/', get_class($model))

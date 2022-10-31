@@ -1,8 +1,8 @@
 <?php
 /** @noinspection PhpUnhandledExceptionInspection */
 /** @noinspection PhpDocMissingThrowsInspection */
-/** @noinspection ReturnTypeCanBeDeclaredInspection */
-/** @noinspection AccessModifierPresentedInspection */
+
+declare(strict_types=1);
 
 namespace Czim\Paperclip\Test\Integration;
 
@@ -18,11 +18,10 @@ use UnexpectedValueException;
 
 class PaperclipBasicAttachmentTest extends ProvisionedTestCase
 {
-
     /**
      * @test
      */
-    function it_processes_and_stores_a_new_file()
+    public function it_processes_and_stores_a_new_file(): void
     {
         Event::fake([
             AttachmentSavedEvent::class,
@@ -50,10 +49,8 @@ class PaperclipBasicAttachmentTest extends ProvisionedTestCase
 
         Event::assertDispatched(
             AttachmentSavedEvent::class,
-            function (AttachmentSavedEvent $event) use ($model) {
-                return $model->is($event->getAttachment()->getInstance()) &&
-                    $event->getUploadedFile()->name() === 'source.txt';
-            }
+            fn (AttachmentSavedEvent $event) => $model->is($event->attachment->getInstance())
+                && $event->uploadedFile->name() === 'source.txt'
         );
 
         if (file_exists($processedFilePath)) {
@@ -64,11 +61,11 @@ class PaperclipBasicAttachmentTest extends ProvisionedTestCase
     /**
      * @test
      */
-    function it_removes_a_previously_attached_file()
+    public function it_removes_a_previously_attached_file(): void
     {
         $model = $this->getTestModel();
 
-        // Store an initial file
+        // Store an initial file.
         $model->attachment = new SplFileInfo($this->getTestFilePath());
         $model->save();
 
@@ -77,7 +74,7 @@ class PaperclipBasicAttachmentTest extends ProvisionedTestCase
         static::assertEquals('source.txt', $model->attachment_file_name);
         static::assertFileExists($processedFilePath, 'File was not stored');
 
-        // Remove it
+        // Remove it.
         $model->attachment = Attachment::NULL_ATTACHMENT;
         $model->save();
 
@@ -91,11 +88,11 @@ class PaperclipBasicAttachmentTest extends ProvisionedTestCase
     /**
      * @test
      */
-    function it_returns_model_attributes_including_attachments()
+    public function it_returns_model_attributes_including_attachments(): void
     {
         $model = $this->getTestModel();
 
-        // Store an initial file
+        // Store an initial file.
         $model->attachment = new SplFileInfo($this->getTestFilePath());
         $model->save();
 
@@ -117,11 +114,11 @@ class PaperclipBasicAttachmentTest extends ProvisionedTestCase
      * @test
      * @depends it_processes_and_stores_a_new_file
      */
-    function it_processes_and_stores_a_file_replacing_an_existing_attached_file()
+    public function it_processes_and_stores_a_file_replacing_an_existing_attached_file(): void
     {
         $model = $this->getTestModel();
 
-        // Store an initial file
+        // Store an initial file.
         $model->attachment = new SplFileInfo($this->getTestFilePath());
         $model->save();
 
@@ -130,7 +127,7 @@ class PaperclipBasicAttachmentTest extends ProvisionedTestCase
         static::assertEquals('source.txt', $model->attachment_file_name);
         static::assertFileExists($processedFilePath, 'File was not stored');
 
-        // Overwrite with a new file
+        // Overwrite with a new file.
         $model->attachment = new SplFileInfo($this->getTestFilePath('empty.gif'));
         $model->save();
 
@@ -156,7 +153,7 @@ class PaperclipBasicAttachmentTest extends ProvisionedTestCase
     /**
      * @test
      */
-    function it_processes_two_attachments_at_the_same_time()
+    public function it_processes_two_attachments_at_the_same_time(): void
     {
         $model = $this->getTestModel();
 
@@ -214,7 +211,7 @@ class PaperclipBasicAttachmentTest extends ProvisionedTestCase
      * @test
      * @depends it_processes_two_attachments_at_the_same_time
      */
-    function it_deletes_processed_attachments_when_deleting_a_model()
+    public function it_deletes_processed_attachments_when_deleting_a_model(): void
     {
         $model = $this->getTestModel();
 
@@ -237,7 +234,7 @@ class PaperclipBasicAttachmentTest extends ProvisionedTestCase
      * @test
      * @depends it_deletes_processed_attachments_when_deleting_a_model
      */
-    function it_returns_paths_for_a_given_attachment()
+    public function it_returns_paths_for_a_given_attachment(): void
     {
         $model = $this->getTestModel();
 
@@ -267,7 +264,7 @@ class PaperclipBasicAttachmentTest extends ProvisionedTestCase
      * @test
      * @depends it_deletes_processed_attachments_when_deleting_a_model
      */
-    function it_returns_urls_for_a_given_attachment()
+    public function it_returns_urls_for_a_given_attachment(): void
     {
         $model = $this->getTestModel();
 
@@ -364,7 +361,7 @@ class PaperclipBasicAttachmentTest extends ProvisionedTestCase
     /**
      * @test
      */
-    function it_stores_variants_data_on_model_if_configured_to_and_required_due_to_processing()
+    public function it_stores_variants_data_on_model_if_configured_to_and_required_due_to_processing(): void
     {
         $this->app['config']->set('paperclip.variants.aliases.test-html', TestTextToHtmlStrategy::class);
 
@@ -396,7 +393,7 @@ class PaperclipBasicAttachmentTest extends ProvisionedTestCase
     /**
      * @test
      */
-    function it_does_not_store_variants_data_if_not_different_from_original()
+    public function it_does_not_store_variants_data_if_not_different_from_original(): void
     {
         $this->app['config']->set('paperclip.variants.aliases.test-html', TestNoChangesStrategy::class);
 
@@ -414,8 +411,7 @@ class PaperclipBasicAttachmentTest extends ProvisionedTestCase
         $model->attachment = new SplFileInfo($this->getTestFilePath());
         $model->save();
 
-        static::assertEquals([
-        ], $model->attachment->variantsAttribute());
+        static::assertEquals([], $model->attachment->variantsAttribute());
 
         static::assertEquals('source.txt', $model->attachment->variantFilename('test'));
         static::assertFalse($model->attachment->variantExtension('test'));
@@ -429,10 +425,12 @@ class PaperclipBasicAttachmentTest extends ProvisionedTestCase
     /**
      * @test
      */
-    function it_calls_a_hook_before_and_after_processing_variants()
+    public function it_calls_a_hook_before_and_after_processing_variants(): void
     {
         $beforeHookCalled = false;
-        $callable = function () use (&$beforeHookCalled) { $beforeHookCalled = true; };
+        $callable = function () use (&$beforeHookCalled) {
+            $beforeHookCalled = true;
+        };
 
         $afterHookClass = new SpyCallableHook;
         $this->app->instance(SpyCallableHook::class, $afterHookClass);
@@ -452,7 +450,7 @@ class PaperclipBasicAttachmentTest extends ProvisionedTestCase
     /**
      * @test
      */
-    function it_throws_an_exception_if_a_string_callable_hook_is_not_formatted_correctly()
+    public function it_throws_an_exception_if_a_string_callable_hook_is_not_formatted_correctly(): void
     {
         $this->expectException(UnexpectedValueException::class);
 
@@ -462,5 +460,4 @@ class PaperclipBasicAttachmentTest extends ProvisionedTestCase
 
         $model->attachment = new SplFileInfo($this->getTestFilePath('empty.gif'));
     }
-
 }

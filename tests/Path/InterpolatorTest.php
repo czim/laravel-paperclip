@@ -1,6 +1,6 @@
 <?php
-/** @noinspection ReturnTypeCanBeDeclaredInspection */
-/** @noinspection AccessModifierPresentedInspection */
+
+declare(strict_types=1);
 
 namespace Czim\Paperclip\Test\Path;
 
@@ -8,7 +8,6 @@ use Czim\Paperclip\Contracts\AttachmentDataInterface;
 use Czim\Paperclip\Path\Interpolator;
 use Czim\Paperclip\Test\TestCase;
 use Mockery;
-use Mockery\Mock;
 use Mockery\MockInterface;
 
 class InterpolatorTest extends TestCase
@@ -17,7 +16,7 @@ class InterpolatorTest extends TestCase
     /**
      * @test
      */
-    function it_interpolates_the_default_path_placeholders()
+    public function it_interpolates_the_default_path_placeholders(): void
     {
         $interpolator = new Interpolator;
 
@@ -34,7 +33,7 @@ class InterpolatorTest extends TestCase
     /**
      * @test
      */
-    function it_interpolates_filename()
+    public function it_interpolates_filename(): void
     {
         $interpolator = new Interpolator;
 
@@ -50,7 +49,7 @@ class InterpolatorTest extends TestCase
     /**
      * @test
      */
-    function it_interpolates_app_root()
+    public function it_interpolates_app_root(): void
     {
         $interpolator = new Interpolator;
 
@@ -64,7 +63,7 @@ class InterpolatorTest extends TestCase
     /**
      * @test
      */
-    function it_interpolates_class()
+    public function it_interpolates_class(): void
     {
         $interpolator = new Interpolator;
 
@@ -79,7 +78,7 @@ class InterpolatorTest extends TestCase
     /**
      * @test
      */
-    function it_interpolates_namespace()
+    public function it_interpolates_namespace(): void
     {
         $interpolator = new Interpolator;
 
@@ -94,7 +93,7 @@ class InterpolatorTest extends TestCase
     /**
      * @test
      */
-    function it_interpolates_attribute_name()
+    public function it_interpolates_attribute_name(): void
     {
         $interpolator = new Interpolator;
 
@@ -109,7 +108,7 @@ class InterpolatorTest extends TestCase
     /**
      * @test
      */
-    function it_interpolates_basename()
+    public function it_interpolates_basename(): void
     {
         $interpolator = new Interpolator;
 
@@ -125,7 +124,7 @@ class InterpolatorTest extends TestCase
     /**
      * @test
      */
-    function it_interpolates_extension()
+    public function it_interpolates_extension(): void
     {
         $interpolator = new Interpolator;
 
@@ -141,7 +140,7 @@ class InterpolatorTest extends TestCase
     /**
      * @test
      */
-    function it_interpolates_secure_hash()
+    public function it_interpolates_secure_hash(): void
     {
         $interpolator = new Interpolator;
 
@@ -159,7 +158,7 @@ class InterpolatorTest extends TestCase
     /**
      * @test
      */
-    function it_interpolates_hash()
+    public function it_interpolates_hash(): void
     {
         $interpolator = new Interpolator;
 
@@ -174,7 +173,7 @@ class InterpolatorTest extends TestCase
     /**
      * @test
      */
-    function it_interpolates_id_partion_for_string_id()
+    public function it_interpolates_id_partion_for_string_id(): void
     {
         $interpolator = new Interpolator;
 
@@ -189,7 +188,7 @@ class InterpolatorTest extends TestCase
     /**
      * @test
      */
-    function it_interpolates_id_partion_for_string_id_with_control_characters()
+    public function it_interpolates_id_partion_for_string_id_with_control_characters(): void
     {
         $interpolator = new Interpolator;
 
@@ -204,7 +203,7 @@ class InterpolatorTest extends TestCase
     /**
      * @test
      */
-    function it_interpolates_attachment()
+    public function it_interpolates_attachment(): void
     {
         $interpolator = new Interpolator;
 
@@ -219,7 +218,7 @@ class InterpolatorTest extends TestCase
     /**
      * @test
      */
-    function it_interpolates_style_for_variant()
+    public function it_interpolates_style_for_variant(): void
     {
         $interpolator = new Interpolator;
 
@@ -233,7 +232,7 @@ class InterpolatorTest extends TestCase
     /**
      * @test
      */
-    function it_interpolates_style_for_original()
+    public function it_interpolates_style_for_original(): void
     {
         $interpolator = new Interpolator;
 
@@ -247,11 +246,10 @@ class InterpolatorTest extends TestCase
 
 
     /**
-     * @return Mock|MockInterface|AttachmentDataInterface
+     * @return AttachmentDataInterface&MockInterface
      */
-    protected function getMockAttachmentData()
+    protected function getMockAttachmentData(): MockInterface
     {
         return Mockery::mock(AttachmentDataInterface::class);
     }
-
 }

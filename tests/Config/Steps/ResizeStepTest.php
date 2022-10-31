@@ -1,6 +1,6 @@
 <?php
-/** @noinspection ReturnTypeCanBeDeclaredInspection */
-/** @noinspection AccessModifierPresentedInspection */
+
+declare(strict_types=1);
 
 namespace Czim\Paperclip\Test\Config\Steps;
 
@@ -10,11 +10,10 @@ use Czim\Paperclip\Test\TestCase;
 
 class ResizeStepTest extends TestCase
 {
-
     /**
      * @test
      */
-    function it_allows_static_fluent_syntax_to_array_build()
+    public function it_allows_static_fluent_syntax_to_array_build(): void
     {
         // Minimal
         $array = ResizeStep::make()->width(100)->toArray();
@@ -73,7 +72,7 @@ class ResizeStepTest extends TestCase
     /**
      * @test
      */
-    function it_takes_width_and_height_using_square_method()
+    public function it_takes_width_and_height_using_square_method(): void
     {
         $array = ResizeStep::make()->square(100)->toArray();
 
@@ -90,7 +89,7 @@ class ResizeStepTest extends TestCase
     /**
      * @test
      */
-    function it_throws_an_exception_if_neither_width_nor_height_are_set()
+    public function it_throws_an_exception_if_neither_width_nor_height_are_set(): void
     {
         $this->expectException(BadMethodCallException::class);
 
@@ -100,7 +99,7 @@ class ResizeStepTest extends TestCase
     /**
      * @test
      */
-    function it_throws_an_exception_if_width_and_height_are_not_both_set_when_using_crop()
+    public function it_throws_an_exception_if_width_and_height_are_not_both_set_when_using_crop(): void
     {
         $this->expectException(BadMethodCallException::class);
 
@@ -110,7 +109,7 @@ class ResizeStepTest extends TestCase
     /**
      * @test
      */
-    function it_throws_an_exception_if_width_and_height_are_not_both_set_when_using_ignore_ratio()
+    public function it_throws_an_exception_if_width_and_height_are_not_both_set_when_using_ignore_ratio(): void
     {
         $this->expectException(BadMethodCallException::class);
 
@@ -120,11 +119,10 @@ class ResizeStepTest extends TestCase
     /**
      * @test
      */
-    function it_throws_an_exception_if_corp_and_ignore_ratio_are_both_set()
+    public function it_throws_an_exception_if_corp_and_ignore_ratio_are_both_set(): void
     {
         $this->expectException(BadMethodCallException::class);
 
         ResizeStep::make()->height(100)->width(150)->crop()->ignoreRatio()->toArray();
     }
-
 }

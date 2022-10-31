@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Czim\Paperclip\Test\Helpers\VariantStrategies;
 
 use Czim\FileHandling\Variant\Strategies\AbstractVariantStrategy;

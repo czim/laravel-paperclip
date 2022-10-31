@@ -1,8 +1,8 @@
 <?php
 /** @noinspection PhpUnhandledExceptionInspection */
 /** @noinspection PhpDocMissingThrowsInspection */
-/** @noinspection ReturnTypeCanBeDeclaredInspection */
-/** @noinspection AccessModifierPresentedInspection */
+
+declare(strict_types=1);
 
 namespace Czim\Paperclip\Test\Integration;
 
@@ -13,11 +13,10 @@ use SplFileInfo;
 
 class PaperclipAttachmentStaplerCompatibilityTest extends ProvisionedTestCase
 {
-
     /**
      * {@inheritdoc}
      */
-    public function setUp(): void
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -29,7 +28,7 @@ class PaperclipAttachmentStaplerCompatibilityTest extends ProvisionedTestCase
     /**
      * @test
      */
-    function it_uses_stapler_styles_key_for_variants()
+    public function it_uses_stapler_styles_key_for_variants(): void
     {
         $attachment = new Attachment;
         $attachment->setConfig(new StaplerConfig([
@@ -46,7 +45,7 @@ class PaperclipAttachmentStaplerCompatibilityTest extends ProvisionedTestCase
     /**
      * @test
      */
-    function it_accepts_stapler_styles_and_resizes_configuration()
+    public function it_accepts_stapler_styles_and_resizes_configuration(): void
     {
         $model = $this->getTestModelWithAttachmentConfig([
             'styles' => [
@@ -75,7 +74,7 @@ class PaperclipAttachmentStaplerCompatibilityTest extends ProvisionedTestCase
     /**
      * @test
      */
-    function it_accepts_stapler_config_keys_and_normalizes_them_to_paperclip()
+    public function it_accepts_stapler_config_keys_and_normalizes_them_to_paperclip(): void
     {
         $model = $this->getTestModelWithAttachmentConfig([
             'url' => 'test/path/for-model/original/:filename',
@@ -124,5 +123,4 @@ class PaperclipAttachmentStaplerCompatibilityTest extends ProvisionedTestCase
         static::assertArrayHasKey('auto-orient', $config['variants']['b'], 'Auto orient step was not extracted');
         static::assertArrayHasKey('resize', $config['variants']['b'], 'Resize step was not extracted');
     }
-
 }

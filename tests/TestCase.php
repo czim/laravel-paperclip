@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Czim\Paperclip\Test;
 
 use Czim\Paperclip\Providers\PaperclipServiceProvider;
@@ -10,8 +12,7 @@ use Illuminate\Support\Facades\Schema;
 
 abstract class TestCase extends \Orchestra\Testbench\TestCase
 {
-
-    public function setUp(): void
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -40,7 +41,7 @@ abstract class TestCase extends \Orchestra\Testbench\TestCase
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     protected function getPackageProviders($app): array
     {
@@ -52,7 +53,7 @@ abstract class TestCase extends \Orchestra\Testbench\TestCase
     /**
      * Returns the testing config for a (shared) SQLite connection.
      *
-     * @return array
+     * @return array<string, string>
      */
     protected function getDatabaseConfigForSqlite(): array
     {

@@ -1,6 +1,6 @@
 <?php
-/** @noinspection ReturnTypeCanBeDeclaredInspection */
-/** @noinspection AccessModifierPresentedInspection */
+
+declare(strict_types=1);
 
 namespace Czim\Paperclip\Test\Attachment;
 
@@ -13,19 +13,19 @@ use Czim\Paperclip\Contracts\Path\InterpolatorInterface;
 use Czim\Paperclip\Test\TestCase;
 use Hamcrest\Matchers;
 use Mockery;
+use Mockery\MockInterface;
 
 class AttachmentTest extends TestCase
 {
-
     /**
      * @test
      */
-    function it_takes_and_returns_an_instance()
+    public function it_takes_and_returns_an_instance(): void
     {
         $model = $this->getTestModel();
 
         $attachment = new Attachment;
-        static::assertSame($attachment, $attachment->setInstance($model));
+        $attachment->setInstance($model);
 
         static::assertSame($model, $attachment->getInstance());
         static::assertEquals(get_class($model), $attachment->getInstanceClass());
@@ -34,35 +34,34 @@ class AttachmentTest extends TestCase
     /**
      * @test
      */
-    function it_takes_and_returns_a_name()
+    public function it_takes_and_returns_a_name(): void
     {
         $attachment = new Attachment;
-        static::assertSame($attachment, $attachment->setName('test'));
+        $attachment->setName('test');
 
         static::assertEquals('test', $attachment->name());
     }
 
     /**
      * @test
+     * @doesNotPerformAssertions
      */
-    function it_takes_an_interpolator()
+    public function it_takes_an_interpolator(): void
     {
         /** @var InterpolatorInterface $interpolator */
         $interpolator = Mockery::mock(InterpolatorInterface::class);
 
         $attachment = new Attachment;
-        static::assertSame($attachment, $attachment->setInterpolator($interpolator));
+        $attachment->setInterpolator($interpolator);
     }
 
     /**
      * @test
      */
-    function it_takes_and_returns_a_configuration()
+    public function it_takes_and_returns_a_configuration(): void
     {
         $attachment = new Attachment;
-        static::assertSame($attachment, $attachment->setConfig(
-            new PaperclipConfig(['test' => true]))
-        );
+        $attachment->setConfig(new PaperclipConfig(['test' => true]));
 
         static::assertEquals(['test' => true], $attachment->getConfig());
     }
@@ -70,13 +69,13 @@ class AttachmentTest extends TestCase
     /**
      * @test
      */
-    function it_takes_and_returns_a_storage_identifier_and_handler()
+    public function it_takes_and_returns_a_storage_identifier_and_handler(): void
     {
         $handler = $this->getMockHandler();
         $this->app->instance(FileHandlerFactoryInterface::class, $this->getMockHandlerFactory($handler));
 
         $attachment = new Attachment;
-        static::assertSame($attachment, $attachment->setStorage('test'));
+        $attachment->setStorage('test');
 
         static::assertSame('test', $attachment->getStorage());
         static::assertSame($handler, $attachment->getHandler());
@@ -85,7 +84,7 @@ class AttachmentTest extends TestCase
     /**
      * @test
      */
-    function it_returns_variant_keys_as_configured()
+    public function it_returns_variant_keys_as_configured(): void
     {
         $attachment = new Attachment;
         $attachment->setConfig(new PaperclipConfig([
@@ -102,7 +101,7 @@ class AttachmentTest extends TestCase
     /**
      * @test
      */
-    function it_returns_the_url_for_a_variant()
+    public function it_returns_the_url_for_a_variant(): void
     {
         $model        = $this->getTestModel();
         $handler      = $this->getMockHandler();
@@ -128,7 +127,7 @@ class AttachmentTest extends TestCase
     /**
      * @test
      */
-    function it_returns_the_original_path()
+    public function it_returns_the_original_path(): void
     {
         $interpolator = $this->getMockInterpolator();
 
@@ -149,7 +148,7 @@ class AttachmentTest extends TestCase
     /**
      * @test
      */
-    function it_returns_the_variant_path_for_a_variant()
+    public function it_returns_the_variant_path_for_a_variant(): void
     {
         $model        = $this->getTestModel();
         $handler      = $this->getMockHandler();
@@ -175,7 +174,7 @@ class AttachmentTest extends TestCase
     /**
      * @test
      */
-    function it_returns_the_filename_for_a_variant()
+    public function it_returns_the_filename_for_a_variant(): void
     {
         $model = $this->getTestModel();
 
@@ -191,7 +190,7 @@ class AttachmentTest extends TestCase
     /**
      * @test
      */
-    function it_returns_the_filename_for_a_variant_if_it_has_a_different_extension()
+    public function it_returns_the_filename_for_a_variant_if_it_has_a_different_extension(): void
     {
         $model = $this->getTestModel();
 
@@ -212,7 +211,7 @@ class AttachmentTest extends TestCase
     /**
      * @test
      */
-    function it_returns_the_extension_for_a_variant_if_it_is_configured_with_a_different_extension()
+    public function it_returns_the_extension_for_a_variant_if_it_is_configured_with_a_different_extension(): void
     {
         $model = $this->getTestModel();
 
@@ -233,7 +232,7 @@ class AttachmentTest extends TestCase
     /**
      * @test
      */
-    function it_returns_the_extension_for_a_variant_if_it_is_stored_in_variants_json_data_with_a_different_extension()
+    public function it_returns_the_extension_for_a_variant_if_it_is_stored_in_variants_json_data_with_a_different_extension(): void
     {
         $model = $this->getTestModel();
 
@@ -251,11 +250,11 @@ class AttachmentTest extends TestCase
 
         static::assertEquals('txt', $attachment->variantExtension('variantkey'));
     }
-    
+
     /**
      * @test
      */
-    function it_returns_the_content_type_for_a_variant_if_it_is_the_same_as_the_original()
+    public function it_returns_the_content_type_for_a_variant_if_it_is_the_same_as_the_original(): void
     {
         $model = $this->getTestModel();
 
@@ -272,7 +271,7 @@ class AttachmentTest extends TestCase
     /**
      * @test
      */
-    function it_returns_the_content_type_for_a_variant_if_it_is_configured_with_a_different_type()
+    public function it_returns_the_content_type_for_a_variant_if_it_is_configured_with_a_different_type(): void
     {
         $model = $this->getTestModel();
 
@@ -294,7 +293,7 @@ class AttachmentTest extends TestCase
     /**
      * @test
      */
-    function it_returns_the_content_type_for_a_variant_if_it_is_stored_with_a_different_type()
+    public function it_returns_the_content_type_for_a_variant_if_it_is_stored_with_a_different_type(): void
     {
         $model = $this->getTestModel();
 
@@ -317,7 +316,7 @@ class AttachmentTest extends TestCase
     /**
      * @test
      */
-    function it_returns_whether_the_attachment_is_filled()
+    public function it_returns_whether_the_attachment_is_filled(): void
     {
         $model = $this->getTestModel();
 
@@ -340,7 +339,7 @@ class AttachmentTest extends TestCase
     /**
      * @test
      */
-    function it_returns_the_created_at_attribute()
+    public function it_returns_the_created_at_attribute(): void
     {
         $model = $this->getTestModel();
         $model->image_created_at = '2017-01-01 00:00:00';
@@ -360,7 +359,7 @@ class AttachmentTest extends TestCase
     /**
      * @test
      */
-    function it_returns_the_updated_at_attribute()
+    public function it_returns_the_updated_at_attribute(): void
     {
         $model = $this->getTestModel();
         $model->image_updated_at = '2017-01-01 00:00:00';
@@ -375,7 +374,7 @@ class AttachmentTest extends TestCase
     /**
      * @test
      */
-    function it_returns_the_content_type_attribute()
+    public function it_returns_the_content_type_attribute(): void
     {
         $model = $this->getTestModel();
         $model->image_content_type = 'video/mpeg';
@@ -390,7 +389,7 @@ class AttachmentTest extends TestCase
     /**
      * @test
      */
-    function it_returns_the_size_attribute()
+    public function it_returns_the_size_attribute(): void
     {
         $model = $this->getTestModel();
         $model->image_file_size = 333;
@@ -405,7 +404,7 @@ class AttachmentTest extends TestCase
     /**
      * @test
      */
-    function it_returns_the_original_file_name_attribute()
+    public function it_returns_the_original_file_name_attribute(): void
     {
         $model = $this->getTestModel();
         $model->image_file_name = 'test.png';
@@ -420,7 +419,7 @@ class AttachmentTest extends TestCase
     /**
      * @test
      */
-    function it_returns_a_configured_fallback_url_when_no_attachment_is_stored()
+    public function it_returns_a_configured_fallback_url_when_no_attachment_is_stored(): void
     {
         $model = $this->getTestModelWithAttachmentConfig([
             'url'  => 'http://fallback-test-url',
@@ -435,7 +434,7 @@ class AttachmentTest extends TestCase
     /**
      * @test
      */
-    function it_returns_a_configured_fallback_url_for_a_variant_when_no_attachment_is_stored()
+    public function it_returns_a_configured_fallback_url_for_a_variant_when_no_attachment_is_stored(): void
     {
         $model = $this->getTestModelWithAttachmentConfig([
             'url'  => 'http://fallback-test-url',
@@ -447,20 +446,20 @@ class AttachmentTest extends TestCase
         static::assertEquals('http://variant-fallback-test-url', $model->attachment->url('variant'));
     }
 
-    
+
     /**
-     * @return Mockery\MockInterface|Mockery\Mock|FileHandlerInterface
+     * @return FileHandlerInterface&MockInterface
      */
-    protected function getMockHandler()
+    protected function getMockHandler(): MockInterface
     {
         return Mockery::mock(FileHandlerInterface::class);
     }
 
     /**
      * @param FileHandlerInterface $handler
-     * @return Mockery\MockInterface|Mockery\Mock|FileHandlerFactoryInterface
+     * @return FileHandlerFactoryInterface&MockInterface
      */
-    protected function getMockHandlerFactory(FileHandlerInterface $handler)
+    protected function getMockHandlerFactory(FileHandlerInterface $handler): MockInterface
     {
         $mock = Mockery::mock(FileHandlerFactoryInterface::class);
 
@@ -470,9 +469,9 @@ class AttachmentTest extends TestCase
     }
 
     /**
-     * @return Mockery\MockInterface|Mockery\Mock|InterpolatorInterface
+     * @return InterpolatorInterface&MockInterface
      */
-    protected function getMockInterpolator()
+    protected function getMockInterpolator(): MockInterface
     {
         return Mockery::mock(InterpolatorInterface::class);
     }

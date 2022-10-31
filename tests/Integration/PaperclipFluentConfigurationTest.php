@@ -1,6 +1,6 @@
 <?php
-/** @noinspection ReturnTypeCanBeDeclaredInspection */
-/** @noinspection AccessModifierPresentedInspection */
+
+declare(strict_types=1);
 
 namespace Czim\Paperclip\Test\Integration;
 
@@ -21,7 +21,7 @@ class PaperclipFluentConfigurationTest extends ProvisionedTestCase
     /**
      * @test
      */
-    function it_processes_and_stores_a_new_file_with_fluent_variant_steps_configuration()
+    public function it_processes_and_stores_a_new_file_with_fluent_variant_steps_configuration(): void
     {
         $model = $this->getTestModelWithAttachmentConfig([
             'variants' => [
@@ -70,7 +70,7 @@ class PaperclipFluentConfigurationTest extends ProvisionedTestCase
     /**
      * @test
      */
-    function it_processes_and_stores_a_new_png_file_with_fluent_variant_steps_configuration()
+    public function it_processes_and_stores_a_new_png_file_with_fluent_variant_steps_configuration(): void
     {
         $model = $this->getTestModelWithAttachmentConfig([
             'variants' => [
@@ -119,7 +119,7 @@ class PaperclipFluentConfigurationTest extends ProvisionedTestCase
     /**
      * @test
      */
-    function it_processes_and_stores_a_new_file_with_fluent_variant_configuration()
+    public function it_processes_and_stores_a_new_file_with_fluent_variant_configuration(): void
     {
         $model = $this->getTestModelWithAttachmentConfig([
             'variants' => [
@@ -177,7 +177,7 @@ class PaperclipFluentConfigurationTest extends ProvisionedTestCase
     /**
      * @test
      */
-    function it_processes_and_stores_a_new_file_with_fluent_variant_steps_configuration_without_wrapped_array()
+    public function it_processes_and_stores_a_new_file_with_fluent_variant_steps_configuration_without_wrapped_array(): void
     {
         $model = $this->getTestModelWithAttachmentConfig([
             'variants' => [
@@ -211,5 +211,4 @@ class PaperclipFluentConfigurationTest extends ProvisionedTestCase
             unlink($processedFilePath);
         }
     }
-
 }

@@ -1,27 +1,30 @@
 <?php
-/** @noinspection ReturnTypeCanBeDeclaredInspection */
-/** @noinspection AccessModifierPresentedInspection */
+
+declare(strict_types=1);
 
 namespace Czim\Paperclip\Test\Integration;
 
 use Czim\FileHandling\Contracts\Storage\StorableFileFactoryInterface;
+use Czim\FileHandling\Contracts\Storage\StorableFileInterface;
 use Czim\FileHandling\Storage\File\SplFileInfoStorableFile;
 use Czim\Paperclip\Events\ProcessingExceptionEvent;
 use Czim\Paperclip\Exceptions\VariantProcessFailureException;
 use Czim\Paperclip\Test\Helpers\VariantStrategies\TestNoChangesStrategy;
 use Czim\Paperclip\Test\Helpers\VariantStrategies\TestTextToHtmlStrategy;
 use Czim\Paperclip\Test\ProvisionedTestCase;
+use Exception;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Event;
 use Mockery;
+use Mockery\MockInterface;
 use SplFileInfo;
 
 class PaperclipReprocessAttachmentTest extends ProvisionedTestCase
 {
-
     /**
      * @test
      */
-    function it_skips_reprocessing_a_variant_if_attachment_is_not_filled()
+    public function it_skips_reprocessing_a_variant_if_attachment_is_not_filled(): void
     {
         $model = $this->getTestModel();
 
@@ -33,7 +36,7 @@ class PaperclipReprocessAttachmentTest extends ProvisionedTestCase
     /**
      * @test
      */
-    function it_reprocesses_variants()
+    public function it_reprocesses_variants(): void
     {
         $model = $this->getTestModel();
 
@@ -63,7 +66,7 @@ class PaperclipReprocessAttachmentTest extends ProvisionedTestCase
     /**
      * @test
      */
-    function it_processes_a_variant_updating_the_model_variants_attribute()
+    public function it_processes_a_variant_updating_the_model_variants_attribute(): void
     {
         $this->app['config']->set('paperclip.variants.aliases.test-html', TestTextToHtmlStrategy::class);
 
@@ -82,7 +85,10 @@ class PaperclipReprocessAttachmentTest extends ProvisionedTestCase
         $model->save();
 
         $expectedVariantsInformation = [
-            'test' => [ 'ext' => 'htm', 'type' => 'text/html' ]
+            'test' => [
+                'ext'  => 'htm',
+                'type' => 'text/html',
+            ]
         ];
 
         static::assertEquals($expectedVariantsInformation, $model->attachment->variantsAttribute());
@@ -107,7 +113,7 @@ class PaperclipReprocessAttachmentTest extends ProvisionedTestCase
     /**
      * @test
      */
-    function it_reprocesses_a_variant_that_does_not_change_the_file_with_variants_attribute_enabled()
+    public function it_reprocesses_a_variant_that_does_not_change_the_file_with_variants_attribute_enabled(): void
     {
         $this->app['config']->set('paperclip.variants.aliases.test-same', TestNoChangesStrategy::class);
 
@@ -147,14 +153,14 @@ class PaperclipReprocessAttachmentTest extends ProvisionedTestCase
     /**
      * @test
      */
-    function it_fires_an_even_when_something_goes_wrong_while_reprocessing_a_variant()
+    public function it_fires_an_event_when_something_goes_wrong_while_reprocessing_a_variant(): void
     {
-        $this->withoutEvents();
-        $this->expectsEvents(ProcessingExceptionEvent::class);
+        Event::fake();
 
         $model = $this->getTestModel();
 
-        $model->image = new SplFileInfo($this->getTestFilePath('empty.gif'));
+
+        $model->setAttribute('image', new SplFileInfo($this->getTestFilePath('empty.gif')));
         $model->save();
 
         $processedFilePath = $this->getUploadedAttachmentPath($model, 'empty.gif', 'image');
@@ -165,15 +171,18 @@ class PaperclipReprocessAttachmentTest extends ProvisionedTestCase
         unlink($processedFilePath);
         static::assertFileDoesNotExist($processedFilePath, 'File should not exist after unlinking');
 
+
         $this->prepareMockSetupForReprocessingException($model);
 
         $model->image->reprocess();
+
+        Event::assertDispatched(ProcessingExceptionEvent::class);
     }
 
     /**
      * @test
      */
-    function it_throws_an_exception_when_something_goes_wrong_while_reprocessing_a_variant_when_configured_to()
+    public function it_throws_an_exception_when_something_goes_wrong_while_reprocessing_a_variant_when_configured_to(): void
     {
         // Disable event firing so the exception is thrown.
         $this->app['config']->set('paperclip.processing.errors.events', false);
@@ -194,24 +203,24 @@ class PaperclipReprocessAttachmentTest extends ProvisionedTestCase
         unlink($processedFilePath);
         static::assertFileDoesNotExist($processedFilePath, 'File should not exist after unlinking');
 
+
         $this->prepareMockSetupForReprocessingException($model);
 
         $model->image->reprocess();
     }
 
 
-    /**
-     * @param Model  $model
-     * @param string $attachment
-     * @param bool   $withExpection
-     */
-    protected function prepareMockSetupForReprocessingSource(Model $model, $attachment = 'image', $withExpection = true)
-    {
-        /** @var Mockery\MockInterface|Mockery\Mock|StorableFileFactoryInterface $factory */
+    protected function prepareMockSetupForReprocessingSource(
+        Model $model,
+        string $attachment = 'image',
+        bool $withExpectation = true,
+    ): void {
+        /** @var StorableFileFactoryInterface&MockInterface $factory */
         $factory = Mockery::mock(StorableFileFactoryInterface::class);
+
         $source = $this->getSourceForReprocessing($this->getTestFilePath('empty.gif'));
 
-        if ($withExpection) {
+        if ($withExpectation) {
             $factory->shouldReceive('makeFromUrl')
                 ->once()
                 ->with($model->{$attachment}->url(), 'empty.gif', 'image/gif')
@@ -225,32 +234,30 @@ class PaperclipReprocessAttachmentTest extends ProvisionedTestCase
         app()->instance(StorableFileFactoryInterface::class, $factory);
     }
 
-    /**
-     * @param Model  $model
-     * @param string $attachment
-     */
-    protected function prepareMockSetupForReprocessingException(Model $model, $attachment = 'image')
+    protected function prepareMockSetupForReprocessingException(Model $model, string $attachment = 'image'): void
     {
-        /** @var Mockery\MockInterface|Mockery\Mock|StorableFileFactoryInterface $factory */
+        /** @var StorableFileFactoryInterface&MockInterface $factory */
         $factory = Mockery::mock(StorableFileFactoryInterface::class);
-        $source = $this->getSourceForReprocessing($this->getTestFilePath('does_not_exist.gif'));
+
+        $exception = new Exception('testing');
+
+        $file = Mockery::mock(StorableFileInterface::class);
+        $file->shouldReceive('extension')->andThrow($exception);
+        $file->shouldReceive('path')->andThrow($exception);
 
         $factory->shouldReceive('makeFromUrl')
             ->once()
             ->with($model->{$attachment}->url(), 'empty.gif', 'image/gif')
-            ->andReturn($source);
+            ->andReturn($file);
 
         app()->instance(StorableFileFactoryInterface::class, $factory);
     }
 
-    /**
-     * @param string $path
-     * @param string $name
-     * @param string $type
-     * @return SplFileInfoStorableFile
-     */
-    protected function getSourceForReprocessing($path, $name = 'empty.gif', $type = 'image/gif')
-    {
+    protected function getSourceForReprocessing(
+        string $path,
+        string $name = 'empty.gif',
+        string $type = 'image/gif',
+    ): SplFileInfoStorableFile {
         $source = new SplFileInfoStorableFile();
         $source->setData(new SplFileInfo($path));
         $source->setName($name);
@@ -258,5 +265,4 @@ class PaperclipReprocessAttachmentTest extends ProvisionedTestCase
 
         return $source;
     }
-
 }
