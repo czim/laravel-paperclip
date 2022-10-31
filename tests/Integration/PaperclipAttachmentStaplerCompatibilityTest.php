@@ -80,7 +80,7 @@ class PaperclipAttachmentStaplerCompatibilityTest extends ProvisionedTestCase
             'url' => 'test/path/for-model/original/:filename',
         ]);
 
-        $model->attachment = new SplFileInfo($this->getTestFilePath());
+        $model->setAttribute('attachment', new SplFileInfo($this->getTestFilePath()));
 
         static::assertEquals('test/path/for-model/original/source.txt', $model->attachment->variantPath());
     }

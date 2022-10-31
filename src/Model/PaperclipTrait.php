@@ -12,7 +12,7 @@ use Czim\Paperclip\Contracts\AttachmentInterface;
 use Illuminate\Database\Eloquent\Model;
 
 /**
- * @implements AttachableInterface
+ * @see AttachableInterface
  * @mixin Model
  */
 trait PaperclipTrait

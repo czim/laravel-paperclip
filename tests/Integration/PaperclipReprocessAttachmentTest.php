@@ -40,7 +40,7 @@ class PaperclipReprocessAttachmentTest extends ProvisionedTestCase
     {
         $model = $this->getTestModel();
 
-        $model->image = new SplFileInfo($this->getTestFilePath('empty.gif'));
+        $model->setAttribute('image', new SplFileInfo($this->getTestFilePath('empty.gif')));
         $model->save();
 
         static::assertTrue($model->image->exists());
@@ -81,7 +81,7 @@ class PaperclipReprocessAttachmentTest extends ProvisionedTestCase
             ],
         ]);
 
-        $model->attachment = new SplFileInfo($this->getTestFilePath('empty.gif'));
+        $model->setAttribute('attachment', new SplFileInfo($this->getTestFilePath('empty.gif')));
         $model->save();
 
         $expectedVariantsInformation = [
@@ -128,7 +128,7 @@ class PaperclipReprocessAttachmentTest extends ProvisionedTestCase
             ],
         ]);
 
-        $model->attachment = new SplFileInfo($this->getTestFilePath('empty.gif'));
+        $model->setAttribute('attachment', new SplFileInfo($this->getTestFilePath('empty.gif')));
         $model->save();
 
         static::assertEquals([], $model->attachment->variantsAttribute());
@@ -192,7 +192,7 @@ class PaperclipReprocessAttachmentTest extends ProvisionedTestCase
 
         $model = $this->getTestModel();
 
-        $model->image = new SplFileInfo($this->getTestFilePath('empty.gif'));
+        $model->setAttribute('image', new SplFileInfo($this->getTestFilePath('empty.gif')));
         $model->save();
 
         $processedFilePath = $this->getUploadedAttachmentPath($model, 'empty.gif', 'image');

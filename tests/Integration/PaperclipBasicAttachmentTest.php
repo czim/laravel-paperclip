@@ -29,7 +29,7 @@ class PaperclipBasicAttachmentTest extends ProvisionedTestCase
 
         $model = $this->getTestModel();
 
-        $model->attachment = new SplFileInfo($this->getTestFilePath());
+        $model->setAttribute('attachment', new SplFileInfo($this->getTestFilePath()));
         $model->save();
 
         $processedFilePath = $this->getUploadedAttachmentPath($model);
@@ -66,7 +66,7 @@ class PaperclipBasicAttachmentTest extends ProvisionedTestCase
         $model = $this->getTestModel();
 
         // Store an initial file.
-        $model->attachment = new SplFileInfo($this->getTestFilePath());
+        $model->setAttribute('attachment', new SplFileInfo($this->getTestFilePath()));
         $model->save();
 
         $processedFilePath = $this->getUploadedAttachmentPath($model);
@@ -75,7 +75,7 @@ class PaperclipBasicAttachmentTest extends ProvisionedTestCase
         static::assertFileExists($processedFilePath, 'File was not stored');
 
         // Remove it.
-        $model->attachment = Attachment::NULL_ATTACHMENT;
+        $model->setAttribute('attachment', Attachment::NULL_ATTACHMENT);
         $model->save();
 
         static::assertNull($model->attachment_file_name);
@@ -93,7 +93,7 @@ class PaperclipBasicAttachmentTest extends ProvisionedTestCase
         $model = $this->getTestModel();
 
         // Store an initial file.
-        $model->attachment = new SplFileInfo($this->getTestFilePath());
+        $model->setAttribute('attachment', new SplFileInfo($this->getTestFilePath()));
         $model->save();
 
         $processedFilePath = $this->getUploadedAttachmentPath($model);
@@ -119,7 +119,7 @@ class PaperclipBasicAttachmentTest extends ProvisionedTestCase
         $model = $this->getTestModel();
 
         // Store an initial file.
-        $model->attachment = new SplFileInfo($this->getTestFilePath());
+        $model->setAttribute('attachment', new SplFileInfo($this->getTestFilePath()));
         $model->save();
 
         $processedFilePath = $this->getUploadedAttachmentPath($model);
@@ -128,7 +128,7 @@ class PaperclipBasicAttachmentTest extends ProvisionedTestCase
         static::assertFileExists($processedFilePath, 'File was not stored');
 
         // Overwrite with a new file.
-        $model->attachment = new SplFileInfo($this->getTestFilePath('empty.gif'));
+        $model->setAttribute('attachment', new SplFileInfo($this->getTestFilePath('empty.gif')));
         $model->save();
 
         static::assertFileDoesNotExist($processedFilePath, 'Previous file was not removed');
@@ -157,7 +157,7 @@ class PaperclipBasicAttachmentTest extends ProvisionedTestCase
     {
         $model = $this->getTestModel();
 
-        $model->attachment = new SplFileInfo($this->getTestFilePath());
+        $model->setAttribute('attachment', new SplFileInfo($this->getTestFilePath()));
         $model->image      = new SplFileInfo($this->getTestFilePath('empty.gif'));
         $model->save();
 
@@ -215,7 +215,7 @@ class PaperclipBasicAttachmentTest extends ProvisionedTestCase
     {
         $model = $this->getTestModel();
 
-        $model->attachment = new SplFileInfo($this->getTestFilePath());
+        $model->setAttribute('attachment', new SplFileInfo($this->getTestFilePath()));
         $model->image      = new SplFileInfo($this->getTestFilePath('empty.gif'));
         $model->save();
 
@@ -238,7 +238,7 @@ class PaperclipBasicAttachmentTest extends ProvisionedTestCase
     {
         $model = $this->getTestModel();
 
-        $model->attachment = new SplFileInfo($this->getTestFilePath());
+        $model->setAttribute('attachment', new SplFileInfo($this->getTestFilePath()));
         $model->image      = new SplFileInfo($this->getTestFilePath('empty.gif'));
         $model->save();
 
@@ -268,7 +268,7 @@ class PaperclipBasicAttachmentTest extends ProvisionedTestCase
     {
         $model = $this->getTestModel();
 
-        $model->attachment = new SplFileInfo($this->getTestFilePath());
+        $model->setAttribute('attachment', new SplFileInfo($this->getTestFilePath()));
         $model->image      = new SplFileInfo($this->getTestFilePath('empty.gif'));
         $model->save();
 
@@ -298,8 +298,8 @@ class PaperclipBasicAttachmentTest extends ProvisionedTestCase
     {
         $model = $this->getTestModel();
 
-        $model->attachment = new SplFileInfo($this->getTestFilePath());
-        $model->image      = new SplFileInfo($this->getTestFilePath('empty.gif'));
+        $model->setAttribute('attachment', new SplFileInfo($this->getTestFilePath()));
+        $model->setAttribute('image', new SplFileInfo($this->getTestFilePath('empty.gif')));
         $model->save();
 
         static::assertEquals([
@@ -330,8 +330,8 @@ class PaperclipBasicAttachmentTest extends ProvisionedTestCase
     {
         $model = $this->getTestModel();
 
-        $model->attachment = new SplFileInfo($this->getTestFilePath());
-        $model->image      = new SplFileInfo($this->getTestFilePath('empty.gif'));
+        $model->setAttribute('attachment', new SplFileInfo($this->getTestFilePath()));
+        $model->setAttribute('image', new SplFileInfo($this->getTestFilePath('empty.gif')));
         $model->save();
 
 
@@ -376,7 +376,7 @@ class PaperclipBasicAttachmentTest extends ProvisionedTestCase
             ],
         ]);
 
-        $model->attachment = new SplFileInfo($this->getTestFilePath());
+        $model->setAttribute('attachment', new SplFileInfo($this->getTestFilePath()));
         $model->save();
 
         static::assertEquals([
@@ -408,7 +408,7 @@ class PaperclipBasicAttachmentTest extends ProvisionedTestCase
             ],
         ]);
 
-        $model->attachment = new SplFileInfo($this->getTestFilePath());
+        $model->setAttribute('attachment', new SplFileInfo($this->getTestFilePath()));
         $model->save();
 
         static::assertEquals([], $model->attachment->variantsAttribute());
@@ -440,7 +440,7 @@ class PaperclipBasicAttachmentTest extends ProvisionedTestCase
             'after'  => SpyCallableHook::class . '@hookMethod',
         ]);
 
-        $model->attachment = new SplFileInfo($this->getTestFilePath('empty.gif'));
+        $model->setAttribute('attachment', new SplFileInfo($this->getTestFilePath('empty.gif')));
         $model->save();
 
         static::assertTrue($beforeHookCalled, 'Before hook callable was not called');
@@ -458,6 +458,6 @@ class PaperclipBasicAttachmentTest extends ProvisionedTestCase
             'before' => 'incorrectly-formatted::string',
         ]);
 
-        $model->attachment = new SplFileInfo($this->getTestFilePath('empty.gif'));
+        $model->setAttribute('attachment', new SplFileInfo($this->getTestFilePath('empty.gif')));
     }
 }

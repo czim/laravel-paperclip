@@ -16,7 +16,7 @@ use Illuminate\Database\Eloquent\Model;
  * @property integer                  $attachment_file_size
  * @property string                   $attachment_content_type
  * @property string                   $attachment_updated_at
- * @property array|null               attachment_variants
+ * @property array|null               $attachment_variants
  * @property AttachmentInterface|null $image
  * @property string                   $image_file_name
  * @property integer                  $image_file_size
