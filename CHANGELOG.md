@@ -1,6 +1,30 @@
 # Changelog
 
-## Laravel 8 and up
+## Laravel 9 and up
+
+### [5.0.0] - 2022-10-31
+
+There are quite a few breaking changes:
+
+- PHP 8.1+ required.
+- Laravel 9+ required.
+- Many public methods now have explicit/strict types.
+- Some methods that were previously fluent syntax are no longer (return `void`).
+- The event classes nog longer have public accessors, but `public readonly` properties.
+- The exception classes now extend `\RuntimeException` instead of `\Exception`.
+- A config option `paperclip.datetime.format` has been added, defaults to `'c'`.
+  This is used to ensure that `Attachment::updatedAt()` can be consistently cast to string for compatibility.
+
+However:
+
+- Config syntax and fluent attachment config DTOs are virtually the same.
+  Old configurations should still work.
+
+It would be a good idea to carefully walk through any code extending or hooking into Paperclip logic
+after upgrading!
+
+
+## Laravel 8 and 9
 
 ### [4.0.1] - 2022-07-14
 
@@ -182,6 +206,8 @@ See 2.5.2.
 ### [2.0.0] - 2018-05-13
 
 This merges the changes for 2.5.0 and 2.5.1 in a new major version for Laravel 5.4 and earlier.
+
+[5.0.0]: https://github.com/czim/laravel-paperclip/compare/4.0.1...5.0.0
 
 [4.0.1]: https://github.com/czim/laravel-paperclip/compare/4.0.0...4.0.1
 [4.0.0]: https://github.com/czim/laravel-paperclip/compare/3.2.1...4.0.0
