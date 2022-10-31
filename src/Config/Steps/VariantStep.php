@@ -6,6 +6,9 @@ namespace Czim\Paperclip\Config\Steps;
 
 use Illuminate\Contracts\Support\Arrayable;
 
+/**
+ * @phpstan-consistent-constructor
+ */
 class VariantStep implements Arrayable
 {
     protected string $name;

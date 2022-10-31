@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace Czim\Paperclip\Config;
 
+/**
+ * @phpstan-consistent-constructor
+ */
 class Variant
 {
     /**
