@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Czim\Paperclip\Config;
 
+use Czim\Paperclip\Config\Steps\VariantStep;
+
 /**
  * @phpstan-consistent-constructor
  */
@@ -43,10 +45,10 @@ class Variant
     /**
      * Sets variant processing steps.
      *
-     * @param array<int|string, mixed>|string $steps
+     * @param array<int|string, mixed>|string|VariantStep $steps
      * @return $this
      */
-    public function steps(array|string $steps): static
+    public function steps(array|string|VariantStep $steps): static
     {
         if (! is_array($steps)) {
             $steps = [ $steps ];
