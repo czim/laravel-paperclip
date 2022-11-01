@@ -33,7 +33,7 @@ use UnexpectedValueException;
 
 class Attachment implements AttachmentInterface
 {
-    const NULL_ATTACHMENT = '44e1ec68e2a43f32741cbd4cb4d77c79e28d6a5c';
+    public const NULL_ATTACHMENT = '44e1ec68e2a43f32741cbd4cb4d77c79e28d6a5c';
 
     /**
      * @var AttachableInterface&Model
