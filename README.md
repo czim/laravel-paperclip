@@ -7,11 +7,14 @@
 
 Allows you to attach files to Eloquent models.
 
-This is a re-take on [CodeSleeve's Stapler](https://github.com/CodeSleeve/stapler). It is mainly intended to be more reusable and easier to adapt to different Laravel versions. Despite the name, this should not be considered a match for Ruby's Paperclip gem.
+This is a re-take on [CodeSleeve's Stapler](https://github.com/CodeSleeve/stapler).
+It is mainly intended to be more reusable and easier to adapt to different Laravel versions.
+Despite the name, this should not be considered a match for Ruby's Paperclip gem.
 
 Instead of tackling file storage itself, it uses Laravel's internal storage drivers and configuration.
 
-This uses [czim/file-handling](https://github.com/czim/file-handling) under the hood, and any of its (and your custom written) variant manipulations may be used with this package.
+This uses [czim/file-handling](https://github.com/czim/file-handling) under the hood,
+and any of its (and your custom written) variant manipulations may be used with this package.
 
 
 ## Version Compatibility
@@ -24,6 +27,7 @@ This uses [czim/file-handling](https://github.com/czim/file-handling) under the 
 | 5.8, 6        | 2.7      | 7.4 and below |
 | 7, 8          | 3.2      | 7.4 and below |
 | 7, 8, 9       | 4.0      | 8.0 and up    |
+| 9             | 5.0      | 8.1 and up    |
 
 ## Change log
 
@@ -38,7 +42,7 @@ Via Composer:
 $ composer require czim/laravel-paperclip
 ```
 
-Autodiscover may be used to register the service provider automatically.
+Auto-discover may be used to register the service provider automatically.
 Otherwise, you can manually register the service provider in `config/app.php`:
 
 ```php
@@ -61,7 +65,8 @@ php artisan vendor:publish --provider="Czim\Paperclip\Providers\PaperclipService
 
 ### Model Preparation
 
-Modify the database to add some columns for the model that will get an attachment. Use the attachment key name as a prefix.
+Modify the database to add some columns for the model that will get an attachment.
+Use the attachment key name as a prefix.
 
 An example migration:
 
@@ -87,7 +92,8 @@ A `<key>_variants` text or varchar column is optional:
 
 A `text()` column is recommended in cases where a seriously *huge* amount of variants are created.
 
-If it is added and configured to be used (more on that [in the config section](CONFIG.md)), JSON information about variants will be stored in it.
+If it is added and configured to be used (more on that [in the config section](CONFIG.md)),
+JSON information about variants will be stored in it.
 
 
 ### Attachment Configuration
@@ -153,9 +159,11 @@ Since version `2.5.7` it is also possible to use an easier to use fluent object 
 
 ### Variant Configuration
 
-For the most part, the configuration of variants is nearly identical to Stapler, so it should be easy to make the transition either way.
+For the most part, the configuration of variants is nearly identical to Stapler,
+so it should be easy to make the transition either way.
 
-Since version `2.6`, Stapler configuration support is disabled by default, but legacy support for this may be enabled by setting the `paperclip.config.mode` to `'stapler'`.
+Since version `2.6`, Stapler configuration support is disabled by default, but legacy support for this
+may be enabled by setting the `paperclip.config.mode` to `'stapler'`.
 
 [Get more information on configuration here](CONFIG.md).
 
@@ -171,13 +179,16 @@ Check out its source to get started writing custom variant strategies.
 
 ### Storage configuration
 
-You can configure a storage location for uploaded files by setting up a Laravel storage (in `config/filesystems.php`), and registering it in the `config/paperclip.php` config file.
+You can configure a storage location for uploaded files by setting up a Laravel storage (in `config/filesystems.php`),
+and registering it in the `config/paperclip.php` config file.
 
 Make sure that `paperclip.storage.base-urls.<your storage disk>` is set, so valid URLs to stored content are returned.
 
 ### Hooks Before and After Processing
 
-It is possible to 'hook' into the paperclip goings on when files are processed. This may be done by using the `before` and/or `after` configuration keys. Before hooks are called after the file is uploaded and stored locally, but before variants are processed; after hooks are called when all variants have been processed.
+It is possible to 'hook' into the paperclip goings on when files are processed. This may be done by using the
+`before` and/or `after` configuration keys. Before hooks are called after the file is uploaded and stored locally,
+but before variants are processed; after hooks are called when all variants have been processed.
 
 More information and examples are in [the Config section](CONFIG.md).
 
@@ -222,7 +233,8 @@ public function someControllerAction(Request $request) {
 
 ### Setting attachments without uploads
 
-Usually, you will want to set an uploaded file as an attachment. If you want to store a file from within your application, without the context of a request or a file upload, you can use the following approach:
+Usually, you will want to set an uploaded file as an attachment. If you want to store a file from within your application,
+without the context of a request or a file upload, you can use the following approach:
 
 ```php
 <?php
@@ -277,16 +289,21 @@ All storage is performed through Laravel's storage solution.
 You can still use S3 (or any other storage disk), but you will have to configure it in Laravel's storage configuration first.
 It is possible to use different storage disks for different attachments.
 
-- Paperclip *might* show slightly different behavior when storing a `string` value on the attachment attribute. It will attempt to interpret the string as a URI (or a dataURI), and otherwise treat the string as raw text file content.
+- Paperclip *might* show slightly different behavior when storing a `string` value on the attachment attribute.
+It will attempt to interpret the string as a URI (or a dataURI), and otherwise treat the string as raw text file content.
 
-If you wish to force storing the contents of a URL without letting Paperclip interpret it, you have some options. You can use the `Czim\FileHandling\Storage\File\StorableFileFactory@makeFromUrl` method and its return value.
-Or, you can download the contents yourself and store them in a `Czim\FileHandling\Storage\File\RawStorableFile` (e.g.: `(new RawStorableFile)->setData(file_get_contents('your-URL-here'))`). You can also download the file to local disk, and store it on the model through an `\SplFileInfo` instance (see examples on the main readme page).
+If you wish to force storing the contents of a URL without letting Paperclip interpret it, you have some options.
+You can use the `Czim\FileHandling\Storage\File\StorableFileFactory@makeFromUrl` method and its return value.
+Or, you can download the contents yourself and store them in a `Czim\FileHandling\Storage\File\RawStorableFile`
+(e.g.: `(new RawStorableFile)->setData(file_get_contents('your-URL-here'))`).
+You can also download the file to local disk, and store it on the model through an `\SplFileInfo` instance (see examples on the main readme page).
 
 - The `convert_options` configuration settings are no longer available.
 Conversion options are now handled at the level of the variant strategies.
 You can set them per attachment configuration, or modify the variant strategy to use a custom global configuration.
 
-- The refresh command (`php artisan paperclip:refresh`) is very similar to stapler's refresh command, but it can optionally take a `--start #` and/or `--stop #` option, with ID numbers.
+- The refresh command (`php artisan paperclip:refresh`) is very similar to stapler's refresh command,
+- but it can optionally take a `--start #` and/or `--stop #` option, with ID numbers.
 This makes it possible to refresh only a subset of models.
 Under the hood, the refresh command is also much less likely to run out of memory (it uses a generator to process models in chunks).
 
@@ -337,7 +354,8 @@ Then, in your terminal run:
 composer update czim/laravel-paperclip --with-dependencies
 ```
 
-In addition, if you are using the `czim/file-handling` package directly, you should upgrade the package to its `^1,0` release, but be sure to checkout the [CHANGELOG](https://github.com/czim/file-handling/blob/master/CHANGELOG.md)
+In addition, if you are using the `czim/file-handling` package directly, you should upgrade the package
+to its `^1,0` release, but be sure to checkout the [CHANGELOG](https://github.com/czim/file-handling/blob/master/CHANGELOG.md)
 
 ```
 	"require": {
@@ -368,7 +386,8 @@ With:
         'variant'  => null,
 ```
 
-This should now include placeholders to make a full file path including the filename, as opposed to only a directory. Note that this makes the path interpolation logic more in line with the way Stapler handled it.
+This should now include placeholders to make a full file path including the filename, as opposed to only a directory.
+Note that this makes the path interpolation logic more in line with the way Stapler handled it.
 
 
 ## Contributing
