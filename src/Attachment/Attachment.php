@@ -904,8 +904,20 @@ class Attachment implements AttachmentInterface
             return [];
         }
 
+        $json = $this->instance->getAttribute("{$this->name}_variants") ?? '';
+
+        if (is_array($json)) {
+            return $json;
+        }
+
+        $json = trim($json);
+
+        if (empty($json)) {
+            return [];
+        }
+
         return json_decode(
-            $this->instance->getAttribute("{$this->name}_variants") ?? '',
+            $json,
             true,
             512,
             JSON_THROW_ON_ERROR
