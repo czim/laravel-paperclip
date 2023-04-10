@@ -124,7 +124,6 @@ class AttachmentData implements AttachmentDataInterface
     {
         if (
             ! array_key_exists($variant, $this->variants)
-            || ! is_array($this->variants[ $variant ])
             || ! array_key_exists('file_name', $this->variants[ $variant ])
         ) {
             return false;
@@ -140,7 +139,6 @@ class AttachmentData implements AttachmentDataInterface
     {
         if (
             ! array_key_exists($variant, $this->variants)
-            || ! is_array($this->variants[ $variant ])
             || ! array_key_exists('extension', $this->variants[ $variant ])
         ) {
             return false;
@@ -156,7 +154,6 @@ class AttachmentData implements AttachmentDataInterface
     {
         if (
             ! array_key_exists($variant, $this->variants)
-            || ! is_array($this->variants[ $variant ])
             || ! array_key_exists('content_type', $this->variants[ $variant ])
         ) {
             return false;
