@@ -27,7 +27,8 @@ and any of its (and your custom written) variant manipulations may be used with 
 | 5.8, 6        | 2.7      | 7.4 and below |
 | 7, 8          | 3.2      | 7.4 and below |
 | 7, 8, 9       | 4.0      | 8.0 and up    |
-| 9             | 5.0      | 8.1 and up    |
+| 9 and up      | 5.0      | 8.1 and up    |
+
 
 ## Change log
 
