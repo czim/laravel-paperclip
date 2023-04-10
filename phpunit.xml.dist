@@ -1,18 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          backupGlobals="false"
-         backupStaticAttributes="false"
          bootstrap="vendor/autoload.php"
          colors="true"
-         convertErrorsToExceptions="true"
-         convertNoticesToExceptions="true"
-         convertWarningsToExceptions="true"
-         printerClass="Czim\PHPUnitPrinter\PrettyPrinter"
          processIsolation="false"
          stopOnFailure="false"
-         xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/9.3/phpunit.xsd"
+         xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/10.0/phpunit.xsd"
+         cacheDirectory=".phpunit.cache" backupStaticProperties="false"
 >
-    <coverage processUncoveredFiles="true">
+    <coverage>
         <include>
             <directory suffix=".php">./src/</directory>
         </include>
@@ -21,9 +17,9 @@
     <testsuites>
         <testsuite name="Laravel Paperclip Test Suite">
             <directory suffix=".php">./tests/</directory>
+            <exclude>./tests/Helpers</exclude>
+            <exclude>./tests/ProvisionedTestCase.php</exclude>
+            <exclude>./tests/TestCase.php</exclude>
         </testsuite>
     </testsuites>
-
-    <php>
-    </php>
 </phpunit>
