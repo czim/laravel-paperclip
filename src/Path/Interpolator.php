@@ -278,12 +278,16 @@ class Interpolator implements InterpolatorInterface
      */
     protected function ensurePrintable(mixed $input): mixed
     {
-        if ( ! is_numeric($input) && ! ctype_print($input)) {
-            // Hash the input data with SHA-256 to represent as printable characters, with minimum chances
-            // of the uniqueness being lost.
-            return hash('sha256', $input);
+        if ($input === null) {
+            return $input;
         }
 
-        return $input;
+        if (is_numeric($input) || ctype_print($input)) {
+            return $input;
+        }
+
+        // Hash the input data with SHA-256 to represent as printable characters, with minimum chances
+        // of the uniqueness being lost.
+        return hash('sha256', $input);
     }
 }
