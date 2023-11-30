@@ -23,7 +23,7 @@ class AttachmentFactory implements AttachmentFactoryInterface
      */
     public function create(AttachableInterface $instance, string $name, array $config = []): AttachmentInterface
     {
-        $attachment = new Attachment;
+        $attachment = $this->createInstance();
 
         $configObject = $this->makeConfigObject($config);
 
@@ -34,6 +34,11 @@ class AttachmentFactory implements AttachmentFactoryInterface
         $attachment->setStorage($configObject->storageDisk());
 
         return $attachment;
+    }
+
+    protected function createInstance(): AttachmentInterface
+    {
+        return new Attachment();
     }
 
     /**
