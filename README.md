@@ -390,6 +390,7 @@ With:
 This should now include placeholders to make a full file path including the filename, as opposed to only a directory.
 Note that this makes the path interpolation logic more in line with the way Stapler handled it.
 
+Although this package implements most features from Stapler, there are a few key differences. [See the migration guide](MIGRATING.md) for more information
 
 ## Contributing
 
