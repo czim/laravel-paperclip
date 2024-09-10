@@ -2,9 +2,13 @@
 
 ## Laravel 9 and up
 
-### [5.0.1] - 2024-09-10
+### [5.0.5] - 2024-09-10
 
-Patched vulnerability from czim/file-handling package
+- Patched vulnerability from czim/file-handling package.
+- Extracted attachment instance creation in factory to improve extensibility.
+- Fixed printable check for null input in path interpolator.
+- Made json variants data handling more robust.
+- Laravel 10+ and PHPUnit 10+ support.
 
 ### [5.0.0] - 2022-10-31
 
@@ -211,7 +215,7 @@ See 2.5.2.
 
 This merges the changes for 2.5.0 and 2.5.1 in a new major version for Laravel 5.4 and earlier.
 
-[5.0.1]: https://github.com/czim/laravel-paperclip/compare/5.0.0...5.0.1
+[5.0.5]: https://github.com/czim/laravel-paperclip/compare/5.0.0...5.0.5
 [5.0.0]: https://github.com/czim/laravel-paperclip/compare/4.0.1...5.0.0
 
 [4.0.1]: https://github.com/czim/laravel-paperclip/compare/4.0.0...4.0.1
