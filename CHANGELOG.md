@@ -2,6 +2,12 @@
 
 ## Laravel 9 and up
 
+### [5.0.6] - 2024-09-16
+
+- Updated to require czim/file-handling package with security fix.
+  See [security update description](https://github.com/czim/file-handling/blob/master/SECURITY.md)
+  of that package for details.
+
 ### [5.0.5] - 2024-09-10
 
 - Patched vulnerability from czim/file-handling package.
@@ -215,6 +221,7 @@ See 2.5.2.
 
 This merges the changes for 2.5.0 and 2.5.1 in a new major version for Laravel 5.4 and earlier.
 
+[5.0.6]: https://github.com/czim/laravel-paperclip/compare/5.0.5...5.0.6
 [5.0.5]: https://github.com/czim/laravel-paperclip/compare/5.0.0...5.0.5
 [5.0.0]: https://github.com/czim/laravel-paperclip/compare/4.0.1...5.0.0
 
