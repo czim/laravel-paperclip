@@ -5,6 +5,7 @@ namespace Czim\Paperclip\Providers;
 use Czim\FileHandling\Contracts\Storage\StorableFileFactoryInterface;
 use Czim\FileHandling\Contracts\Support\ContentInterpreterInterface;
 use Czim\FileHandling\Contracts\Support\MimeTypeHelperInterface;
+use Czim\FileHandling\Contracts\Support\UriValidatorInterface;
 use Czim\FileHandling\Contracts\Support\UrlDownloaderInterface;
 use Czim\FileHandling\Contracts\Variant\VariantProcessorInterface;
 use Czim\FileHandling\Contracts\Variant\VariantStrategyFactoryInterface;
@@ -12,6 +13,7 @@ use Czim\FileHandling\Storage\File\StorableFileFactory;
 use Czim\FileHandling\Support\Container\LaravelContainerDecorator;
 use Czim\FileHandling\Support\Content\MimeTypeHelper;
 use Czim\FileHandling\Support\Content\UploadedContentInterpreter;
+use Czim\FileHandling\Support\Download\UriValidator;
 use Czim\FileHandling\Support\Download\UrlDownloader;
 use Czim\FileHandling\Variant\VariantProcessor;
 use Czim\FileHandling\Variant\VariantStrategyFactory;
@@ -89,6 +91,7 @@ class PaperclipServiceProvider extends ServiceProvider
         $this->app->singleton(MimeTypeHelperInterface::class, MimeTypeHelper::class);
         $this->app->singleton(ContentInterpreterInterface::class, UploadedContentInterpreter::class);
         $this->app->singleton(UrlDownloaderInterface::class, UrlDownloader::class);
+        $this->app->singleton(UriValidatorInterface::class, UriValidator::class);
         $this->app->singleton(InterpolatorInterface::class, Interpolator::class);
 
         return $this;
