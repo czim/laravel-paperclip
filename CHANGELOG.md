@@ -40,6 +40,12 @@ after upgrading!
 
 ## Laravel 8 and 9
 
+### [4.0.2] - 2024-09-18
+
+- Updated to require czim/file-handling package with security fix.
+  See [security update description](https://github.com/czim/file-handling/blob/master/SECURITY.md)
+  of that package for details.
+
 ### [4.0.1] - 2022-07-14
 
 Fixed return value for setAttribute not matching Eloquent internals (wimski).
@@ -225,6 +231,7 @@ This merges the changes for 2.5.0 and 2.5.1 in a new major version for Laravel 5
 [5.0.5]: https://github.com/czim/laravel-paperclip/compare/5.0.0...5.0.5
 [5.0.0]: https://github.com/czim/laravel-paperclip/compare/4.0.1...5.0.0
 
+[4.0.2]: https://github.com/czim/laravel-paperclip/compare/4.0.1...4.0.2
 [4.0.1]: https://github.com/czim/laravel-paperclip/compare/4.0.0...4.0.1
 [4.0.0]: https://github.com/czim/laravel-paperclip/compare/3.2.1...4.0.0
 
