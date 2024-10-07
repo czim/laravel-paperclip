@@ -143,6 +143,8 @@ Since version `2.5.7` it is also possible to use an easier to use fluent object 
     use \Czim\Paperclip\Config\Variant;
     use \Czim\Paperclip\Config\Steps\AutoOrientStep;
     use \Czim\Paperclip\Config\Steps\ResizeStep;
+    use \Czim\Paperclip\Config\Steps\WatermarkStep;
+    use Czim\FileHandling\Variant\Strategies\ImageWatermarkStrategy;
 
     // ...
 
@@ -153,6 +155,7 @@ Since version `2.5.7` it is also possible to use an easier to use fluent object 
                 ResizeStep::make()->width(300)->height(150)->crop(),
             ]),
             Variant::make('medium')->steps(ResizeStep::make()->square(100)),
+            WatermarkStep::make()->position(ImageWatermarkStrategy::POSITION_BOTTOM_LEFT)->path(storage_path('app/watermark.png')),
         ],
     ]);
 ```
